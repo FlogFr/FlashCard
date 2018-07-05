@@ -10,11 +10,10 @@ module Lib
     ( runApp
     , Lib.Word
     , initConnectionPool
-    , wordAPI
     , WordAPI
-    , writeSwaggerJSON
     ) where
 
+import Control.Lens
 import Data.ByteString (ByteString)
 import Data.Aeson
 import Data.Aeson.TH
@@ -46,7 +45,17 @@ data Word = Word
   } deriving (Eq, Generic, Show)
 
 instance ToSchema Lib.Word
-$(deriveJSON defaultOptions ''Lib.Word)
+instance ToJSON Lib.Word
+instance FromJSON Lib.Word
+
+data User = User
+  { name :: String
+  , age :: Int
+  , email :: String
+  } deriving (Eq, Show, Generic)
+
+instance ToSchema Lib.User
+instance ToJSON User
 
 initConnectionPool :: DBConnectionString -> IO (Pool Connection)
 initConnectionPool connStr =
@@ -59,18 +68,29 @@ initConnectionPool connStr =
 
 type DBConnectionString = String
 
-wordAPI :: Proxy WordAPI
-wordAPI = Proxy
+-- | API for the users
+type UsersAPI = Get '[JSON] [User]
 
 -- | API for the words
-type WordAPI = "words" :> Get '[JSON] [Lib.Word]
-          :<|> "words" :> ReqBody '[JSON] Lib.Word :> Post '[JSON] NoContent
+type WordAPI = Get '[JSON] [Lib.Word]
+          :<|> ReqBody '[JSON] Lib.Word :> Post '[JSON] NoContent
 
 -- | API for serving @swagger.json@.
 type SwaggerAPI = "swagger.json" :> Get '[JSON] Swagger
 
+-- | API for all objects
+type CombinedAPI = "users" :> UsersAPI
+              :<|> "words" :> WordAPI
+
 -- | Combined API of a Todo service with Swagger documentation.
-type API = WordAPI :<|> SwaggerAPI
+type API = CombinedAPI
+      :<|> SwaggerSchemaUI "swagger-ui" "swagger.json"
+
+users1 :: [User]
+users1 =
+  [ User "Isaac Newton"    372 "isaac@newton.co.uk"
+  , User "Albert Einstein" 136 "ae@mc2.org"
+  ]
 
 wordConstructor :: (Int, String, String, String, Int) -> Lib.Word
 wordConstructor (wordId, wordLanguage, wordWord, wordDefinition, wordDifficulty) =
@@ -81,17 +101,12 @@ pgRetrieveWords conn = do
   listWords <- getWords conn
   return $ map wordConstructor listWords
 
--- | Swagger spec for Todo API.
-wordSwagger :: Swagger
-wordSwagger = toSwagger wordAPI
-
--- | Output generated @swagger.json@ file for the @'TodoAPI'@.
-writeSwaggerJSON :: IO ()
-writeSwaggerJSON = BL8.writeFile "example/swagger.json" (encodePretty wordSwagger)
+usersServer :: Server UsersAPI
+usersServer = return users1
 
 wordServer :: Pool Connection -> Server WordAPI
 wordServer conns = retrieveWords
-          :<|> postWord
+              :<|> postWord
 
   where retrieveWords :: Handler [Lib.Word]
         retrieveWords = do
@@ -112,9 +127,24 @@ wordServer conns = retrieveWords
               return ()
           return NoContent
 
+combinedServer :: Pool Connection -> Server API
+combinedServer conns = (usersServer :<|> (wordServer conns)) :<|> swaggerSchemaUIServer apiSwagger
 
-server :: Pool Connection -> Server WordAPI
-server conns = wordServer conns
+api :: Proxy API
+api = Proxy
+
+-- | Swagger spec for Todo API.
+apiSwagger :: Swagger
+apiSwagger = toSwagger (Proxy :: Proxy CombinedAPI)
+  & info.title        .~ "OuiCook API"
+  & info.version      .~ "1.0"
+  & info.description  ?~ "OuiCook is 100% API driven"
+  & info.license      ?~ "MIT"
+  -- & host              ?~ "example.com"
+
+app :: Pool Connection -> Application
+app conns = serve api (combinedServer conns)
 
 runApp :: Pool Connection -> IO ()
-runApp conns = Network.Wai.Handler.Warp.run 8080 (serve wordAPI $ server conns)
+runApp conns = do
+  Network.Wai.Handler.Warp.run 8080 (app conns)

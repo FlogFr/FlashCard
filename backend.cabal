@@ -24,6 +24,7 @@ library
                      , servant-swagger
                      , servant-swagger-ui
                      , swagger2
+                     , lens
                      , wai
                      , warp
                      , containers

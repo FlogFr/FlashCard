@@ -45,7 +45,7 @@
         }
     },
     "paths": {
-        "/words": {
+        "/": {
             "post": {
                 "consumes": [
                     "application/json;charset=utf-8"
