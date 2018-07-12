@@ -1,10 +1,16 @@
-{-# LANGUAGE TemplateHaskell #-}
 {-# LANGUAGE DataKinds                  #-}
-{-# LANGUAGE DeriveDataTypeable         #-}
 {-# LANGUAGE DeriveGeneric              #-}
-{-# LANGUAGE GeneralizedNewtypeDeriving #-}
+{-# LANGUAGE FlexibleContexts           #-}
+{-# LANGUAGE FlexibleInstances          #-}
+{-# LANGUAGE MultiParamTypeClasses      #-}
 {-# LANGUAGE OverloadedStrings          #-}
+{-# LANGUAGE ScopedTypeVariables        #-}
+{-# LANGUAGE TypeFamilies               #-}
 {-# LANGUAGE TypeOperators              #-}
+{-# LANGUAGE UndecidableInstances       #-}
+{-# LANGUAGE DeriveDataTypeable         #-}
+{-# LANGUAGE GeneralizedNewtypeDeriving #-}
+{-# LANGUAGE TemplateHaskell            #-}
 
 module Lib
     ( runApp
@@ -29,8 +35,11 @@ import Control.Exception (bracket)
 import Database.YeshQL
 import Queries (getWords, insertWord)
 import qualified Data.ByteString.Lazy.Char8 as BL8
+import Servant.API ((:<|>) ((:<|>)), (:>), BasicAuth, Get, JSON)
+import Servant.API.BasicAuth (BasicAuthData (BasicAuthData))
 import GHC.Generics
 import Servant
+import Servant.Server
 import Servant.Swagger
 import Servant.Swagger.UI
 
@@ -49,13 +58,31 @@ instance ToJSON Lib.Word
 instance FromJSON Lib.Word
 
 data User = User
-  { name :: String
-  , age :: Int
-  , email :: String
+  { userId :: Int
+  , userName :: String
   } deriving (Eq, Show, Generic)
 
 instance ToSchema Lib.User
 instance ToJSON User
+
+userFlog :: User
+userFlog = (User 1 "flog")
+
+-- | 'BasicAuthCheck' holds the handler we'll use to verify a username and password.
+authCheck :: BasicAuthCheck User
+authCheck =
+  let check (BasicAuthData username password) =
+        if username == "flog" && password == "flog"
+        then return (Authorized (userFlog))
+        else return Unauthorized
+  in BasicAuthCheck check
+
+-- | We need to supply our handlers with the right Context. In this case,
+-- Basic Authentication requires a Context Entry with the 'BasicAuthCheck' value
+-- tagged with "foo-tag" This context is then supplied to 'server' and threaded
+-- to the BasicAuth HasServer handlers.
+basicAuthServerContext :: Servant.Server.Context (BasicAuthCheck User ': '[])
+basicAuthServerContext = authCheck :. EmptyContext
 
 initConnectionPool :: DBConnectionString -> IO (Pool Connection)
 initConnectionPool connStr =
@@ -69,7 +96,7 @@ initConnectionPool connStr =
 type DBConnectionString = String
 
 -- | API for the users
-type UsersAPI = Get '[JSON] [User]
+type UsersAPI = Get '[JSON] User
 
 -- | API for the words
 type WordAPI = Get '[JSON] [Lib.Word]
@@ -83,14 +110,8 @@ type CombinedAPI = "users" :> UsersAPI
               :<|> "words" :> WordAPI
 
 -- | Combined API of a Todo service with Swagger documentation.
-type API = CombinedAPI
+type API = BasicAuth "words-realm" User :> CombinedAPI
       :<|> SwaggerSchemaUI "swagger-ui" "swagger.json"
-
-users1 :: [User]
-users1 =
-  [ User "Isaac Newton"    372 "isaac@newton.co.uk"
-  , User "Albert Einstein" 136 "ae@mc2.org"
-  ]
 
 wordConstructor :: (Int, String, String, String, Int) -> Lib.Word
 wordConstructor (wordId, wordLanguage, wordWord, wordDefinition, wordDifficulty) =
@@ -102,7 +123,7 @@ pgRetrieveWords conn = do
   return $ map wordConstructor listWords
 
 usersServer :: Server UsersAPI
-usersServer = return users1
+usersServer = return userFlog
 
 wordServer :: Pool Connection -> Server WordAPI
 wordServer conns = retrieveWords
@@ -127,8 +148,13 @@ wordServer conns = retrieveWords
               return ()
           return NoContent
 
-combinedServer :: Pool Connection -> Server API
-combinedServer conns = (usersServer :<|> (wordServer conns)) :<|> swaggerSchemaUIServer apiSwagger
+combinedServer :: Pool Connection -> Server CombinedAPI
+combinedServer conns = (usersServer :<|> (wordServer conns))
+
+apiServer :: Pool Connection -> Server API
+apiServer conns =
+  let authCombinedServer (user :: User) = (combinedServer conns)
+  in  (authCombinedServer :<|> swaggerSchemaUIServer apiSwagger)
 
 api :: Proxy API
 api = Proxy
@@ -143,7 +169,7 @@ apiSwagger = toSwagger (Proxy :: Proxy CombinedAPI)
   -- & host              ?~ "example.com"
 
 app :: Pool Connection -> Application
-app conns = serve api (combinedServer conns)
+app conns = serveWithContext api basicAuthServerContext (apiServer conns)
 
 runApp :: Pool Connection -> IO ()
 runApp conns = do
