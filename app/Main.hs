@@ -1,6 +1,7 @@
 module Main where
 
 import Lib
+import PostgreSQL
 
 main :: IO ()
 main = do
