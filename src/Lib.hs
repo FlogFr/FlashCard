@@ -13,6 +13,7 @@
 
 module Lib
     ( runApp
+    , CombinedAPI
     ) where
 
 import Control.Lens

@@ -18,6 +18,7 @@ import Data.Swagger
 import GHC.Generics
 import Control.Monad.IO.Class (liftIO)
 import Servant.API ((:<|>) ((:<|>)), (:>), BasicAuth, Get, Post, ReqBody, JSON, NoContent(..))
+import Servant.Elm (ElmType)
 import Database.HDBC (commit)
 import Database.HDBC.PostgreSQL (Connection, begin)
 import Servant.Server (Server, Handler)
@@ -34,6 +35,11 @@ data Word = Word
   , wordDifficulty  :: Maybe Int
   } deriving (Eq, Generic, Show)
 
+instance ToSchema Word
+instance ToJSON Word
+instance FromJSON Word
+instance ElmType Word
+
 wordConstructor :: (Int, String, String, String, Int) -> Word
 wordConstructor (wordId, wordLanguage, wordWord, wordDefinition, wordDifficulty) =
   Word wordId wordLanguage wordWord [] wordDefinition (Just wordDifficulty)
@@ -42,11 +48,6 @@ pgRetrieveWords :: Connection -> IO [Word]
 pgRetrieveWords conn = do
   listWords <- getWords conn
   return $ map wordConstructor listWords
-
-instance ToSchema Word
-instance ToJSON Word
-instance FromJSON Word
-
 
 -- | API for the words
 type WordAPI = Get '[JSON] [Word]
