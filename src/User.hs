@@ -12,6 +12,7 @@ module User
 import Data.Swagger
 import Data.Aeson
 import GHC.Generics
+import Servant.Elm (ElmType)
 import Servant.API (Get, JSON)
 import Servant.Server (Server)
 
@@ -22,6 +23,7 @@ data User = User
 
 instance ToSchema User
 instance ToJSON User
+instance ElmType User
 
 userFlog :: User
 userFlog = (User 1 "flog")

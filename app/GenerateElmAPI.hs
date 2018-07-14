@@ -16,7 +16,7 @@ spec = Spec ["Generated", "MyAPI"]
             (defElmImports
              : toElmTypeSource    (Proxy :: Proxy Word)
              : toElmDecoderSource (Proxy :: Proxy Word)
-             : generateElmForAPI  (Proxy :: Proxy WordAPI))
+             : generateElmForAPI  (Proxy :: Proxy CombinedAPI))
 
 main :: IO ()
 main = do
