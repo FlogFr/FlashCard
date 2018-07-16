@@ -1,6 +1,6 @@
--- name:getWords :: [(Int, String, String, String, Int)]
+-- name:getWords :: [(Int, String, String, String, MaybeInt)]
 SELECT
-  id, COALESCE(language, 'EN'), word, COALESCE(definition, 'def'), COALESCE(difficulty, 0)
+  id, COALESCE(language, 'EN'), word, COALESCE(definition, 'def'), difficulty
 FROM
   words
 ;;;

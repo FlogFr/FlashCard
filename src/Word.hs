@@ -26,6 +26,10 @@ import Database.YeshQL (yeshFile)
 
 [yeshFile|src/Queries.sql|]
 
+type MaybeInt = Maybe Int
+type MaybeString = Maybe [String]
+type MaybeStringArr = Maybe [String]
+
 data Word = Word
   { wordId          :: Int
   , wordLanguage    :: String
@@ -35,14 +39,15 @@ data Word = Word
   , wordDifficulty  :: Maybe Int
   } deriving (Eq, Generic, Show)
 
+
 instance ToSchema Word
 instance ToJSON Word
 instance FromJSON Word
 instance ElmType Word
 
-wordConstructor :: (Int, String, String, String, Int) -> Word
+wordConstructor :: (Int, String, String, String, Maybe Int) -> Word
 wordConstructor (wordId, wordLanguage, wordWord, wordDefinition, wordDifficulty) =
-  Word wordId wordLanguage wordWord [] wordDefinition (Just wordDifficulty)
+  Word wordId wordLanguage wordWord [] wordDefinition wordDifficulty
 
 pgRetrieveWords :: Connection -> IO [Word]
 pgRetrieveWords conn = do
