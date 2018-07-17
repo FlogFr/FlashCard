@@ -35,6 +35,7 @@ import Servant.Swagger
 import Servant.Swagger.UI
 
 import Auth
+import API ( userServer , UserAPI , pgRetrieveWords , WordAPI , wordServer)
 import User
 import Word
 
@@ -49,12 +50,12 @@ type CombinedAPI = "users" :> UserAPI
 type API = BasicAuth "words-realm" User :> CombinedAPI
       :<|> SwaggerSchemaUI "swagger-ui" "swagger.json"
 
-combinedServer :: Pool Connection -> Server CombinedAPI
-combinedServer conns = (userServer :<|> (wordServer conns))
+combinedServer :: User -> Pool Connection -> Server CombinedAPI
+combinedServer user conns = ( (userServer user) :<|> (wordServer conns) )
 
 apiServer :: Pool Connection -> Server API
 apiServer conns =
-  let authCombinedServer (user :: User) = (combinedServer conns)
+  let authCombinedServer (user :: User) = (combinedServer user conns)
   in  (authCombinedServer :<|> swaggerSchemaUIServer apiSwagger)
 
 api :: Proxy API

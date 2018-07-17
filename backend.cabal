@@ -21,9 +21,11 @@ library
                      , PostgreSQL
                      , Word
                      , User
+                     , API
   build-depends:       base >= 4.7 && < 5
                      , aeson
                      , aeson-pretty
+                     , utf8-string
                      , servant >= 0.5
                      , servant-server
                      , servant-swagger
