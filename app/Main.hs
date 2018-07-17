@@ -1,6 +1,6 @@
 module Main where
 
-import Lib
+import API
 import PostgreSQL
 
 main :: IO ()

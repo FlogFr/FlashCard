@@ -6,8 +6,7 @@
 module GenerateElmAPI where
 
 import Prelude hiding (Word)
-import Lib (CombinedAPI)
-import API ( userServer , UserAPI , pgRetrieveWords , WordAPI , wordServer)
+import API (CombinedAPI, userServer , UserAPI , pgRetrieveWords , WordAPI , wordServer)
 import Word
 import User
 import Elm (Spec (Spec), specsToDir, toElmDecoderSource, toElmTypeSource)

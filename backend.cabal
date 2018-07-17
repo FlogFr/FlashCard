@@ -16,12 +16,11 @@ cabal-version:       >=1.10
 
 library
   hs-source-dirs:      src
-  exposed-modules:     Lib
+  exposed-modules:     API
                      , Auth
                      , PostgreSQL
                      , Word
                      , User
-                     , API
   build-depends:       base >= 4.7 && < 5
                      , aeson
                      , aeson-pretty

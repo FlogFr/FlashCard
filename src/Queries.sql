@@ -10,10 +10,13 @@ WHERE
   AND password = :userPassword
 ;;;
 -- name:getWords :: [(Int, String, String, String, MaybeInt)]
+-- :user :: User
 SELECT
   id, COALESCE(language, 'EN'), word, COALESCE(definition, 'def'), difficulty
 FROM
   words
+WHERE
+  userid = :user.userid
 ;;;
 -- name:insertWord :: (Integer)
 -- :wordLanguage :: String
