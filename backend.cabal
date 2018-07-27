@@ -30,6 +30,8 @@ library
                      , servant-swagger
                      , servant-swagger-ui
                      , servant-elm
+                     , wai-extra
+                     , wai-cors >= 0.2.6
                      , swagger2
                      , lens
                      , wai
@@ -40,7 +42,8 @@ library
                      , bytestring >= 0.10.8.2
                      , HDBC >= 2.4.0.2
                      , HDBC-postgresql >= 2.3.2.5
-                     , yeshql >= 3.0.1.3
+                     , yeshql >= 4.1.0.1
+                     , yeshql-hdbc >= 4.1.0.1
   default-language:    Haskell2010
 
 executable backend-exe
@@ -58,6 +61,7 @@ executable generate-elm-api
   build-depends:       base
                      , backend
                      , elm-export
+                     , servant >= 0.5
                      , servant-elm
   default-language:    Haskell2010
 

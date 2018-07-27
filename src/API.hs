@@ -18,7 +18,6 @@ module API
   , CombinedAPI
   , userServer
   , UserAPI
-  , pgRetrieveWords
   , WordAPI
   , wordServer
   )
@@ -33,17 +32,17 @@ import Control.Lens
 import Control.Monad.IO.Class (liftIO)
 import Servant.API ((:<|>) ((:<|>)), (:>), BasicAuth, Get, Post, ReqBody, JSON, NoContent(..))
 import Servant.API.BasicAuth (BasicAuthData (BasicAuthData))
-import Servant.Elm (ElmType)
 import Database.HDBC (commit)
 import Database.HDBC.PostgreSQL (Connection, begin)
 import Network.Wai
 import Network.Wai.Handler.Warp
+import Network.Wai.Middleware.Cors
+import Network.Wai.Middleware.RequestLogger (logStdoutDev)
 import Servant
 import Servant.Server
 import Servant.Swagger
 import Servant.Swagger.UI
-import Database.YeshQL (yeshFile)
-import PostgreSQL (getWords, insertWord)
+import PostgreSQL (getAllWords, getLastWords, insertWord)
 import Word (Word(..), wordConstructor)
 import User (User(..))
 import Auth
@@ -55,25 +54,41 @@ userServer user = return user
 -- | API for the users
 type UserAPI = Get '[JSON] User
 
-pgRetrieveWords :: User -> Connection -> IO [Word]
-pgRetrieveWords user conn = do
-  listWords <- getWords user conn
+pgRetrieveAllWords :: User -> Connection -> IO [Word]
+pgRetrieveAllWords user conn = do
+  listWords <- getAllWords user conn
+  return $ map wordConstructor listWords
+
+pgRetrieveLastWords :: User -> Connection -> IO [Word]
+pgRetrieveLastWords user conn = do
+  listWords <- getLastWords user conn
   return $ map wordConstructor listWords
 
 -- | API for the words
-type WordAPI = Get '[JSON] [Word]
+type WordAPI = "all" :> Get '[JSON] [Word]
+          :<|> "last" :> Get '[JSON] [Word]
           :<|> ReqBody '[JSON] Word :> Post '[JSON] NoContent
 
 wordServer :: User -> Pool Connection -> Server WordAPI
-wordServer user conns = retrieveWords
-              :<|> postWord
+wordServer user conns = retrieveAllWords
+                   :<|> retrieveLastWords
+                   :<|> postWord
 
-  where retrieveWords :: Handler [Word]
-        retrieveWords = do
+  where retrieveAllWords :: Handler [Word]
+        retrieveAllWords = do
           liftIO $ 
             withResource conns $ \conn -> do
               begin conn
-              words <- pgRetrieveWords user conn
+              words <- pgRetrieveAllWords user conn
+              commit conn
+              return words
+
+        retrieveLastWords :: Handler [Word]
+        retrieveLastWords = do
+          liftIO $ 
+            withResource conns $ \conn -> do
+              begin conn
+              words <- pgRetrieveLastWords user conn
               commit conn
               return words
 
@@ -92,7 +107,7 @@ wordServer user conns = retrieveWords
 type SwaggerAPI = "swagger.json" :> Get '[JSON] Swagger
 
 -- | API for all objects
-type CombinedAPI = "users" :> UserAPI
+type CombinedAPI = "user" :> UserAPI
               :<|> "words" :> WordAPI
 
 -- | Combined API of a Todo service with Swagger documentation.
@@ -121,6 +136,18 @@ apiSwagger = toSwagger (Proxy :: Proxy CombinedAPI)
 app :: Pool Connection -> Application
 app conns = serveWithContext api basicAuthServerContext (apiServer conns)
 
+corsPolicy :: CorsResourcePolicy
+corsPolicy = CorsResourcePolicy {
+    corsOrigins = Nothing
+  , corsMethods = corsMethods simpleCorsResourcePolicy
+  , corsRequestHeaders =["Authorization", "Content-Type"]
+  , corsExposedHeaders = corsExposedHeaders simpleCorsResourcePolicy
+  , corsMaxAge = corsMaxAge simpleCorsResourcePolicy
+  , corsVaryOrigin = corsVaryOrigin simpleCorsResourcePolicy
+  , corsRequireOrigin = False
+  , corsIgnoreFailures = corsIgnoreFailures simpleCorsResourcePolicy
+}
+
 runApp :: Pool Connection -> IO ()
 runApp conns = do
-  Network.Wai.Handler.Warp.run 8080 (app conns)
+  Network.Wai.Handler.Warp.run 8080 (logStdoutDev . (cors $ const $ Just corsPolicy) $ (app conns))

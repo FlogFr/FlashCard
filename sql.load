@@ -1,0 +1,20 @@
+LOAD CSV  
+   FROM '/home/arkadefr/Projects/words/words.csv'
+            HAVING FIELDS (
+                   language, word, definition
+            )
+   INTO postgresql:///words?tablename=words
+            TARGET COLUMNS (
+                language, word, definition
+            )
+
+WITH truncate,  
+    skip header = 1,  
+    fields optionally enclosed by '"',  
+    fields escaped by double-quote,  
+    fields terminated by ','  
+
+SET client_encoding to 'latin1',  
+    work_mem to '12MB',  
+    standard_conforming_strings to 'on'  
+;

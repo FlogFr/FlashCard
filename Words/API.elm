@@ -1,4 +1,4 @@
-module Generated.MyAPI exposing (..)
+module API exposing (..)
 
 import Json.Decode exposing (..)
 import Json.Decode.Pipeline exposing (..)
@@ -11,10 +11,11 @@ type alias Word =
     { wordId : Int
     , wordLanguage : String
     , wordWord : String
-    , wordKeywords : List (String)
+    , wordKeywords : List String
     , wordDefinition : String
-    , wordDifficulty : Maybe (Int)
+    , wordDifficulty : Maybe Int
     }
+
 
 encodeWord : Word -> Json.Encode.Value
 encodeWord x =
@@ -27,6 +28,7 @@ encodeWord x =
         , ( "wordDifficulty", (Maybe.withDefault Json.Encode.null << Maybe.map Json.Encode.int) x.wordDifficulty )
         ]
 
+
 decodeWord : Decoder Word
 decodeWord =
     decode Word
@@ -37,11 +39,13 @@ decodeWord =
         |> required "wordDefinition" string
         |> required "wordDifficulty" (maybe int)
 
+
 type alias User =
     { userid : Int
     , username : String
     , userpassword : String
     }
+
 
 decodeUser : Decoder User
 decodeUser =
@@ -50,19 +54,21 @@ decodeUser =
         |> required "username" string
         |> required "userpassword" string
 
+
 type NoContent
     = NoContent
 
-getUser : Http.Request (User)
-getUser =
+
+getUser : List Http.Header -> Http.Request User
+getUser headers =
     Http.request
         { method =
             "GET"
         , headers =
-            []
+            headers
         , url =
             String.join "/"
-                [ ""
+                [ "http://127.1:8080"
                 , "user"
                 ]
         , body =
@@ -75,17 +81,19 @@ getUser =
             False
         }
 
-getWords : Http.Request (List (Word))
-getWords =
+
+getWordsAll : List Http.Header -> Http.Request (List Word)
+getWordsAll headers =
     Http.request
         { method =
             "GET"
         , headers =
-            []
+            headers
         , url =
             String.join "/"
-                [ ""
+                [ "http://127.1:8080"
                 , "words"
+                , "all"
                 ]
         , body =
             Http.emptyBody
@@ -97,16 +105,41 @@ getWords =
             False
         }
 
-postWords : Word -> Http.Request (NoContent)
-postWords body =
+
+getWordsLast : List Http.Header -> Http.Request (List Word)
+getWordsLast headers =
+    Http.request
+        { method =
+            "GET"
+        , headers =
+            headers
+        , url =
+            String.join "/"
+                [ "http://127.1:8080"
+                , "words"
+                , "last"
+                ]
+        , body =
+            Http.emptyBody
+        , expect =
+            Http.expectJson (list decodeWord)
+        , timeout =
+            Nothing
+        , withCredentials =
+            False
+        }
+
+
+postWords : List Http.Header -> Word -> Http.Request NoContent
+postWords headers body =
     Http.request
         { method =
             "POST"
         , headers =
-            []
+            headers
         , url =
             String.join "/"
-                [ ""
+                [ "http://127.1:8080"
                 , "words"
                 ]
         , body =

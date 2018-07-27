@@ -1,0 +1,5 @@
+%syntax-version=1.0.0
+%project=words
+
+0001-words 2018-02-05T21:59:14Z aRkadeFR <contact@arkade.info> # Schema for words
+0002-users 2018-07-16T07:41:01Z aRkadeFR <contact@arkade.info> # Add 0002-users deploy change

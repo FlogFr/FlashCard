@@ -1,4 +1,4 @@
-module Generated.MyAPI exposing (..)
+module API exposing (..)
 
 import Json.Decode exposing (..)
 import Json.Decode.Pipeline exposing (..)
@@ -75,8 +75,8 @@ getUser =
             False
         }
 
-getWords : Http.Request (List (Word))
-getWords =
+getWordsAll : Http.Request (List (Word))
+getWordsAll =
     Http.request
         { method =
             "GET"
@@ -86,6 +86,30 @@ getWords =
             String.join "/"
                 [ ""
                 , "words"
+                , "all"
+                ]
+        , body =
+            Http.emptyBody
+        , expect =
+            Http.expectJson (list decodeWord)
+        , timeout =
+            Nothing
+        , withCredentials =
+            False
+        }
+
+getWordsLast : Http.Request (List (Word))
+getWordsLast =
+    Http.request
+        { method =
+            "GET"
+        , headers =
+            []
+        , url =
+            String.join "/"
+                [ ""
+                , "words"
+                , "last"
                 ]
         , body =
             Http.emptyBody

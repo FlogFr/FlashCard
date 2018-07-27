@@ -9,7 +9,7 @@ WHERE
       username = :userName
   AND password = :userPassword
 ;;;
--- name:getWords :: [(Int, String, String, String, MaybeInt)]
+-- name:getAllWords :: [(Int, String, String, String, MaybeInt)]
 -- :user :: User
 SELECT
   id, COALESCE(language, 'EN'), word, COALESCE(definition, 'def'), difficulty
@@ -17,6 +17,19 @@ FROM
   words
 WHERE
   userid = :user.userid
+;;;
+-- name:getLastWords :: [(Int, String, String, String, MaybeInt)]
+-- :user :: User
+SELECT
+  id, COALESCE(language, 'EN'), word, COALESCE(definition, 'def'), difficulty
+FROM
+  words
+WHERE
+  userid = :user.userid
+ORDER BY
+  id DESC
+LIMIT
+  5
 ;;;
 -- name:insertWord :: (Integer)
 -- :wordLanguage :: String
