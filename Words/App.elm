@@ -4,6 +4,7 @@ import Navigation exposing (Location)
 import Util exposing ((=>))
 import Http
 import Task exposing (..)
+import Json.Decode as Decode exposing (Value)
 import Html exposing (..)
 import Route exposing (Route)
 import Request exposing (..)
@@ -15,6 +16,7 @@ import Page.NotFound as NotFound
 import Data.Session exposing (Session)
 import Request exposing (..)
 import API exposing (..)
+import Ports exposing (..)
 
 
 type Page
@@ -29,21 +31,25 @@ type Page
 
 
 type alias Model =
-    { session :
-        Session
-        -- , localStorage : LocalStorage msg
+    { session : Session
     , page : Page
     }
 
 
-init : Location -> ( Model, Cmd Msg )
-init location =
+init : Value -> Location -> ( Model, Cmd Msg )
+init val location =
     setRoute (Route.fromLocation location)
-        { session =
-            { user = Nothing }
-            -- , localStorage = make ports ""
+        { session = { user = decodeUserFromJson val }
         , page = NotFound
         }
+
+
+decodeUserFromJson : Value -> Maybe User
+decodeUserFromJson json =
+    json
+        |> Decode.decodeValue Decode.string
+        |> Result.toMaybe
+        |> Maybe.andThen (Decode.decodeString decodeUser >> Result.toMaybe)
 
 
 
@@ -176,9 +182,9 @@ setRoute maybeRoute model =
 -- MAIN --
 
 
-main : Program Never Model Msg
+main : Program Value Model Msg
 main =
-    Navigation.program (Route.fromLocation >> SetRoute)
+    Navigation.programWithFlags (Route.fromLocation >> SetRoute)
         { init = init
         , view = view
         , update = update

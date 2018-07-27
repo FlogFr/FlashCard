@@ -4,4 +4,4 @@ serve:
 
 .PHONY: live
 live:
-	elm-live Words/App.elm --pushstate --open --debug
+	elm-live --output=elm.js Words/App.elm --pushstate --open --debug

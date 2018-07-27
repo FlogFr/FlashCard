@@ -8,6 +8,7 @@ import Request exposing (..)
 import Html exposing (..)
 import Html.Events exposing (..)
 import Html.Attributes exposing (attribute, placeholder, type_, action)
+import Data.User exposing (storeSession)
 import Debug
 
 
@@ -85,7 +86,7 @@ update msg model =
 
         LoginCompletedMsg (Ok user) ->
             model
-                => Cmd.batch [ Route.modifyUrl Route.Home ]
+                => Cmd.batch [ storeSession user, Route.modifyUrl Route.Home ]
                 => SetUser user
 
         LoginCompletedMsg (Err error) ->
