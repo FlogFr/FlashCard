@@ -10,16 +10,7 @@ import API exposing (..)
 
 storeSession : User -> Cmd msg
 storeSession user =
-    userEncode user
+    encodeUser user
         |> Encode.encode 0
         |> Just
         |> Ports.storeSession
-
-
-userEncode : User -> Value
-userEncode user =
-    Encode.object
-        [ "userid" => Encode.int user.userid
-        , "username" => Encode.string user.username
-        , "userpassword" => Encode.string user.userpassword
-        ]

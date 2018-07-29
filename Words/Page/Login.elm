@@ -9,6 +9,8 @@ import Html exposing (..)
 import Html.Events exposing (..)
 import Html.Attributes exposing (attribute, placeholder, type_, action)
 import Data.User exposing (storeSession)
+import Data.Session exposing (..)
+import Views.Forms exposing (..)
 import Debug
 
 
@@ -43,19 +45,13 @@ type Msg
 
 type ExternalMsg
     = NoOp
-    | SetUser User
+    | SetAuthUser AuthUser
 
 
 view : Model -> Html Msg
 view model =
     div []
-        [ form
-            [ onSubmit LoginTryMsg, action "javascript:void(0);" ]
-            [ input [ onInput TypeLoginMsg, placeholder "login" ] []
-            , input [ onInput TypePasswordMsg, placeholder "password", attribute "type" "password" ] []
-            , button [ type_ "submit" ] [ text "log-in" ]
-            ]
-        ]
+        [ viewFormLogin LoginTryMsg TypeLoginMsg TypePasswordMsg ]
 
 
 
@@ -87,7 +83,7 @@ update msg model =
         LoginCompletedMsg (Ok user) ->
             model
                 => Cmd.batch [ storeSession user, Route.modifyUrl Route.Home ]
-                => SetUser user
+                => SetAuthUser (AuthUser (.userid user) (.username model) (.userpassword model))
 
         LoginCompletedMsg (Err error) ->
             model

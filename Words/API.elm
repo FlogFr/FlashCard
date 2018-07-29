@@ -43,8 +43,15 @@ decodeWord =
 type alias User =
     { userid : Int
     , username : String
-    , userpassword : String
     }
+
+
+encodeUser : User -> Json.Encode.Value
+encodeUser x =
+    Json.Encode.object
+        [ ( "userid", Json.Encode.int x.userid )
+        , ( "username", Json.Encode.string x.username )
+        ]
 
 
 decodeUser : Decoder User
@@ -52,7 +59,6 @@ decodeUser =
     decode User
         |> required "userid" int
         |> required "username" string
-        |> required "userpassword" string
 
 
 type NoContent

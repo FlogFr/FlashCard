@@ -13,7 +13,7 @@ import Page.Login as Login
 import Page.Home as Home
 import Page.Quizz as Quizz
 import Page.NotFound as NotFound
-import Data.Session exposing (Session)
+import Data.Session exposing (..)
 import Request exposing (..)
 import API exposing (..)
 import Ports exposing (..)
@@ -39,17 +39,9 @@ type alias Model =
 init : Value -> Location -> ( Model, Cmd Msg )
 init val location =
     setRoute (Route.fromLocation location)
-        { session = { user = decodeUserFromJson val }
+        { session = { user = decodeAuthUserFromJson val }
         , page = NotFound
         }
-
-
-decodeUserFromJson : Value -> Maybe User
-decodeUserFromJson json =
-    json
-        |> Decode.decodeValue Decode.string
-        |> Result.toMaybe
-        |> Maybe.andThen (Decode.decodeString decodeUser >> Result.toMaybe)
 
 
 
@@ -99,7 +91,7 @@ subscriptions model =
 type Msg
     = SetRoute (Maybe Route)
     | LoginMsg Login.Msg
-    | HomeInit (Result Http.Error Home.Model)
+    | HomeInit (Result Http.Error (List Word))
     | HomeMsg Home.Msg
     | QuizzMsg Quizz.Msg
 
@@ -125,8 +117,8 @@ updatePage page msg model =
                         Login.NoOp ->
                             model
 
-                        Login.SetUser user ->
-                            { model | session = { user = Just user } }
+                        Login.SetAuthUser authUser ->
+                            { model | session = { user = Just authUser } }
             in
                 { newModel | page = Login pageModel }
                     => Cmd.map LoginMsg pageMsg
@@ -134,16 +126,23 @@ updatePage page msg model =
         ( Home subModel, HomeInit subMsg ) ->
             let
                 ( ( pageModel, pageMsg ), externalMsg ) =
-                    Home.update (Home.InitFinished subMsg) subModel
+                    Home.update model.session (Home.InitFinished subMsg) subModel
             in
-                ( { model | page = Home pageModel }, Cmd.none )
+                { model | page = Home pageModel }
+                    => Cmd.map HomeMsg pageMsg
 
         ( Home subModel, HomeMsg subMsg ) ->
             let
                 ( ( pageModel, pageMsg ), externalMsg ) =
-                    Home.update subMsg subModel
+                    Home.update model.session subMsg subModel
             in
-                ( { model | page = Home pageModel }, Cmd.none )
+                case externalMsg of
+                    Home.NoOp ->
+                        { model | page = Home pageModel }
+                            => Cmd.map HomeMsg pageMsg
+
+                    Home.ReloadPage ->
+                        setRoute (Just Route.Home) model
 
         ( Quizz, _ ) ->
             ( model, Cmd.none )

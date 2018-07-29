@@ -1,6 +1,6 @@
 module Views.Page exposing (frame)
 
-import Data.Session exposing (Session)
+import Data.Session exposing (AuthUser, Session)
 import API exposing (User)
 import Route as Route exposing (..)
 import Html exposing (..)
@@ -34,7 +34,7 @@ viewFooter =
         []
 
 
-viewSignIn : Maybe User -> Html msg
+viewSignIn : Maybe AuthUser -> Html msg
 viewSignIn maybeUser =
     case maybeUser of
         Just user ->

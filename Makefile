@@ -1,3 +1,11 @@
+.PHONY: build
+build:
+	stack build
+
+.PHONY: generate
+generate:
+	stack exec generate-elm-api
+
 .PHONY: serve
 serve:
 	stack exec backend-exe

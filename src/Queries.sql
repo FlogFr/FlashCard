@@ -1,13 +1,13 @@
--- name:getUser :: (Int, String, String)
+-- name:getUser :: (Int, String)
 -- :userName :: String
 -- :userPassword :: String
 SELECT
-  id, username, password
+  id, username
 FROM
   users
 WHERE
       username = :userName
-  AND password = :userPassword
+  AND passpass = crypt(:userPassword, passpass)
 ;;;
 -- name:getAllWords :: [(Int, String, String, String, MaybeInt)]
 -- :user :: User
@@ -32,11 +32,12 @@ LIMIT
   5
 ;;;
 -- name:insertWord :: (Integer)
+-- :user :: User
 -- :wordLanguage :: String
 -- :wordWord :: String
 -- :wordDefinition :: String
 INSERT INTO
   words
-  (language, word, definition)
+  (userid, language, word, definition)
 VALUES
-  (:wordLanguage, :wordWord, :wordDefinition)
+  (:user.userid, :wordLanguage, :wordWord, :wordDefinition)

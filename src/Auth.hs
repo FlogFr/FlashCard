@@ -28,7 +28,7 @@ authCheck =
           (maybeUser) <- getUser (toString username) (toString password) conn
           commit conn
           case maybeUser of
-            Just (userId, userName, userPassword) -> return (Authorized (User userId userName userPassword))
+            Just (userId, userName) -> return (Authorized (User userId userName))
             Nothing -> return Unauthorized
   in  BasicAuthCheck check
 

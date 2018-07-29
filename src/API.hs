@@ -97,7 +97,7 @@ wordServer user conns = retrieveAllWords
           liftIO $
             withResource conns $ \conn -> do
               begin conn
-              insertWord (wordLanguage word) (wordWord word) (wordDefinition word) conn
+              insertWord user (wordLanguage word) (wordWord word) (wordDefinition word) conn
               commit conn
               return ()
           return NoContent

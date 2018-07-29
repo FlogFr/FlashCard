@@ -20,10 +20,11 @@ spec = Spec ["API"]
              : toElmEncoderSource (Proxy :: Proxy Word)
              : toElmDecoderSource (Proxy :: Proxy Word)
              : toElmTypeSource    (Proxy :: Proxy User)
+             : toElmEncoderSource (Proxy :: Proxy User)
              : toElmDecoderSource (Proxy :: Proxy User)
              : toElmTypeSource    (Proxy :: Proxy NoContent)
              : generateElmForAPI  (Proxy :: Proxy CombinedAPI))
 
 main :: IO ()
 main = do
-  specsToDir [spec] "my-elm-dir"
+  specsToDir [spec] "."
