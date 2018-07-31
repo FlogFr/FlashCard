@@ -74,7 +74,7 @@ view model =
             , viewFormAddWord HomeAddNewWord TypeHomeLanguage TypeHomeWord TypeHomeDefinition
             ]
         , div []
-            [ h1 [] [ text "Your last words inserted:" ]
+            [ h1 [] [ text "Your last words of the week:" ]
             , viewWordsTable model.myLastWords
             ]
         ]

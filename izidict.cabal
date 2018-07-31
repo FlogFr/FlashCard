@@ -1,7 +1,7 @@
-name:                backend
+name:                izidict
 version:             0.1.0.0
-synopsis:            words web backend
-description:         words web backend
+synopsis:            izidict web backend
+description:         izidict.com web backend
 homepage:            https://github.com/aRkadeFR/backend#readme
 license:             BSD3
 license-file:        LICENSE
@@ -42,8 +42,8 @@ library
                      , bytestring >= 0.10.8.2
                      , HDBC >= 2.4.0.2
                      , HDBC-postgresql >= 2.3.2.5
-                     , yeshql >= 4.1.0.1
                      , yeshql-hdbc >= 4.1.0.1
+                     , yeshql >= 4.1.0.1
   default-language:    Haskell2010
 
 executable backend-exe
@@ -51,7 +51,7 @@ executable backend-exe
   main-is:             Main.hs
   ghc-options:         -threaded -rtsopts -with-rtsopts=-N
   build-depends:       base
-                     , backend
+                     , izidict
   default-language:    Haskell2010
 
 executable generate-elm-api
@@ -59,7 +59,7 @@ executable generate-elm-api
   main-is:             GenerateElmAPI.hs
   ghc-options:         -main-is GenerateElmAPI -threaded -rtsopts -with-rtsopts=-N
   build-depends:       base
-                     , backend
+                     , izidict
                      , elm-export
                      , servant >= 0.5
                      , servant-elm
@@ -70,7 +70,7 @@ test-suite backend-test
   hs-source-dirs:      test
   main-is:             Spec.hs
   build-depends:       base
-                     , backend
+                     , izidict
                      , hspec
                      , hspec-wai
                      , hspec-wai-json

@@ -1,8 +1,9 @@
-module Data.Session exposing (AuthUser, Session, decodeAuthUserFromJson)
+module Data.Session exposing (AuthUser, Session, storeSession, decodeAuthUserFromJson)
 
-import Json.Decode as Decode exposing (Value)
-import Json.Decode exposing (..)
-import Json.Decode.Pipeline exposing (..)
+import Json.Encode as Encode exposing (Value)
+import Json.Decode as Decode exposing (Decoder, string, int, list)
+import Json.Decode.Pipeline exposing (decode, required, optional)
+import Ports exposing (..)
 import API exposing (User)
 import Util exposing ((=>))
 
@@ -18,6 +19,23 @@ type alias Session =
     { user : Maybe AuthUser }
 
 
+encodeAuthUser : AuthUser -> Encode.Value
+encodeAuthUser x =
+    Encode.object
+        [ ( "userid", Encode.int x.userid )
+        , ( "username", Encode.string x.username )
+        , ( "userpassword", Encode.string x.userpassword )
+        ]
+
+
+storeSession : AuthUser -> Cmd msg
+storeSession authUser =
+    encodeAuthUser authUser
+        |> Encode.encode 0
+        |> Just
+        |> Ports.storeSession
+
+
 decodeAuthUser : Decoder AuthUser
 decodeAuthUser =
     decode AuthUser
@@ -26,7 +44,7 @@ decodeAuthUser =
         |> required "userpassword" string
 
 
-decodeAuthUserFromJson : Value -> Maybe AuthUser
+decodeAuthUserFromJson : Encode.Value -> Maybe AuthUser
 decodeAuthUserFromJson json =
     json
         |> Decode.decodeValue Decode.string

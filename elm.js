@@ -14854,12 +14854,54 @@ var _user$project$API$postWords = F2(
 			});
 	});
 
+var _user$project$Ports$storeSession = _elm_lang$core$Native_Platform.outgoingPort(
+	'storeSession',
+	function (v) {
+		return (v.ctor === 'Nothing') ? null : v._0;
+	});
+
 var _user$project$Util_ops = _user$project$Util_ops || {};
 _user$project$Util_ops['=>'] = F2(
 	function (v0, v1) {
 		return {ctor: '_Tuple2', _0: v0, _1: v1};
 	});
 
+var _user$project$Data_Session$encodeAuthUser = function (x) {
+	return _elm_lang$core$Json_Encode$object(
+		{
+			ctor: '::',
+			_0: {
+				ctor: '_Tuple2',
+				_0: 'userid',
+				_1: _elm_lang$core$Json_Encode$int(x.userid)
+			},
+			_1: {
+				ctor: '::',
+				_0: {
+					ctor: '_Tuple2',
+					_0: 'username',
+					_1: _elm_lang$core$Json_Encode$string(x.username)
+				},
+				_1: {
+					ctor: '::',
+					_0: {
+						ctor: '_Tuple2',
+						_0: 'userpassword',
+						_1: _elm_lang$core$Json_Encode$string(x.userpassword)
+					},
+					_1: {ctor: '[]'}
+				}
+			}
+		});
+};
+var _user$project$Data_Session$storeSession = function (authUser) {
+	return _user$project$Ports$storeSession(
+		_elm_lang$core$Maybe$Just(
+			A2(
+				_elm_lang$core$Json_Encode$encode,
+				0,
+				_user$project$Data_Session$encodeAuthUser(authUser))));
+};
 var _user$project$Data_Session$AuthUser = F3(
 	function (a, b, c) {
 		return {userid: a, username: b, userpassword: c};
@@ -14889,21 +14931,6 @@ var _user$project$Data_Session$decodeAuthUserFromJson = function (json) {
 };
 var _user$project$Data_Session$Session = function (a) {
 	return {user: a};
-};
-
-var _user$project$Ports$storeSession = _elm_lang$core$Native_Platform.outgoingPort(
-	'storeSession',
-	function (v) {
-		return (v.ctor === 'Nothing') ? null : v._0;
-	});
-
-var _user$project$Data_User$storeSession = function (user) {
-	return _user$project$Ports$storeSession(
-		_elm_lang$core$Maybe$Just(
-			A2(
-				_elm_lang$core$Json_Encode$encode,
-				0,
-				_user$project$API$encodeUser(user))));
 };
 
 var _user$project$Request$postWordRequest = F3(
@@ -15514,7 +15541,7 @@ var _user$project$Page_Home$view = function (model) {
 								{ctor: '[]'},
 								{
 									ctor: '::',
-									_0: _elm_lang$html$Html$text('Your last words inserted:'),
+									_0: _elm_lang$html$Html$text('Your last words of the week:'),
 									_1: {ctor: '[]'}
 								}),
 							_1: {
@@ -15731,7 +15758,17 @@ var _user$project$Page_Login$update = F2(
 					_user$project$Page_Login$NoOp);
 			default:
 				if (_p0._0.ctor === 'Ok') {
-					var _p1 = _p0._0._0;
+					var authUser = A3(
+						_user$project$Data_Session$AuthUser,
+						function (_) {
+							return _.userid;
+						}(_p0._0._0),
+						function (_) {
+							return _.username;
+						}(model),
+						function (_) {
+							return _.userpassword;
+						}(model));
 					return A2(
 						_user$project$Util_ops['=>'],
 						A2(
@@ -15740,25 +15777,14 @@ var _user$project$Page_Login$update = F2(
 							_elm_lang$core$Platform_Cmd$batch(
 								{
 									ctor: '::',
-									_0: _user$project$Data_User$storeSession(_p1),
+									_0: _user$project$Data_Session$storeSession(authUser),
 									_1: {
 										ctor: '::',
 										_0: _user$project$Route$modifyUrl(_user$project$Route$Home),
 										_1: {ctor: '[]'}
 									}
 								})),
-						_user$project$Page_Login$SetAuthUser(
-							A3(
-								_user$project$Data_Session$AuthUser,
-								function (_) {
-									return _.userid;
-								}(_p1),
-								function (_) {
-									return _.username;
-								}(model),
-								function (_) {
-									return _.userpassword;
-								}(model))));
+						_user$project$Page_Login$SetAuthUser(authUser));
 				} else {
 					return A2(
 						_user$project$Util_ops['=>'],

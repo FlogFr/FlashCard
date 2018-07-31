@@ -8,7 +8,6 @@ import Request exposing (..)
 import Html exposing (..)
 import Html.Events exposing (..)
 import Html.Attributes exposing (attribute, placeholder, type_, action)
-import Data.User exposing (storeSession)
 import Data.Session exposing (..)
 import Views.Forms exposing (..)
 import Debug
@@ -81,9 +80,13 @@ update msg model =
                     => NoOp
 
         LoginCompletedMsg (Ok user) ->
-            model
-                => Cmd.batch [ storeSession user, Route.modifyUrl Route.Home ]
-                => SetAuthUser (AuthUser (.userid user) (.username model) (.userpassword model))
+            let
+                authUser =
+                    (AuthUser (.userid user) (.username model) (.userpassword model))
+            in
+                model
+                    => Cmd.batch [ storeSession authUser, Route.modifyUrl Route.Home ]
+                    => SetAuthUser authUser
 
         LoginCompletedMsg (Err error) ->
             model

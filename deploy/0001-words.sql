@@ -6,6 +6,7 @@ BEGIN;
   
   CREATE TABLE IF NOT EXISTS words (
             id BIGINT NOT NULL PRIMARY KEY DEFAULT nextval('words_id_seq'),
+   inserted_at TIMESTAMPTZ NOT NULL default(now()),
       language CHARACTER(2) NOT NULL,
           word VARCHAR(128) NOT NULL,
       keywords TEXT[],

@@ -25,11 +25,10 @@ SELECT
 FROM
   words
 WHERE
-  userid = :user.userid
+  userid = :user.userid AND 
+  inserted_at > (now() - (INTERVAL '7 days'))
 ORDER BY
-  id DESC
-LIMIT
-  5
+  inserted_at DESC
 ;;;
 -- name:insertWord :: (Integer)
 -- :user :: User
