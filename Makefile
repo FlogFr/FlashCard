@@ -1,5 +1,9 @@
 POSIXCUBE_BIN ?= ~/Projects/posixcube/posixcube.sh
 
+.PHONY: deb
+deb:
+	dpkg-buildpackage -us -uc
+
 .PHONY: build
 build:
 	stack build
@@ -7,6 +11,7 @@ build:
 .PHONY: build-elm
 build-elm:
 	elm-make --output build/elm.js Words/App.elm
+	sed -i 's#http://127.1:8080#https://api.izidict.com#g' build/elm.js
 	cp index.html build/
 
 .PHONY: serve
@@ -37,8 +42,10 @@ deployprimarydb:
 deploynginx:
 	${POSIXCUBE_BIN} -u flog -h izidict.com -e ./production.env -c ./cubes/nginx
 
+BACKEND_BIN=$(stack exec -- which backend-exe)
+
 .PHONY: deploy
 deploy:
-	rsync -v --recursive --links --progress --delete build/ izidict.com:/var/www/izidict.com
-	rsync -v --recursive --links --progress --delete build/ izidict.com:/var/www/izidict.com
 	${POSIXCUBE_BIN} -u flog -h izidict.com -e ./production.env -c ./cubes/deploy
+	scp ../izidict_0.1_amd64.deb root@izidict.com:~/
+	ssh root@izidict.com -- dpkg -i izidict_0.1_amd64.deb </dev/null

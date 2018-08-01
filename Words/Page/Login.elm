@@ -5,9 +5,9 @@ import API exposing (..)
 import Route as Route
 import Http
 import Request exposing (..)
-import Html exposing (..)
-import Html.Events exposing (..)
-import Html.Attributes exposing (attribute, placeholder, type_, action)
+import Html.Styled as Html exposing (..)
+import Html.Styled.Events exposing (..)
+import Html.Styled.Attributes exposing (attribute, placeholder, type_, action)
 import Data.Session exposing (..)
 import Views.Forms exposing (..)
 import Debug

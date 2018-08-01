@@ -1,6 +1,6 @@
 module Views.Words exposing (viewWordsTable)
 
-import Html exposing (..)
+import Html.Styled as Html exposing (..)
 import API exposing (..)
 import Maybe as Maybe
 

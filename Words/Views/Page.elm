@@ -3,42 +3,45 @@ module Views.Page exposing (frame)
 import Data.Session exposing (AuthUser, Session)
 import API exposing (User)
 import Route as Route exposing (..)
-import Html exposing (..)
-import Html.Attributes exposing (..)
+import IziCss exposing (..)
+import Html.Styled as Html exposing (..)
+import Html.Styled.Attributes exposing (..)
 
 
 frame : Session -> Html msg -> Html msg
 frame session content =
-    div []
+    div [ bodyFrame ]
         [ viewHeader session
-        , content
+        , div [ mainFrame ] [ content ]
         , viewFooter
         ]
 
 
 viewHeader : Session -> Html msg
 viewHeader session =
-    nav []
-        [ h1 []
-            [ text "Learn the words!"
-            , a [ Route.href Route.Login ] [ text "Return to login" ]
-            , a [ Route.href Route.Home ] [ text "Go home" ]
+    div [ headerFrame ]
+        [ h1 [ titleCss ]
+            [ img [ logo, src "/ressources/dictionnary.logo.png" ] []
+            , text "IziDict.com - Strengthen your words!"
             ]
-        , viewSignIn session.user
+        , viewNav session.user
         ]
 
 
 viewFooter : Html msg
 viewFooter =
-    div []
-        []
+    div [ bottomFrame ]
+        [ p [] [ text "made with ❤ from ❤ WAW ❤" ] ]
 
 
-viewSignIn : Maybe AuthUser -> Html msg
-viewSignIn maybeUser =
+viewNav : Maybe AuthUser -> Html msg
+viewNav maybeUser =
     case maybeUser of
         Just user ->
-            div [] [ text ("Hello dear " ++ user.username) ]
+            nav []
+                [ a [ Route.href Route.Home ] [ text "Go home" ]
+                ]
 
         Nothing ->
-            div [] [ text "Please sign in" ]
+            nav []
+                []

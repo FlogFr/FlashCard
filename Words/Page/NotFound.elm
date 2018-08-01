@@ -1,7 +1,7 @@
 module Page.NotFound exposing (view)
 
-import Html exposing (..)
-import Html.Events exposing (..)
+import Html.Styled as Html exposing (..)
+import Html.Styled.Events exposing (..)
 
 
 -- VIEW --

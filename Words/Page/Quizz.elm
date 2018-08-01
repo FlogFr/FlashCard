@@ -1,8 +1,8 @@
 module Page.Quizz exposing (Model, Msg(..), initialModel, view)
 
 import Http
-import Html exposing (..)
-import Html.Attributes exposing (..)
+import Html.Styled as Html exposing (..)
+import Html.Styled.Attributes exposing (..)
 import Route exposing (Route(..), href)
 import API exposing (..)
 

@@ -1,8 +1,9 @@
 module Views.Forms exposing (viewFormAddWord, viewFormLogin)
 
-import Html exposing (..)
-import Html.Events exposing (..)
-import Html.Attributes exposing (..)
+import IziCss exposing (..)
+import Html.Styled as Html exposing (..)
+import Html.Styled.Events exposing (..)
+import Html.Styled.Attributes exposing (..)
 
 
 viewFormAddWord : msg -> (String -> msg) -> (String -> msg) -> (String -> msg) -> Html msg
@@ -22,8 +23,8 @@ viewFormAddWord homeAddNewWord typeHomeLanguage typeHomeWord typeHomeDefinition 
 
 viewFormLogin : msg -> (String -> msg) -> (String -> msg) -> Html msg
 viewFormLogin loginTryMsg typeLoginMsg typePasswordMsg =
-    Html.form [ onSubmit loginTryMsg, action "javascript:void(0);" ]
-        [ input [ onInput typeLoginMsg, placeholder "login" ] []
-        , input [ onInput typePasswordMsg, placeholder "password", attribute "type" "password" ] []
-        , button [ type_ "submit" ] [ text "log-in" ]
+    Html.form [ niceBoxed, onSubmit loginTryMsg, action "javascript:void(0);" ]
+        [ input [ inputCss, onInput typeLoginMsg, placeholder "login" ] []
+        , input [ inputCss, onInput typePasswordMsg, placeholder "password", attribute "type" "password" ] []
+        , btn [ type_ "submit" ] [ text "log-in" ]
         ]

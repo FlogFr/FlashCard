@@ -1,0 +1,26 @@
+#!/usr/bin/make -f
+
+%:
+	dh $@ --with=systemd
+
+override_dh_auto_clean:
+override_dh_auto_test:
+override_dh_auto_build:
+override_dh_auto_install:
+	rm -rf debian/izidict
+	# stack test
+	stack install
+	# binary
+	mkdir -p debian/izidict/usr/bin
+	cp -v ~/.local/bin/backend-exe debian/izidict/usr/bin/backend-izidict
+	# front
+	mkdir -p debian/izidict/var/www/izidict.com
+	cp -v -r build/* debian/izidict/var/www/izidict.com/
+	cp -v -r ressources debian/izidict/var/www/izidict.com/
+	# SQL deployment
+	mkdir -p debian/izidict/home/izidict
+	cp -v -r sqitch.plan debian/izidict/home/izidict/
+	cp -v -r sqitch.conf debian/izidict/home/izidict/
+	cp -v -r deploy debian/izidict/home/izidict/
+	cp -v -r revert debian/izidict/home/izidict/
+	cp -v -r verify debian/izidict/home/izidict/

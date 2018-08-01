@@ -5,7 +5,8 @@ import Util exposing ((=>))
 import Http
 import Task exposing (..)
 import Json.Decode as Decode exposing (Value)
-import Html exposing (..)
+import Html as Html exposing (..)
+import Html.Styled
 import Route exposing (Route)
 import Request exposing (..)
 import Views.Page as Page
@@ -58,21 +59,25 @@ view model =
             Login subModel ->
                 Login.view subModel
                     |> frame
-                    |> Html.map LoginMsg
+                    |> Html.Styled.map LoginMsg
+                    |> Html.Styled.toUnstyled
 
             Home subModel ->
                 Home.view subModel
                     |> frame
-                    |> Html.map HomeMsg
+                    |> Html.Styled.map HomeMsg
+                    |> Html.Styled.toUnstyled
 
             Quizz ->
                 Quizz.view
                     |> frame
-                    |> Html.map QuizzMsg
+                    |> Html.Styled.map QuizzMsg
+                    |> Html.Styled.toUnstyled
 
             NotFound ->
                 NotFound.view
                     |> frame
+                    |> Html.Styled.toUnstyled
 
 
 
@@ -142,7 +147,14 @@ updatePage page msg model =
                             => Cmd.map HomeMsg pageMsg
 
                     Home.ReloadPage ->
-                        setRoute (Just Route.Home) model
+                        case model.session.user of
+                            Nothing ->
+                                { model | page = Home pageModel }
+                                    => Cmd.none
+
+                            Just user ->
+                                { model | page = Home pageModel }
+                                    => Task.attempt HomeInit (Home.init user)
 
         ( Quizz, _ ) ->
             ( model, Cmd.none )
@@ -168,10 +180,12 @@ setRoute maybeRoute model =
             in
                 case model.session.user of
                     Nothing ->
-                        newModel => Cmd.none
+                        newModel
+                            => Cmd.none
 
                     Just user ->
-                        newModel => Task.attempt HomeInit (Home.init user)
+                        newModel
+                            => Task.attempt HomeInit (Home.init user)
 
         Just (Route.Quizz) ->
             { model | page = Quizz } => Cmd.none
