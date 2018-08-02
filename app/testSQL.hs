@@ -1,53 +1,19 @@
-{-# LANGUAGE QuasiQuotes                #-}
 {-# LANGUAGE DataKinds                  #-}
-{-# LANGUAGE DeriveGeneric              #-}
-{-# LANGUAGE TypeOperators              #-}
-{-# LANGUAGE TemplateHaskell            #-}
+{-# LANGUAGE TypeSynonymInstances       #-}
 {-# LANGUAGE FlexibleInstances          #-}
 {-# LANGUAGE MultiParamTypeClasses      #-}
-{-# LANGUAGE TypeSynonymInstances       #-}
 
-module Word
-  ( Word(..)
-  , WordId
-  , wordConstructor
-  )
-  where
+module Main (main) where
 
-import Prelude hiding (Word)
 import Database.HDBC
+import Database.HDBC.PostgreSQL
+import Data.Convertible.Base
 import Data.ByteString.UTF8 as BUTF8 (toString, fromString)
 import Data.ByteString
-import Data.Convertible.Base
-import Data.Aeson
-import Data.Swagger
 import Data.List
-import GHC.Generics
-import Servant.Elm (ElmType)
 
-
-type WordId = Int
 type StringArray = [String]
-data Word = Word
-  { wordId          :: WordId
-  , wordLanguage    :: String
-  , wordWord        :: String
-  , wordKeywords    :: StringArray
-  , wordDefinition  :: String
-  , wordDifficulty  :: Maybe Int
-  } deriving (Eq, Generic, Show)
 
-
-instance ToSchema Word
-instance ToJSON Word
-instance FromJSON Word
-instance ElmType Word
-
-wordConstructor :: (Int, String, String, String, Maybe Int) -> Word
-wordConstructor (wordId, wordLanguage, wordWord, wordDefinition, wordDifficulty) =
-  Word wordId wordLanguage wordWord [] wordDefinition wordDifficulty
-
--- Convert From SQL / To SQL
 wordsWhen     :: (Char -> Bool) -> String -> [String]
 wordsWhen p s =  case Data.List.dropWhile p s of
                       "" -> []
@@ -60,7 +26,6 @@ myUnwords (w:ws)          = w ++ go ws
   where
     go []     = ""
     go (v:vs) = ',' : (v ++ go vs)
-
 
 innerArrayString :: String -> String
 innerArrayString fullArrayString =
@@ -78,3 +43,29 @@ instance Convertible SqlValue StringArray where
   safeConvert = Right . byteStringToStringArray . fromSql 
 instance Convertible StringArray SqlValue where
   safeConvert = Right . toSql . stringArrayToByteString
+
+main :: IO ()
+main =
+  do
+    let connStr = "service=words"
+    conn <- connectPostgreSQL connStr
+    begin conn
+    select <- prepare conn "SELECT id, word, keywords FROM words WHERE id = 400;"
+    _ <- execute select []
+    rows <- fetchAllRows select
+    Prelude.putStrLn (show rows)
+    let stringRows = Data.List.map convRow rows
+    mapM_ Prelude.putStrLn stringRows
+    update <- prepare conn "UPDATE words SET keywords = ? WHERE id = 400;"
+    _ <- execute update [(toSql (["cuisine", "label"]::StringArray))]
+    _ <- commit conn
+    disconnect conn
+
+  where
+    convRow :: [SqlValue] -> String
+    convRow [wordId, wordWord, wordKeywords] = 
+        show wordIdInt ++ ": " ++ wordWordString ++ ", keywords: " ++ (Data.List.intercalate " " wordKeywordsArrayString)
+        where wordIdInt = (fromSql wordId)::Integer
+              wordWordString = (fromSql wordWord)::String
+              wordKeywordsArrayString = (fromSql wordKeywords)::StringArray
+    convRow x = fail $ "Unexpected result: " ++ show x

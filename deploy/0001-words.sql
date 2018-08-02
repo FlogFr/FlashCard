@@ -9,7 +9,7 @@ BEGIN;
    inserted_at TIMESTAMPTZ NOT NULL default(now()),
       language CHARACTER(2) NOT NULL,
           word VARCHAR(128) NOT NULL,
-      keywords TEXT[],
+      keywords TEXT[] NOT NULL DEFAULT '{}',
     definition TEXT NOT NULL,
     difficulty INTEGER
   );

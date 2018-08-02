@@ -1,6 +1,7 @@
 name: izidict
 version: 0.1.0.0
 synopsis: IziDict HTTP backend server
+description: IziDict HTTP backend server
 maintainer: aRkadeFR <contact@arkade.info>
 license: MIT
 github: aRkadeFR/izidict
@@ -10,6 +11,7 @@ dependencies:
   - base >= 4.7 && < 5
   - aeson
   - aeson-pretty
+  - convertible
   - utf8-string
   - elm-export
   - servant >= 0.5
@@ -39,13 +41,13 @@ ghc-options: -Wall
 
 executables:
   backend-exe:
-    main: Main.hs
+    main: main.hs
     source-dirs: app
   generate-elm-api:
-    main: GenerateElmAPI.hs
+    main: generateElmAPI.hs
     source-dirs: app
   test-sql:
-    main: TestSQL.hs
+    main: testSQL.hs
     source-dirs: app
 
 tests:

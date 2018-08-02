@@ -2,11 +2,12 @@
 --
 -- see: https://github.com/sol/hpack
 --
--- hash: 858a377f48fca075e100587d8b8ad2d958a62e5fbf9b5e6884da538cfb6dbe2d
+-- hash: 1e1bd09d371f815abcd93262876a2bcbe88436c90e68802daaf237c4fcc31423
 
 name:           izidict
 version:        0.1.0.0
 synopsis:       IziDict HTTP backend server
+description:    IziDict HTTP backend server
 category:       Development
 homepage:       https://github.com/aRkadeFR/izidict#readme
 bug-reports:    https://github.com/aRkadeFR/izidict/issues
@@ -21,15 +22,13 @@ source-repository head
   location: https://github.com/aRkadeFR/izidict
 
 executable backend-exe
-  main-is: Main.hs
+  main-is: main.hs
   other-modules:
       API
       Auth
       PostgreSQL
       User
       Word
-      GenerateElmAPI
-      TestSQL
       Paths_izidict
   hs-source-dirs:
       src
@@ -43,6 +42,7 @@ executable backend-exe
     , base >=4.7 && <5
     , bytestring >=0.10.8.2
     , containers
+    , convertible
     , elm-export
     , lens
     , mtl
@@ -63,15 +63,13 @@ executable backend-exe
   default-language: Haskell2010
 
 executable generate-elm-api
-  main-is: GenerateElmAPI.hs
+  main-is: generateElmAPI.hs
   other-modules:
       API
       Auth
       PostgreSQL
       User
       Word
-      Main
-      TestSQL
       Paths_izidict
   hs-source-dirs:
       src
@@ -85,6 +83,7 @@ executable generate-elm-api
     , base >=4.7 && <5
     , bytestring >=0.10.8.2
     , containers
+    , convertible
     , elm-export
     , lens
     , mtl
@@ -105,15 +104,13 @@ executable generate-elm-api
   default-language: Haskell2010
 
 executable test-sql
-  main-is: TestSQL.hs
+  main-is: testSQL.hs
   other-modules:
       API
       Auth
       PostgreSQL
       User
       Word
-      GenerateElmAPI
-      Main
       Paths_izidict
   hs-source-dirs:
       src
@@ -127,6 +124,7 @@ executable test-sql
     , base >=4.7 && <5
     , bytestring >=0.10.8.2
     , containers
+    , convertible
     , elm-export
     , lens
     , mtl
@@ -169,6 +167,7 @@ test-suite spec
     , base >=4.7 && <5
     , bytestring >=0.10.8.2
     , containers
+    , convertible
     , elm-export
     , hspec ==2.*
     , lens
