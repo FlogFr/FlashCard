@@ -1,0 +1,58 @@
+name: izidict
+version: 0.1.0.0
+synopsis: IziDict HTTP backend server
+maintainer: aRkadeFR <contact@arkade.info>
+license: MIT
+github: aRkadeFR/izidict
+category: Development
+
+dependencies:
+  - base >= 4.7 && < 5
+  - aeson
+  - aeson-pretty
+  - utf8-string
+  - elm-export
+  - servant >= 0.5
+  - servant-server
+  - servant-swagger
+  - servant-swagger-ui
+  - servant-elm
+  - wai-extra
+  - wai-cors >= 0.2.6
+  - swagger2
+  - lens
+  - wai
+  - warp
+  - containers
+  - mtl
+  - resource-pool >= 0.2.3.2
+  - bytestring >= 0.10.8.2
+  - HDBC >= 2.4.0.2
+  - HDBC-postgresql >= 2.3.2.5
+  - yeshql-hdbc >= 4.1.0.1
+  - yeshql >= 4.1.0.1
+
+source-dirs:
+  - src
+
+ghc-options: -Wall
+
+executables:
+  backend-exe:
+    main: Main.hs
+    source-dirs: app
+  generate-elm-api:
+    main: GenerateElmAPI.hs
+    source-dirs: app
+  test-sql:
+    main: TestSQL.hs
+    source-dirs: app
+
+tests:
+  spec:
+    main: Spec.hs
+    source-dirs: test
+    dependencies:
+      - hspec == 2.*
+      - mockery
+      - QuickCheck

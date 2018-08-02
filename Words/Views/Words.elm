@@ -2,6 +2,7 @@ module Views.Words exposing (viewWordsTable)
 
 import Html.Styled as Html exposing (..)
 import API exposing (..)
+import Route exposing (..)
 import Maybe as Maybe
 
 
@@ -13,6 +14,7 @@ viewWordTr word =
         , td [] [ text (.wordDefinition word) ]
         , td [] [ text (String.concat (.wordKeywords word)) ]
         , td [] [ text (toString (Maybe.withDefault 0 (.wordDifficulty word))) ]
+        , td [] [ a [ href (WordEdit (.wordId word)) ] [ text "edit" ] ]
         ]
 
 
@@ -26,6 +28,7 @@ viewWordsTable words =
                 , th [] [ text "my translation" ]
                 , th [] [ text "keywords" ]
                 , th [] [ text "difficulty" ]
+                , th [] [ text "edit" ]
                 ]
             ]
         , tbody []

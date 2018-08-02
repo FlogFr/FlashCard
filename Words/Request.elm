@@ -1,4 +1,4 @@
-module Request exposing (getUserCmd, getWordsLastCmd, getWordsLastRequest, postWordCmd, postWordRequest)
+module Request exposing (getUserCmd, getWordsLastCmd, getWordsLastRequest, postWordCmd, postWordRequest, getWordByIdRequest, getWordByIdCmd)
 
 import Data.Session exposing (..)
 import API exposing (..)
@@ -43,6 +43,23 @@ getWordsLastCmd msgType session =
 
         Just user ->
             Http.send msgType (getWordsLastRequest user)
+
+
+getWordByIdRequest : AuthUser -> Int -> Http.Request Word
+getWordByIdRequest user wordId =
+    let
+        base64Authorization =
+            Base64.encode ((.username user) ++ ":" ++ (.userpassword user))
+
+        requestAuthHeader =
+            Http.header "Authorization" ("Basic " ++ base64Authorization)
+    in
+        getWordsIdByWordId [ requestAuthHeader ] wordId
+
+
+getWordByIdCmd : (Result Error Word -> msg) -> AuthUser -> Int -> Cmd msg
+getWordByIdCmd msgType authUser wordId =
+    Http.send msgType (getWordByIdRequest authUser wordId)
 
 
 postWordRequest : String -> String -> Word -> Http.Request NoContent

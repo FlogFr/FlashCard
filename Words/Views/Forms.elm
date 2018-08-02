@@ -1,9 +1,10 @@
-module Views.Forms exposing (viewFormAddWord, viewFormLogin)
+module Views.Forms exposing (viewFormAddWord, viewFormLogin, viewWordForm)
 
 import IziCss exposing (..)
 import Html.Styled as Html exposing (..)
 import Html.Styled.Events exposing (..)
 import Html.Styled.Attributes exposing (..)
+import API exposing (..)
 
 
 viewFormAddWord : msg -> (String -> msg) -> (String -> msg) -> (String -> msg) -> Html msg
@@ -27,4 +28,16 @@ viewFormLogin loginTryMsg typeLoginMsg typePasswordMsg =
         [ input [ inputCss, onInput typeLoginMsg, placeholder "login" ] []
         , input [ inputCss, onInput typePasswordMsg, placeholder "password", attribute "type" "password" ] []
         , btn [ type_ "submit" ] [ text "log-in" ]
+        ]
+
+
+viewWordForm : Word -> (Word -> msg) -> Html msg
+viewWordForm word toUpdateWord =
+    Html.form []
+        [ input [ onInput (\v -> toUpdateWord { word | wordLanguage = v }), placeholder "language", value (.wordLanguage word) ] []
+        , input [ onInput (\v -> toUpdateWord { word | wordWord = v }), placeholder "definition", value (.wordWord word) ] []
+        , input [ onInput (\v -> toUpdateWord { word | wordKeywords = (String.split "," v) }), placeholder "keywords (comma separated)", value (List.foldr (++) "" (List.intersperse "," (.wordKeywords word))) ] []
+        , input [ onInput (\v -> toUpdateWord { word | wordDefinition = v }), placeholder "definition", value (.wordDefinition word) ] []
+        , input [ placeholder "difficulty (0 to 10)", value (toString (Maybe.withDefault 0 (.wordDifficulty word))) ] []
+        , btn [ type_ "submit" ] [ text "Update word" ]
         ]

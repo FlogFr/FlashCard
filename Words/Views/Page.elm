@@ -20,11 +20,15 @@ frame session content =
 viewHeader : Session -> Html msg
 viewHeader session =
     div [ headerFrame ]
-        [ h1 [ titleCss ]
-            [ img [ logo, src "/ressources/dictionnary.logo.png" ] []
-            , text "IziDict.com - Strengthen your words!"
+        [ div [ leftHeaderFrame ] []
+        , div [ centerHeaderFrame ]
+            [ h1 [ titleCss ]
+                [ img [ logo, src "/ressources/dictionnary.logo.png" ] []
+                , text "IziDict.com"
+                ]
+            , viewNav session.user
             ]
-        , viewNav session.user
+        , div [ rightHeaderFrame ] []
         ]
 
 

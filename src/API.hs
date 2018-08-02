@@ -23,7 +23,7 @@ module API
   )
   where
 
-import Prelude hiding (Word)
+import Prelude hiding (Word, words)
 import Data.Pool
 import Data.Aeson
 import Data.Swagger
@@ -42,8 +42,8 @@ import Servant
 import Servant.Server
 import Servant.Swagger
 import Servant.Swagger.UI
-import PostgreSQL (getAllWords, getLastWords, insertWord)
-import Word (Word(..), wordConstructor)
+import PostgreSQL (getAllWords, getLastWords, getWordById, updateWordById, insertWord)
+import Word (Word(..), WordId, wordConstructor)
 import User (User(..))
 import Auth
 
@@ -64,14 +64,26 @@ pgRetrieveLastWords user conn = do
   listWords <- getLastWords user conn
   return $ map wordConstructor listWords
 
+pgRetrieveWordById :: User -> WordId -> Connection -> IO Word
+pgRetrieveWordById user wordId conn = do
+  listWords <- getWordById user wordId conn
+  return $ (map wordConstructor listWords)!!0
+
+pgUpdateWordById :: User -> WordId -> Connection -> IO (Maybe Integer)
+pgUpdateWordById user wordId conn = updateWordById user wordId conn
+
 -- | API for the words
 type WordAPI = "all" :> Get '[JSON] [Word]
           :<|> "last" :> Get '[JSON] [Word]
+          :<|> "id" :> Capture "wordId" WordId :> Get '[JSON] Word
+          :<|> ReqBody '[JSON] Word :> "id" :> Capture "wordId" WordId :> Put '[JSON] Word
           :<|> ReqBody '[JSON] Word :> Post '[JSON] NoContent
 
 wordServer :: User -> Pool Connection -> Server WordAPI
 wordServer user conns = retrieveAllWords
                    :<|> retrieveLastWords
+                   :<|> retrieveWordById
+                   :<|> putWordById
                    :<|> postWord
 
   where retrieveAllWords :: Handler [Word]
@@ -91,6 +103,24 @@ wordServer user conns = retrieveAllWords
               words <- pgRetrieveLastWords user conn
               commit conn
               return words
+
+        retrieveWordById :: WordId -> Handler Word
+        retrieveWordById wordId = do
+          liftIO $ 
+            withResource conns $ \conn -> do
+              begin conn
+              words <- pgRetrieveWordById user wordId conn
+              commit conn
+              return words
+
+        putWordById :: Word -> WordId -> Handler Word
+        putWordById word wordId = do
+          liftIO $ 
+            withResource conns $ \conn -> do
+              begin conn
+              words <- pgUpdateWordById user wordId conn
+              commit conn
+              return word
 
         postWord :: Word -> Handler NoContent
         postWord word = do

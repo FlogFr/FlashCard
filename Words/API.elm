@@ -136,6 +136,31 @@ getWordsLast headers =
         }
 
 
+getWordsIdByWordId : List Http.Header -> Int -> Http.Request Word
+getWordsIdByWordId headers capture_wordId =
+    Http.request
+        { method =
+            "GET"
+        , headers =
+            headers
+        , url =
+            String.join "/"
+                [ "http://127.1:8080"
+                , "words"
+                , "id"
+                , capture_wordId |> toString |> Http.encodeUri
+                ]
+        , body =
+            Http.emptyBody
+        , expect =
+            Http.expectJson decodeWord
+        , timeout =
+            Nothing
+        , withCredentials =
+            False
+        }
+
+
 postWords : List Http.Header -> Word -> Http.Request NoContent
 postWords headers body =
     Http.request

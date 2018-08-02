@@ -1,83 +1,191 @@
-name:                izidict
-version:             0.1.0.0
-synopsis:            izidict web backend
-description:         izidict.com web backend
-homepage:            https://github.com/aRkadeFR/backend#readme
-license:             BSD3
-license-file:        LICENSE
-author:              aRkadeFR
-maintainer:          contact@arkade.info
-copyright:           MIT
-category:            divers
-build-type:          Simple
-extra-source-files:  README.md
-                   , src/Queries.sql
-cabal-version:       >=1.10
+-- This file has been generated from package.yaml by hpack version 0.28.2.
+--
+-- see: https://github.com/sol/hpack
+--
+-- hash: 858a377f48fca075e100587d8b8ad2d958a62e5fbf9b5e6884da538cfb6dbe2d
 
-library
-  hs-source-dirs:      src
-  exposed-modules:     API
-                     , Auth
-                     , PostgreSQL
-                     , Word
-                     , User
-  build-depends:       base >= 4.7 && < 5
-                     , aeson
-                     , aeson-pretty
-                     , utf8-string
-                     , servant >= 0.5
-                     , servant-server
-                     , servant-swagger
-                     , servant-swagger-ui
-                     , servant-elm
-                     , wai-extra
-                     , wai-cors >= 0.2.6
-                     , swagger2
-                     , lens
-                     , wai
-                     , warp
-                     , containers
-                     , mtl
-                     , resource-pool >= 0.2.3.2
-                     , bytestring >= 0.10.8.2
-                     , HDBC >= 2.4.0.2
-                     , HDBC-postgresql >= 2.3.2.5
-                     , yeshql-hdbc >= 4.1.0.1
-                     , yeshql >= 4.1.0.1
-  default-language:    Haskell2010
-
-executable backend-exe
-  hs-source-dirs:      app
-  main-is:             Main.hs
-  ghc-options:         -threaded -rtsopts -with-rtsopts=-N
-  build-depends:       base
-                     , izidict
-  default-language:    Haskell2010
-
-executable generate-elm-api
-  hs-source-dirs:      app
-  main-is:             GenerateElmAPI.hs
-  ghc-options:         -main-is GenerateElmAPI -threaded -rtsopts -with-rtsopts=-N
-  build-depends:       base
-                     , izidict
-                     , elm-export
-                     , servant >= 0.5
-                     , servant-elm
-  default-language:    Haskell2010
-
-test-suite backend-test
-  type:                exitcode-stdio-1.0
-  hs-source-dirs:      test
-  main-is:             Spec.hs
-  build-depends:       base
-                     , izidict
-                     , hspec
-                     , hspec-wai
-                     , hspec-wai-json
-                     , aeson
-  ghc-options:         -threaded -rtsopts -with-rtsopts=-N
-  default-language:    Haskell2010
+name:           izidict
+version:        0.1.0.0
+synopsis:       IziDict HTTP backend server
+category:       Development
+homepage:       https://github.com/aRkadeFR/izidict#readme
+bug-reports:    https://github.com/aRkadeFR/izidict/issues
+maintainer:     aRkadeFR <contact@arkade.info>
+license:        MIT
+license-file:   LICENSE
+build-type:     Simple
+cabal-version:  >= 1.10
 
 source-repository head
-  type:     git
-  location: https://github.com/aRkadeFR/backend
+  type: git
+  location: https://github.com/aRkadeFR/izidict
+
+executable backend-exe
+  main-is: Main.hs
+  other-modules:
+      API
+      Auth
+      PostgreSQL
+      User
+      Word
+      GenerateElmAPI
+      TestSQL
+      Paths_izidict
+  hs-source-dirs:
+      src
+      app
+  ghc-options: -Wall
+  build-depends:
+      HDBC >=2.4.0.2
+    , HDBC-postgresql >=2.3.2.5
+    , aeson
+    , aeson-pretty
+    , base >=4.7 && <5
+    , bytestring >=0.10.8.2
+    , containers
+    , elm-export
+    , lens
+    , mtl
+    , resource-pool >=0.2.3.2
+    , servant >=0.5
+    , servant-elm
+    , servant-server
+    , servant-swagger
+    , servant-swagger-ui
+    , swagger2
+    , utf8-string
+    , wai
+    , wai-cors >=0.2.6
+    , wai-extra
+    , warp
+    , yeshql >=4.1.0.1
+    , yeshql-hdbc >=4.1.0.1
+  default-language: Haskell2010
+
+executable generate-elm-api
+  main-is: GenerateElmAPI.hs
+  other-modules:
+      API
+      Auth
+      PostgreSQL
+      User
+      Word
+      Main
+      TestSQL
+      Paths_izidict
+  hs-source-dirs:
+      src
+      app
+  ghc-options: -Wall
+  build-depends:
+      HDBC >=2.4.0.2
+    , HDBC-postgresql >=2.3.2.5
+    , aeson
+    , aeson-pretty
+    , base >=4.7 && <5
+    , bytestring >=0.10.8.2
+    , containers
+    , elm-export
+    , lens
+    , mtl
+    , resource-pool >=0.2.3.2
+    , servant >=0.5
+    , servant-elm
+    , servant-server
+    , servant-swagger
+    , servant-swagger-ui
+    , swagger2
+    , utf8-string
+    , wai
+    , wai-cors >=0.2.6
+    , wai-extra
+    , warp
+    , yeshql >=4.1.0.1
+    , yeshql-hdbc >=4.1.0.1
+  default-language: Haskell2010
+
+executable test-sql
+  main-is: TestSQL.hs
+  other-modules:
+      API
+      Auth
+      PostgreSQL
+      User
+      Word
+      GenerateElmAPI
+      Main
+      Paths_izidict
+  hs-source-dirs:
+      src
+      app
+  ghc-options: -Wall
+  build-depends:
+      HDBC >=2.4.0.2
+    , HDBC-postgresql >=2.3.2.5
+    , aeson
+    , aeson-pretty
+    , base >=4.7 && <5
+    , bytestring >=0.10.8.2
+    , containers
+    , elm-export
+    , lens
+    , mtl
+    , resource-pool >=0.2.3.2
+    , servant >=0.5
+    , servant-elm
+    , servant-server
+    , servant-swagger
+    , servant-swagger-ui
+    , swagger2
+    , utf8-string
+    , wai
+    , wai-cors >=0.2.6
+    , wai-extra
+    , warp
+    , yeshql >=4.1.0.1
+    , yeshql-hdbc >=4.1.0.1
+  default-language: Haskell2010
+
+test-suite spec
+  type: exitcode-stdio-1.0
+  main-is: Spec.hs
+  other-modules:
+      API
+      Auth
+      PostgreSQL
+      User
+      Word
+      Paths_izidict
+  hs-source-dirs:
+      src
+      test
+  ghc-options: -Wall
+  build-depends:
+      HDBC >=2.4.0.2
+    , HDBC-postgresql >=2.3.2.5
+    , QuickCheck
+    , aeson
+    , aeson-pretty
+    , base >=4.7 && <5
+    , bytestring >=0.10.8.2
+    , containers
+    , elm-export
+    , hspec ==2.*
+    , lens
+    , mockery
+    , mtl
+    , resource-pool >=0.2.3.2
+    , servant >=0.5
+    , servant-elm
+    , servant-server
+    , servant-swagger
+    , servant-swagger-ui
+    , swagger2
+    , utf8-string
+    , wai
+    , wai-cors >=0.2.6
+    , wai-extra
+    , warp
+    , yeshql >=4.1.0.1
+    , yeshql-hdbc >=4.1.0.1
+  default-language: Haskell2010

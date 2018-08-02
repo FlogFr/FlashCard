@@ -6,6 +6,7 @@
 
 module Word
   ( Word(..)
+  , WordId
   , wordConstructor
   )
   where
@@ -16,8 +17,11 @@ import Data.Swagger
 import GHC.Generics
 import Servant.Elm (ElmType)
 
+
+type WordId = Int
+
 data Word = Word
-  { wordId          :: Int
+  { wordId          :: WordId
   , wordLanguage    :: String
   , wordWord        :: String
   , wordKeywords    :: [String]

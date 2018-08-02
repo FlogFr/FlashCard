@@ -12,6 +12,7 @@ import Request exposing (..)
 import Views.Page as Page
 import Page.Login as Login
 import Page.Home as Home
+import Page.WordEdit as WordEdit
 import Page.Quizz as Quizz
 import Page.NotFound as NotFound
 import Data.Session exposing (..)
@@ -24,6 +25,7 @@ type Page
     = NotFound
     | Login Login.Model
     | Home Home.Model
+    | WordEdit WordEdit.Model
     | Quizz
 
 
@@ -68,6 +70,12 @@ view model =
                     |> Html.Styled.map HomeMsg
                     |> Html.Styled.toUnstyled
 
+            WordEdit subModel ->
+                WordEdit.view subModel
+                    |> frame
+                    |> Html.Styled.map WordEditMsg
+                    |> Html.Styled.toUnstyled
+
             Quizz ->
                 Quizz.view
                     |> frame
@@ -98,6 +106,8 @@ type Msg
     | LoginMsg Login.Msg
     | HomeInit (Result Http.Error (List Word))
     | HomeMsg Home.Msg
+    | WordEditInitMsg (Result Http.Error Word)
+    | WordEditMsg WordEdit.Msg
     | QuizzMsg Quizz.Msg
 
 
@@ -156,6 +166,22 @@ updatePage page msg model =
                                 { model | page = Home pageModel }
                                     => Task.attempt HomeInit (Home.init user)
 
+        ( WordEdit subModel, WordEditInitMsg subMsg ) ->
+            let
+                ( ( pageModel, pageMsg ), externalMsg ) =
+                    WordEdit.update model.session (WordEdit.WordEditInitFinished subMsg) subModel
+            in
+                { model | page = WordEdit pageModel }
+                    => Cmd.map WordEditMsg pageMsg
+
+        ( WordEdit subModel, WordEditMsg subMsg ) ->
+            let
+                ( ( pageModel, pageMsg ), externalMsg ) =
+                    WordEdit.update model.session subMsg subModel
+            in
+                { model | page = WordEdit pageModel }
+                    => Cmd.map WordEditMsg pageMsg
+
         ( Quizz, _ ) ->
             ( model, Cmd.none )
 
@@ -168,10 +194,12 @@ setRoute : Maybe Route -> Model -> ( Model, Cmd Msg )
 setRoute maybeRoute model =
     case maybeRoute of
         Nothing ->
-            { model | page = NotFound } => Cmd.none
+            { model | page = NotFound }
+                => Cmd.none
 
         Just (Route.Login) ->
-            { model | page = Login Login.initialModel } => Cmd.none
+            { model | page = Login Login.initialModel }
+                => Cmd.none
 
         Just (Route.Home) ->
             let
@@ -186,6 +214,20 @@ setRoute maybeRoute model =
                     Just user ->
                         newModel
                             => Task.attempt HomeInit (Home.init user)
+
+        Just (Route.WordEdit wordId) ->
+            let
+                newModel =
+                    { model | page = WordEdit WordEdit.initialModel }
+            in
+                case model.session.user of
+                    Nothing ->
+                        newModel
+                            => Cmd.none
+
+                    Just user ->
+                        newModel
+                            => Task.attempt WordEditInitMsg (WordEdit.init user wordId)
 
         Just (Route.Quizz) ->
             { model | page = Quizz } => Cmd.none

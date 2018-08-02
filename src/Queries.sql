@@ -30,6 +30,28 @@ WHERE
 ORDER BY
   inserted_at DESC
 ;;;
+-- name:getWordById :: [(Int, String, String, String, MaybeInt)]
+-- :user :: User
+-- :wordId :: WordId
+SELECT
+  id, COALESCE(language, 'EN'), word, COALESCE(definition, 'def'), difficulty
+FROM
+  words
+WHERE
+          id = :wordId
+  AND userid = :user.userid
+;;;
+-- name:updateWordById :: (Integer)
+-- :user :: User
+-- :wordId :: WordId
+UPDATE
+  words
+SET
+    wordLanguage    = 'EN'
+WHERE
+          id = :wordId
+  AND userid = :user.userid
+;;;
 -- name:insertWord :: (Integer)
 -- :user :: User
 -- :wordLanguage :: String

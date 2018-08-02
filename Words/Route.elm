@@ -12,7 +12,8 @@ module Route exposing (Route(..), fromLocation, href, modifyUrl)
 import Html.Styled as Html exposing (Attribute)
 import Html.Styled.Attributes as Attr
 import Navigation exposing (Location)
-import UrlParser as Url exposing ((</>), Parser, oneOf, parseHash, s, string)
+import UrlParser as Url exposing ((</>), Parser, oneOf, parseHash, s, string, int)
+import Debug
 
 
 -- ROUTING --
@@ -21,6 +22,7 @@ import UrlParser as Url exposing ((</>), Parser, oneOf, parseHash, s, string)
 type Route
     = Login
     | Home
+    | WordEdit Int
     | Quizz
 
 
@@ -29,6 +31,7 @@ route =
     oneOf
         [ Url.map Login (s "")
         , Url.map Home (s "home")
+        , Url.map WordEdit (s "wordEdit" </> int)
         , Url.map Quizz (s "quizz")
         ]
 
@@ -47,6 +50,9 @@ routeToString page =
 
                 Home ->
                     [ "home" ]
+
+                WordEdit wordId ->
+                    [ "wordEdit", toString wordId ]
 
                 Quizz ->
                     [ "quizz" ]

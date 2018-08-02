@@ -3,7 +3,7 @@
 {-# LANGUAGE OverloadedStrings #-}
 {-# LANGUAGE TypeOperators     #-}
 
-module GenerateElmAPI where
+module Main (main) where
 
 import Prelude hiding (Word)
 import API (CombinedAPI, userServer , UserAPI , WordAPI , wordServer)
