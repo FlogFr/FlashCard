@@ -11,6 +11,7 @@ import Route exposing (Route)
 import Request exposing (..)
 import Views.Page as Page
 import Page.Login as Login
+import Page.Register as Register
 import Page.Home as Home
 import Page.WordEdit as WordEdit
 import Page.Quizz as Quizz
@@ -24,6 +25,7 @@ import Ports exposing (..)
 type Page
     = NotFound
     | Login Login.Model
+    | Register Register.Model
     | Home Home.Model
     | WordEdit WordEdit.Model
     | Quizz
@@ -62,6 +64,12 @@ view model =
                 Login.view subModel
                     |> frame
                     |> Html.Styled.map LoginMsg
+                    |> Html.Styled.toUnstyled
+
+            Register subModel ->
+                Register.view subModel
+                    |> frame
+                    |> Html.Styled.map RegisterMsg
                     |> Html.Styled.toUnstyled
 
             Home subModel ->
@@ -104,6 +112,8 @@ subscriptions model =
 type Msg
     = SetRoute (Maybe Route)
     | LoginMsg Login.Msg
+    | RegisterMsg Register.Msg
+    | RegisterInit (Result Http.Error String)
     | HomeInit (Result Http.Error (List Word))
     | HomeMsg Home.Msg
     | WordEditInitMsg (Result Http.Error Word)
@@ -137,6 +147,30 @@ updatePage page msg model =
             in
                 { newModel | page = Login pageModel }
                     => Cmd.map LoginMsg pageMsg
+
+        ( Register subModel, RegisterInit subMsg ) ->
+            let
+                ( ( pageModel, pageMsg ), externalMsg ) =
+                    Register.update (Register.InitFinished subMsg) subModel
+            in
+                { model | page = Register pageModel }
+                    => Cmd.map RegisterMsg pageMsg
+
+        ( Register subModel, RegisterMsg subMsg ) ->
+            let
+                ( ( pageModel, pageMsg ), externalMsg ) =
+                    Register.update subMsg subModel
+
+                newModel =
+                    case externalMsg of
+                        Register.NoOp ->
+                            model
+
+                        Register.SetAuthUser authUser ->
+                            { model | session = { user = Just authUser } }
+            in
+                { newModel | page = Register pageModel }
+                    => Cmd.map RegisterMsg pageMsg
 
         ( Home subModel, HomeInit subMsg ) ->
             let
@@ -179,8 +213,14 @@ updatePage page msg model =
                 ( ( pageModel, pageMsg ), externalMsg ) =
                     WordEdit.update model.session subMsg subModel
             in
-                { model | page = WordEdit pageModel }
-                    => Cmd.map WordEditMsg pageMsg
+                case externalMsg of
+                    WordEdit.NoOp ->
+                        { model | page = WordEdit pageModel }
+                            => Cmd.map WordEditMsg pageMsg
+
+                    WordEdit.GoHome ->
+                        model
+                            => Route.modifyUrl Route.Home
 
         ( Quizz, _ ) ->
             ( model, Cmd.none )
@@ -200,6 +240,14 @@ setRoute maybeRoute model =
         Just (Route.Login) ->
             { model | page = Login Login.initialModel }
                 => Cmd.none
+
+        Just (Route.Register) ->
+            { model | page = Register Register.initialModel }
+                => Task.attempt RegisterInit Register.init
+
+        Just (Route.Logout) ->
+            { model | session = { user = Nothing } }
+                => Cmd.batch [ deleteSession, Route.modifyUrl Route.Login ]
 
         Just (Route.Home) ->
             let

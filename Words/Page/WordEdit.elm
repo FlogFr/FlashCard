@@ -38,12 +38,15 @@ init user wordId =
 
 type Msg
     = TestMsg
-    | UpdateWord Word
     | WordEditInitFinished (Result Http.Error Word)
+    | UpdateWord Word
+    | UpdateWordRequest
+    | UpdateWordRequestFinished (Result Http.Error Word)
 
 
 type ExternalMsg
     = NoOp
+    | GoHome
 
 
 view : Model -> Html Msg
@@ -57,7 +60,7 @@ view model =
         Just word ->
             div []
                 [ p [] [ text ("Word #" ++ toString (.wordId word)) ]
-                , viewWordForm word UpdateWord
+                , viewWordForm word UpdateWord UpdateWordRequest
                 ]
 
 
@@ -74,7 +77,7 @@ update session msg model =
                 => NoOp
 
         UpdateWord newWord ->
-            Debug.log "new word: " { model | word = Just newWord }
+            { model | word = Just newWord }
                 => Cmd.none
                 => NoOp
 
@@ -85,5 +88,27 @@ update session msg model =
 
         WordEditInitFinished (Ok word) ->
             { model | word = Just word }
+                => Cmd.none
+                => NoOp
+
+        UpdateWordRequest ->
+            case model.word of
+                Nothing ->
+                    model
+                        => Cmd.none
+                        => NoOp
+
+                Just word ->
+                    model
+                        => putWordsIdByWordIdCmd UpdateWordRequestFinished session word
+                        => NoOp
+
+        UpdateWordRequestFinished (Ok word) ->
+            { model | word = Just word }
+                => Cmd.none
+                => GoHome
+
+        UpdateWordRequestFinished (Err _) ->
+            model
                 => Cmd.none
                 => NoOp

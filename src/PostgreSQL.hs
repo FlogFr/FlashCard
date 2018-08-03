@@ -3,6 +3,9 @@
 
 module PostgreSQL
   ( initConnectionPool
+  , getNewToken
+  , verifyToken
+  , insertUser
   , getUser
   , getAllWords
   , getLastWords
@@ -16,13 +19,14 @@ import Prelude hiding (Word)
 import Data.Pool (Pool, createPool)
 import Database.HDBC (disconnect)
 import Database.HDBC.PostgreSQL (Connection, connectPostgreSQL)
-import User (User(..))
+import User (User(..), NewUser(..))
 import Word (Word(..))
 import Database.YeshQL.HDBC (yeshFile)
 
 type WordId = Int
 type MaybeInt = Maybe Int
-type MaybeString = Maybe [String]
+type MaybeString = Maybe String
+type StringArray = [String]
 type MaybeStringArr = Maybe [String]
 
 type DBConnectionString = String

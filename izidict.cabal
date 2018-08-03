@@ -2,7 +2,7 @@
 --
 -- see: https://github.com/sol/hpack
 --
--- hash: 1e1bd09d371f815abcd93262876a2bcbe88436c90e68802daaf237c4fcc31423
+-- hash: c4efd334c0bbd7324566b7528fedf400bbafd9612c645ec61145039f18ca02b0
 
 name:           izidict
 version:        0.1.0.0
@@ -27,6 +27,7 @@ executable backend-exe
       API
       Auth
       PostgreSQL
+      Token
       User
       Word
       Paths_izidict
@@ -68,6 +69,7 @@ executable generate-elm-api
       API
       Auth
       PostgreSQL
+      Token
       User
       Word
       Paths_izidict
@@ -109,6 +111,7 @@ executable test-sql
       API
       Auth
       PostgreSQL
+      Token
       User
       Word
       Paths_izidict
@@ -151,6 +154,7 @@ test-suite spec
       API
       Auth
       PostgreSQL
+      Token
       User
       Word
       Paths_izidict

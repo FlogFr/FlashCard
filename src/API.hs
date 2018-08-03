@@ -42,18 +42,69 @@ import Servant
 import Servant.Server
 import Servant.Swagger
 import Servant.Swagger.UI
-import PostgreSQL (getAllWords, getLastWords, getWordById, updateWordById, insertWord)
+import PostgreSQL (getAllWords, getLastWords, getWordById, updateWordById, insertWord, getNewToken, verifyToken, insertUser)
 import Word (Word(..), WordId, wordConstructor)
-import User (User(..))
+import User (User(..), NewUser(..))
+import Token (Token(..))
 import Auth
 
 
-userServer :: User -> Server UserAPI
-userServer user = return user
+pgNewToken :: Connection -> IO Token
+pgNewToken conn = do
+  maybeToken <- getNewToken conn
+  case maybeToken of
+    Just token ->
+      return $ Token token
+    Nothing ->
+      return $ Token ""
+
+pgCreateUser :: String -> NewUser -> Connection -> IO NoContent
+pgCreateUser uuid newUser conn = do
+  maybeTokenIsValid <- verifyToken uuid conn
+  case maybeTokenIsValid of
+    Just tokenIsValid ->
+      if tokenIsValid
+        then do
+          _ <- insertUser newUser conn
+          return NoContent
+        else return NoContent
+    Nothing ->
+      return NoContent
+
+-- | API for the users
+type AuthAPI = "token" :> Get '[JSON] Token
+          :<|> "create" :> Capture "uuid" String :> ReqBody '[JSON] NewUser :> Post '[JSON] NoContent
+
+authServer :: Pool Connection -> Server AuthAPI
+authServer conns = newToken
+              :<|> createUser
+
+  where newToken :: Handler Token
+        newToken = do
+          liftIO $ 
+            withResource conns $ \conn -> do
+              begin conn
+              token <- pgNewToken conn
+              commit conn
+              return token
+
+        createUser :: String -> NewUser -> Handler NoContent
+        createUser uuid newUser = do
+          liftIO $ 
+            withResource conns $ \conn -> do
+              begin conn
+              token <- pgCreateUser uuid newUser conn
+              commit conn
+              return ()
+          return NoContent
 
 -- | API for the users
 type UserAPI = Get '[JSON] User
 
+userServer :: User -> Server UserAPI
+userServer user = return user
+
+-- Helpers for the word API
 pgRetrieveAllWords :: User -> Connection -> IO [Word]
 pgRetrieveAllWords user conn = do
   listWords <- getAllWords user conn
@@ -69,8 +120,8 @@ pgRetrieveWordById user wordId conn = do
   listWords <- getWordById user wordId conn
   return $ (map wordConstructor listWords)!!0
 
-pgUpdateWordById :: User -> WordId -> Connection -> IO (Maybe Integer)
-pgUpdateWordById user wordId conn = updateWordById user wordId conn
+pgUpdateWordById :: User -> WordId -> Word -> Connection -> IO (Maybe Integer)
+pgUpdateWordById user wordId word conn = updateWordById user wordId word conn
 
 -- | API for the words
 type WordAPI = "all" :> Get '[JSON] [Word]
@@ -118,7 +169,7 @@ wordServer user conns = retrieveAllWords
           liftIO $ 
             withResource conns $ \conn -> do
               begin conn
-              words <- pgUpdateWordById user wordId conn
+              words <- pgUpdateWordById user wordId word conn
               commit conn
               return word
 
@@ -142,6 +193,7 @@ type CombinedAPI = "user" :> UserAPI
 
 -- | Combined API of a Todo service with Swagger documentation.
 type API = BasicAuth "words-realm" User :> CombinedAPI
+      :<|> "auth" :> AuthAPI
       :<|> SwaggerSchemaUI "swagger-ui" "swagger.json"
 
 combinedServer :: User -> Pool Connection -> Server CombinedAPI
@@ -150,7 +202,7 @@ combinedServer user conns = ( (userServer user) :<|> (wordServer user conns) )
 apiServer :: Pool Connection -> Server API
 apiServer conns =
   let authCombinedServer (user :: User) = (combinedServer user conns)
-  in  (authCombinedServer :<|> swaggerSchemaUIServer apiSwagger)
+  in  (authCombinedServer :<|> (authServer conns) :<|> swaggerSchemaUIServer apiSwagger)
 
 api :: Proxy API
 api = Proxy
@@ -169,7 +221,7 @@ app conns = serveWithContext api basicAuthServerContext (apiServer conns)
 corsPolicy :: CorsResourcePolicy
 corsPolicy = CorsResourcePolicy {
     corsOrigins = Nothing
-  , corsMethods = corsMethods simpleCorsResourcePolicy
+  , corsMethods = ["GET", "HEAD", "PUT", "POST"]
   , corsRequestHeaders =["Authorization", "Content-Type"]
   , corsExposedHeaders = corsExposedHeaders simpleCorsResourcePolicy
   , corsMaxAge = corsMaxAge simpleCorsResourcePolicy

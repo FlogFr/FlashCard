@@ -1,6 +1,7 @@
 module Views.Words exposing (viewWordsTable)
 
 import Html.Styled as Html exposing (..)
+import IziCss exposing (..)
 import API exposing (..)
 import Route exposing (..)
 import Maybe as Maybe
@@ -9,12 +10,12 @@ import Maybe as Maybe
 viewWordTr : Word -> Html msg
 viewWordTr word =
     tr []
-        [ td [] [ text (.wordLanguage word) ]
-        , td [] [ text (.wordWord word) ]
-        , td [] [ text (.wordDefinition word) ]
-        , td [] [ text (String.concat (.wordKeywords word)) ]
-        , td [] [ text (toString (Maybe.withDefault 0 (.wordDifficulty word))) ]
-        , td [] [ a [ href (WordEdit (.wordId word)) ] [ text "edit" ] ]
+        [ td [ tdBorder ] [ text (.wordLanguage word) ]
+        , td [ tdBorder ] [ text (.wordWord word) ]
+        , td [ tdBorder ] [ text (.wordDefinition word) ]
+        , td [ tdBorder ] [ text (String.concat (List.intersperse ", " (.wordKeywords word))) ]
+        , td [ tdBorder ] [ text (toString (Maybe.withDefault 0 (.wordDifficulty word))) ]
+        , td [ tdBorder ] [ a [ href (WordEdit (.wordId word)) ] [ text "edit" ] ]
         ]
 
 

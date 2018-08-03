@@ -1,3 +1,32 @@
+-- name:getNewToken :: (String)
+INSERT INTO
+  token
+  (token)
+VALUES
+  (uuid_generate_v4())
+RETURNING
+  token
+;;;
+-- name:verifyToken :: (Bool)
+-- :uuid :: String
+SELECT
+  created_at > (now() - INTERVAL '5 minutes')
+FROM
+  token
+WHERE
+  token = :uuid
+;;;
+-- name:insertUser :: (String, String)
+-- :user :: NewUser
+INSERT INTO
+  users
+  (username, passpass, email)
+VALUES
+  (:user.newUsername, :user.newPassword, :user.newEmail)
+RETURNING
+    id
+  , username
+;;;
 -- name:getUser :: (Int, String)
 -- :userName :: String
 -- :userPassword :: String
@@ -9,19 +38,19 @@ WHERE
       username = :userName
   AND passpass = crypt(:userPassword, passpass)
 ;;;
--- name:getAllWords :: [(Int, String, String, String, MaybeInt)]
+-- name:getAllWords :: [(Int, String, String, String, StringArray, MaybeInt)]
 -- :user :: User
 SELECT
-  id, COALESCE(language, 'EN'), word, COALESCE(definition, 'def'), difficulty
+  id, COALESCE(language, 'EN'), word, COALESCE(definition, 'def'), keywords, difficulty
 FROM
   words
 WHERE
   userid = :user.userid
 ;;;
--- name:getLastWords :: [(Int, String, String, String, MaybeInt)]
+-- name:getLastWords :: [(Int, String, String, String, StringArray, MaybeInt)]
 -- :user :: User
 SELECT
-  id, COALESCE(language, 'EN'), word, COALESCE(definition, 'def'), difficulty
+  id, COALESCE(language, 'EN'), word, COALESCE(definition, 'def'), keywords, difficulty
 FROM
   words
 WHERE
@@ -30,11 +59,11 @@ WHERE
 ORDER BY
   inserted_at DESC
 ;;;
--- name:getWordById :: [(Int, String, String, String, MaybeInt)]
+-- name:getWordById :: [(Int, String, String, String, StringArray, MaybeInt)]
 -- :user :: User
 -- :wordId :: WordId
 SELECT
-  id, COALESCE(language, 'EN'), word, COALESCE(definition, 'def'), difficulty
+  id, COALESCE(language, 'EN'), word, COALESCE(definition, 'def'), keywords, difficulty
 FROM
   words
 WHERE
@@ -44,10 +73,15 @@ WHERE
 -- name:updateWordById :: (Integer)
 -- :user :: User
 -- :wordId :: WordId
+-- :word :: Word
 UPDATE
   words
 SET
-    wordLanguage    = 'EN'
+      language    = :word.wordLanguage
+    , word        = :word.wordWord
+    , keywords    = :word.wordKeywords
+    , definition  = :word.wordDefinition
+    , difficulty  = :word.wordDifficulty
 WHERE
           id = :wordId
   AND userid = :user.userid

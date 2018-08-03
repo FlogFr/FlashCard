@@ -16,6 +16,10 @@
     <script>
       var app = Elm.WordApp.fullscreen(localStorage.session || null);
 
+      app.ports.deleteLocalStorage.subscribe(function(session) {
+        localStorage.clear();
+      });
+      
       app.ports.storeSession.subscribe(function(session) {
         localStorage.session = session;
       });

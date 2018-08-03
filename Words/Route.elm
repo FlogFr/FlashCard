@@ -21,6 +21,8 @@ import Debug
 
 type Route
     = Login
+    | Logout
+    | Register
     | Home
     | WordEdit Int
     | Quizz
@@ -30,6 +32,8 @@ route : Parser (Route -> a) a
 route =
     oneOf
         [ Url.map Login (s "")
+        , Url.map Logout (s "logout")
+        , Url.map Register (s "register")
         , Url.map Home (s "home")
         , Url.map WordEdit (s "wordEdit" </> int)
         , Url.map Quizz (s "quizz")
@@ -47,6 +51,12 @@ routeToString page =
             case page of
                 Login ->
                     [ "" ]
+
+                Logout ->
+                    [ "logout" ]
+
+                Register ->
+                    [ "register" ]
 
                 Home ->
                     [ "home" ]

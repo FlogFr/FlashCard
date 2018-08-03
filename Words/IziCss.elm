@@ -95,6 +95,11 @@ logo =
         ]
 
 
+tdBorder : Attribute msg
+tdBorder =
+    css [ border3 (px 1) solid theme.secondary ]
+
+
 backgroundColored : Attribute msg
 backgroundColored =
     css [ backgroundColor theme.secondary ]

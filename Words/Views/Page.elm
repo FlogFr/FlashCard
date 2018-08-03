@@ -6,6 +6,7 @@ import Route as Route exposing (..)
 import IziCss exposing (..)
 import Html.Styled as Html exposing (..)
 import Html.Styled.Attributes exposing (..)
+import Html.Styled.Events exposing (..)
 
 
 frame : Session -> Html msg -> Html msg
@@ -26,7 +27,7 @@ viewHeader session =
                 [ img [ logo, src "/ressources/dictionnary.logo.png" ] []
                 , text "IziDict.com"
                 ]
-            , viewNav session.user
+            , viewNav session
             ]
         , div [ rightHeaderFrame ] []
         ]
@@ -38,14 +39,16 @@ viewFooter =
         [ p [] [ text "made with ❤ from ❤ WAW ❤" ] ]
 
 
-viewNav : Maybe AuthUser -> Html msg
-viewNav maybeUser =
-    case maybeUser of
+viewNav : Session -> Html msg
+viewNav session =
+    case session.user of
         Just user ->
             nav []
                 [ a [ Route.href Route.Home ] [ text "Go home" ]
+                , a [ Route.href Route.Logout ] [ text "- Logout -" ]
                 ]
 
         Nothing ->
-            nav []
+            nav
                 []
+                [ a [ Route.href Route.Register ] [ text "- REGISTER -" ] ]

@@ -1,4 +1,4 @@
-module Data.Session exposing (AuthUser, Session, storeSession, decodeAuthUserFromJson)
+module Data.Session exposing (AuthUser, Session, storeSession, deleteSession, decodeAuthUserFromJson)
 
 import Json.Encode as Encode exposing (Value)
 import Json.Decode as Decode exposing (Decoder, string, int, list)
@@ -34,6 +34,11 @@ storeSession authUser =
         |> Encode.encode 0
         |> Just
         |> Ports.storeSession
+
+
+deleteSession : Cmd msg
+deleteSession =
+    Ports.deleteLocalStorage ()
 
 
 decodeAuthUser : Decoder AuthUser

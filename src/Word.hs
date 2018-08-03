@@ -27,14 +27,16 @@ import Servant.Elm (ElmType)
 
 
 type WordId = Int
+type MaybeInt = Maybe Int
 type StringArray = [String]
+
 data Word = Word
   { wordId          :: WordId
   , wordLanguage    :: String
   , wordWord        :: String
   , wordKeywords    :: StringArray
   , wordDefinition  :: String
-  , wordDifficulty  :: Maybe Int
+  , wordDifficulty  :: MaybeInt
   } deriving (Eq, Generic, Show)
 
 
@@ -43,9 +45,9 @@ instance ToJSON Word
 instance FromJSON Word
 instance ElmType Word
 
-wordConstructor :: (Int, String, String, String, Maybe Int) -> Word
-wordConstructor (wordId, wordLanguage, wordWord, wordDefinition, wordDifficulty) =
-  Word wordId wordLanguage wordWord [] wordDefinition wordDifficulty
+wordConstructor :: (Int, String, String, String, StringArray, Maybe Int) -> Word
+wordConstructor (wordId, wordLanguage, wordWord, wordDefinition, wordKeywords, wordDifficulty) =
+  Word wordId wordLanguage wordWord wordKeywords wordDefinition wordDifficulty
 
 -- Convert From SQL / To SQL
 wordsWhen     :: (Char -> Bool) -> String -> [String]

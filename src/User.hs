@@ -6,6 +6,7 @@
 
 module User
   ( User(..)
+  , NewUser(..)
   )
   where
 
@@ -23,3 +24,16 @@ instance ToSchema User
 instance ToJSON User
 instance FromJSON User
 instance ElmType User
+
+type MaybeString = Maybe String
+
+data NewUser = NewUser
+  { newUsername :: String
+  , newPassword :: String
+  , newEmail :: MaybeString
+  } deriving (Eq, Generic, Show)
+
+instance ToSchema NewUser
+instance ToJSON NewUser
+instance FromJSON NewUser
+instance ElmType NewUser

@@ -2,12 +2,13 @@
 
 BEGIN;
 
-  -- Create Schema Users
+  -- Create Users
   CREATE SEQUENCE users_id_seq;
   
   CREATE TABLE IF NOT EXISTS users (
            "id" BIGINT NOT NULL PRIMARY KEY DEFAULT nextval('users_id_seq'),
      "username" TEXT NOT NULL,
+        "email" TEXT NULL,
      "passpass" TEXT NOT NULL
   );
   

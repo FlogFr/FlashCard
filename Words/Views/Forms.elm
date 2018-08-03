@@ -1,4 +1,4 @@
-module Views.Forms exposing (viewFormAddWord, viewFormLogin, viewWordForm)
+module Views.Forms exposing (viewFormAddWord, viewFormLogin, viewWordForm, viewFormRegister)
 
 import IziCss exposing (..)
 import Html.Styled as Html exposing (..)
@@ -31,9 +31,19 @@ viewFormLogin loginTryMsg typeLoginMsg typePasswordMsg =
         ]
 
 
-viewWordForm : Word -> (Word -> msg) -> Html msg
-viewWordForm word toUpdateWord =
-    Html.form []
+viewFormRegister : NewUser -> (NewUser -> msg) -> msg -> Html msg
+viewFormRegister newUser toUpdateRegisterModel toRegisterMsg =
+    Html.form [ niceBoxed, onSubmit toRegisterMsg, action "javascript:void(0);" ]
+        [ input [ onInput (\v -> toUpdateRegisterModel { newUser | username = v }), placeholder "username" ] []
+        , input [ onInput (\v -> toUpdateRegisterModel { newUser | password = v }), placeholder "password", attribute "type" "password" ] []
+        , input [ onInput (\v -> toUpdateRegisterModel { newUser | email = v }), placeholder "email" ] []
+        , btn [ type_ "submit" ] [ text "please, register me" ]
+        ]
+
+
+viewWordForm : Word -> (Word -> msg) -> msg -> Html msg
+viewWordForm word toUpdateWord toUpdateMsg =
+    Html.form [ onSubmit toUpdateMsg ]
         [ input [ onInput (\v -> toUpdateWord { word | wordLanguage = v }), placeholder "language", value (.wordLanguage word) ] []
         , input [ onInput (\v -> toUpdateWord { word | wordWord = v }), placeholder "definition", value (.wordWord word) ] []
         , input [ onInput (\v -> toUpdateWord { word | wordKeywords = (String.split "," v) }), placeholder "keywords (comma separated)", value (List.foldr (++) "" (List.intersperse "," (.wordKeywords word))) ] []

@@ -20459,6 +20459,69 @@ var _truqu$elm_base64$Base64_Encode$encode = function (input) {
 var _truqu$elm_base64$Base64$decode = _truqu$elm_base64$Base64_Decode$decode;
 var _truqu$elm_base64$Base64$encode = _truqu$elm_base64$Base64_Encode$encode;
 
+var _user$project$API$decodeToken = A2(_elm_lang$core$Json_Decode$field, 'token', _elm_lang$core$Json_Decode$string);
+var _user$project$API$getToken = _elm_lang$http$Http$request(
+	{
+		method: 'GET',
+		headers: {ctor: '[]'},
+		url: A2(
+			_elm_lang$core$String$join,
+			'/',
+			{
+				ctor: '::',
+				_0: 'http://127.1:8080',
+				_1: {
+					ctor: '::',
+					_0: 'auth',
+					_1: {
+						ctor: '::',
+						_0: 'token',
+						_1: {ctor: '[]'}
+					}
+				}
+			}),
+		body: _elm_lang$http$Http$emptyBody,
+		expect: _elm_lang$http$Http$expectJson(_user$project$API$decodeToken),
+		timeout: _elm_lang$core$Maybe$Nothing,
+		withCredentials: false
+	});
+var _user$project$API$encodeNewUser = function (newUser) {
+	return _elm_lang$core$Json_Encode$object(
+		{
+			ctor: '::',
+			_0: {
+				ctor: '_Tuple2',
+				_0: 'newUsername',
+				_1: _elm_lang$core$Json_Encode$string(
+					function (_) {
+						return _.username;
+					}(newUser))
+			},
+			_1: {
+				ctor: '::',
+				_0: {
+					ctor: '_Tuple2',
+					_0: 'newPassword',
+					_1: _elm_lang$core$Json_Encode$string(
+						function (_) {
+							return _.password;
+						}(newUser))
+				},
+				_1: {
+					ctor: '::',
+					_0: {
+						ctor: '_Tuple2',
+						_0: 'newEmail',
+						_1: _elm_lang$core$Json_Encode$string(
+							function (_) {
+								return _.email;
+							}(newUser))
+					},
+					_1: {ctor: '[]'}
+				}
+			}
+		});
+};
 var _user$project$API$encodeUser = function (x) {
 	return _elm_lang$core$Json_Encode$object(
 		{
@@ -20657,6 +20720,40 @@ var _user$project$API$getWordsIdByWordId = F2(
 				withCredentials: false
 			});
 	});
+var _user$project$API$putWordsIdByWordId = F3(
+	function (headers, capture_wordId, body) {
+		return _elm_lang$http$Http$request(
+			{
+				method: 'PUT',
+				headers: headers,
+				url: A2(
+					_elm_lang$core$String$join,
+					'/',
+					{
+						ctor: '::',
+						_0: 'http://127.1:8080',
+						_1: {
+							ctor: '::',
+							_0: 'words',
+							_1: {
+								ctor: '::',
+								_0: 'id',
+								_1: {
+									ctor: '::',
+									_0: _elm_lang$http$Http$encodeUri(
+										_elm_lang$core$Basics$toString(capture_wordId)),
+									_1: {ctor: '[]'}
+								}
+							}
+						}
+					}),
+				body: _elm_lang$http$Http$jsonBody(
+					_user$project$API$encodeWord(body)),
+				expect: _elm_lang$http$Http$expectJson(_user$project$API$decodeWord),
+				timeout: _elm_lang$core$Maybe$Nothing,
+				withCredentials: false
+			});
+	});
 var _user$project$API$User = F2(
 	function (a, b) {
 		return {userid: a, username: b};
@@ -20693,7 +20790,48 @@ var _user$project$API$getUser = function (headers) {
 			withCredentials: false
 		});
 };
+var _user$project$API$NewUser = F3(
+	function (a, b, c) {
+		return {username: a, password: b, email: c};
+	});
 var _user$project$API$NoContent = {ctor: 'NoContent'};
+var _user$project$API$postNewUser = F2(
+	function (token, newUser) {
+		return _elm_lang$http$Http$request(
+			{
+				method: 'POST',
+				headers: {ctor: '[]'},
+				url: A2(
+					_elm_lang$core$String$join,
+					'/',
+					{
+						ctor: '::',
+						_0: 'http://127.1:8080',
+						_1: {
+							ctor: '::',
+							_0: 'auth',
+							_1: {
+								ctor: '::',
+								_0: 'create',
+								_1: {
+									ctor: '::',
+									_0: token,
+									_1: {ctor: '[]'}
+								}
+							}
+						}
+					}),
+				body: _elm_lang$http$Http$jsonBody(
+					_user$project$API$encodeNewUser(newUser)),
+				expect: _elm_lang$http$Http$expectStringResponse(
+					function (_p2) {
+						var _p3 = _p2;
+						return _elm_lang$core$String$isEmpty(_p3.body) ? _elm_lang$core$Result$Ok(_user$project$API$NoContent) : _elm_lang$core$Result$Err('Expected the response body to be empty');
+					}),
+				timeout: _elm_lang$core$Maybe$Nothing,
+				withCredentials: false
+			});
+	});
 var _user$project$API$postWords = F2(
 	function (headers, body) {
 		return _elm_lang$http$Http$request(
@@ -20715,9 +20853,9 @@ var _user$project$API$postWords = F2(
 				body: _elm_lang$http$Http$jsonBody(
 					_user$project$API$encodeWord(body)),
 				expect: _elm_lang$http$Http$expectStringResponse(
-					function (_p2) {
-						var _p3 = _p2;
-						return _elm_lang$core$String$isEmpty(_p3.body) ? _elm_lang$core$Result$Ok(_user$project$API$NoContent) : _elm_lang$core$Result$Err('Expected the response body to be empty');
+					function (_p4) {
+						var _p5 = _p4;
+						return _elm_lang$core$String$isEmpty(_p5.body) ? _elm_lang$core$Result$Ok(_user$project$API$NoContent) : _elm_lang$core$Result$Err('Expected the response body to be empty');
 					}),
 				timeout: _elm_lang$core$Maybe$Nothing,
 				withCredentials: false
@@ -20729,6 +20867,11 @@ var _user$project$Ports$storeSession = _elm_lang$core$Native_Platform.outgoingPo
 	function (v) {
 		return (v.ctor === 'Nothing') ? null : v._0;
 	});
+var _user$project$Ports$deleteLocalStorage = _elm_lang$core$Native_Platform.outgoingPort(
+	'deleteLocalStorage',
+	function (v) {
+		return null;
+	});
 
 var _user$project$Util_ops = _user$project$Util_ops || {};
 _user$project$Util_ops['=>'] = F2(
@@ -20736,6 +20879,8 @@ _user$project$Util_ops['=>'] = F2(
 		return {ctor: '_Tuple2', _0: v0, _1: v1};
 	});
 
+var _user$project$Data_Session$deleteSession = _user$project$Ports$deleteLocalStorage(
+	{ctor: '_Tuple0'});
 var _user$project$Data_Session$encodeAuthUser = function (x) {
 	return _elm_lang$core$Json_Encode$object(
 		{
@@ -20953,6 +21098,16 @@ var _user$project$IziCss$block = _rtfeldman$elm_css$Html_Styled_Attributes$css(
 		}
 	});
 var _user$project$IziCss$theme = {secondary: _rtfeldman$elm_css$Css_Colors$teal, primary: _rtfeldman$elm_css$Css_Colors$olive};
+var _user$project$IziCss$tdBorder = _rtfeldman$elm_css$Html_Styled_Attributes$css(
+	{
+		ctor: '::',
+		_0: A3(
+			_rtfeldman$elm_css$Css$border3,
+			_rtfeldman$elm_css$Css$px(1),
+			_rtfeldman$elm_css$Css$solid,
+			_user$project$IziCss$theme.secondary),
+		_1: {ctor: '[]'}
+	});
 var _user$project$IziCss$backgroundColored = _rtfeldman$elm_css$Html_Styled_Attributes$css(
 	{
 		ctor: '::',
@@ -21047,6 +21202,50 @@ var _user$project$Request$postWordCmd = F3(
 			return _elm_lang$core$Platform_Cmd$none;
 		}
 	});
+var _user$project$Request$putWordsIdByWordIdRequest = F3(
+	function (username, password, word) {
+		var base64Authorization = _truqu$elm_base64$Base64$encode(
+			A2(
+				_elm_lang$core$Basics_ops['++'],
+				username,
+				A2(_elm_lang$core$Basics_ops['++'], ':', password)));
+		var requestAuthHeader = A2(
+			_elm_lang$http$Http$header,
+			'Authorization',
+			A2(_elm_lang$core$Basics_ops['++'], 'Basic ', base64Authorization));
+		return A3(
+			_user$project$API$putWordsIdByWordId,
+			{
+				ctor: '::',
+				_0: requestAuthHeader,
+				_1: {ctor: '[]'}
+			},
+			function (_) {
+				return _.wordId;
+			}(word),
+			word);
+	});
+var _user$project$Request$putWordsIdByWordIdCmd = F3(
+	function (msgType, session, word) {
+		var _p2 = session.user;
+		if (_p2.ctor === 'Just') {
+			var _p3 = _p2._0;
+			return A2(
+				_elm_lang$http$Http$send,
+				msgType,
+				A3(
+					_user$project$Request$putWordsIdByWordIdRequest,
+					function (_) {
+						return _.username;
+					}(_p3),
+					function (_) {
+						return _.userpassword;
+					}(_p3),
+					word));
+		} else {
+			return _elm_lang$core$Platform_Cmd$none;
+		}
+	});
 var _user$project$Request$getWordByIdRequest = F2(
 	function (user, wordId) {
 		var base64Authorization = _truqu$elm_base64$Base64$encode(
@@ -21107,14 +21306,14 @@ var _user$project$Request$getWordsLastRequest = function (user) {
 };
 var _user$project$Request$getWordsLastCmd = F2(
 	function (msgType, session) {
-		var _p2 = session.user;
-		if (_p2.ctor === 'Nothing') {
+		var _p4 = session.user;
+		if (_p4.ctor === 'Nothing') {
 			return _elm_lang$core$Platform_Cmd$none;
 		} else {
 			return A2(
 				_elm_lang$http$Http$send,
 				msgType,
-				_user$project$Request$getWordsLastRequest(_p2._0));
+				_user$project$Request$getWordsLastRequest(_p4._0));
 		}
 	});
 var _user$project$Request$getUserRequest = F2(
@@ -21151,6 +21350,18 @@ var _user$project$Route$routeToString = function (page) {
 				return {
 					ctor: '::',
 					_0: '',
+					_1: {ctor: '[]'}
+				};
+			case 'Logout':
+				return {
+					ctor: '::',
+					_0: 'logout',
+					_1: {ctor: '[]'}
+				};
+			case 'Register':
+				return {
+					ctor: '::',
+					_0: 'register',
 					_1: {ctor: '[]'}
 				};
 			case 'Home':
@@ -21195,6 +21406,8 @@ var _user$project$Route$WordEdit = function (a) {
 	return {ctor: 'WordEdit', _0: a};
 };
 var _user$project$Route$Home = {ctor: 'Home'};
+var _user$project$Route$Register = {ctor: 'Register'};
+var _user$project$Route$Logout = {ctor: 'Logout'};
 var _user$project$Route$Login = {ctor: 'Login'};
 var _user$project$Route$route = _evancz$url_parser$UrlParser$oneOf(
 	{
@@ -21207,24 +21420,38 @@ var _user$project$Route$route = _evancz$url_parser$UrlParser$oneOf(
 			ctor: '::',
 			_0: A2(
 				_evancz$url_parser$UrlParser$map,
-				_user$project$Route$Home,
-				_evancz$url_parser$UrlParser$s('home')),
+				_user$project$Route$Logout,
+				_evancz$url_parser$UrlParser$s('logout')),
 			_1: {
 				ctor: '::',
 				_0: A2(
 					_evancz$url_parser$UrlParser$map,
-					_user$project$Route$WordEdit,
-					A2(
-						_evancz$url_parser$UrlParser_ops['</>'],
-						_evancz$url_parser$UrlParser$s('wordEdit'),
-						_evancz$url_parser$UrlParser$int)),
+					_user$project$Route$Register,
+					_evancz$url_parser$UrlParser$s('register')),
 				_1: {
 					ctor: '::',
 					_0: A2(
 						_evancz$url_parser$UrlParser$map,
-						_user$project$Route$Quizz,
-						_evancz$url_parser$UrlParser$s('quizz')),
-					_1: {ctor: '[]'}
+						_user$project$Route$Home,
+						_evancz$url_parser$UrlParser$s('home')),
+					_1: {
+						ctor: '::',
+						_0: A2(
+							_evancz$url_parser$UrlParser$map,
+							_user$project$Route$WordEdit,
+							A2(
+								_evancz$url_parser$UrlParser_ops['</>'],
+								_evancz$url_parser$UrlParser$s('wordEdit'),
+								_evancz$url_parser$UrlParser$int)),
+						_1: {
+							ctor: '::',
+							_0: A2(
+								_evancz$url_parser$UrlParser$map,
+								_user$project$Route$Quizz,
+								_evancz$url_parser$UrlParser$s('quizz')),
+							_1: {ctor: '[]'}
+						}
+					}
 				}
 			}
 		}
@@ -21241,7 +21468,11 @@ var _user$project$Views_Words$viewWordTr = function (word) {
 			ctor: '::',
 			_0: A2(
 				_rtfeldman$elm_css$Html_Styled$td,
-				{ctor: '[]'},
+				{
+					ctor: '::',
+					_0: _user$project$IziCss$tdBorder,
+					_1: {ctor: '[]'}
+				},
 				{
 					ctor: '::',
 					_0: _rtfeldman$elm_css$Html_Styled$text(
@@ -21254,7 +21485,11 @@ var _user$project$Views_Words$viewWordTr = function (word) {
 				ctor: '::',
 				_0: A2(
 					_rtfeldman$elm_css$Html_Styled$td,
-					{ctor: '[]'},
+					{
+						ctor: '::',
+						_0: _user$project$IziCss$tdBorder,
+						_1: {ctor: '[]'}
+					},
 					{
 						ctor: '::',
 						_0: _rtfeldman$elm_css$Html_Styled$text(
@@ -21267,7 +21502,11 @@ var _user$project$Views_Words$viewWordTr = function (word) {
 					ctor: '::',
 					_0: A2(
 						_rtfeldman$elm_css$Html_Styled$td,
-						{ctor: '[]'},
+						{
+							ctor: '::',
+							_0: _user$project$IziCss$tdBorder,
+							_1: {ctor: '[]'}
+						},
 						{
 							ctor: '::',
 							_0: _rtfeldman$elm_css$Html_Styled$text(
@@ -21280,21 +21519,32 @@ var _user$project$Views_Words$viewWordTr = function (word) {
 						ctor: '::',
 						_0: A2(
 							_rtfeldman$elm_css$Html_Styled$td,
-							{ctor: '[]'},
+							{
+								ctor: '::',
+								_0: _user$project$IziCss$tdBorder,
+								_1: {ctor: '[]'}
+							},
 							{
 								ctor: '::',
 								_0: _rtfeldman$elm_css$Html_Styled$text(
 									_elm_lang$core$String$concat(
-										function (_) {
-											return _.wordKeywords;
-										}(word))),
+										A2(
+											_elm_lang$core$List$intersperse,
+											', ',
+											function (_) {
+												return _.wordKeywords;
+											}(word)))),
 								_1: {ctor: '[]'}
 							}),
 						_1: {
 							ctor: '::',
 							_0: A2(
 								_rtfeldman$elm_css$Html_Styled$td,
-								{ctor: '[]'},
+								{
+									ctor: '::',
+									_0: _user$project$IziCss$tdBorder,
+									_1: {ctor: '[]'}
+								},
 								{
 									ctor: '::',
 									_0: _rtfeldman$elm_css$Html_Styled$text(
@@ -21311,7 +21561,11 @@ var _user$project$Views_Words$viewWordTr = function (word) {
 								ctor: '::',
 								_0: A2(
 									_rtfeldman$elm_css$Html_Styled$td,
-									{ctor: '[]'},
+									{
+										ctor: '::',
+										_0: _user$project$IziCss$tdBorder,
+										_1: {ctor: '[]'}
+									},
 									{
 										ctor: '::',
 										_0: A2(
@@ -21434,11 +21688,15 @@ var _user$project$Views_Words$viewWordsTable = function (words) {
 		});
 };
 
-var _user$project$Views_Forms$viewWordForm = F2(
-	function (word, toUpdateWord) {
+var _user$project$Views_Forms$viewWordForm = F3(
+	function (word, toUpdateWord, toUpdateMsg) {
 		return A2(
 			_rtfeldman$elm_css$Html_Styled$form,
-			{ctor: '[]'},
+			{
+				ctor: '::',
+				_0: _rtfeldman$elm_css$Html_Styled_Events$onSubmit(toUpdateMsg),
+				_1: {ctor: '[]'}
+			},
 			{
 				ctor: '::',
 				_0: A2(
@@ -21597,6 +21855,107 @@ var _user$project$Views_Forms$viewWordForm = F2(
 									_1: {ctor: '[]'}
 								}
 							}
+						}
+					}
+				}
+			});
+	});
+var _user$project$Views_Forms$viewFormRegister = F3(
+	function (newUser, toUpdateRegisterModel, toRegisterMsg) {
+		return A2(
+			_rtfeldman$elm_css$Html_Styled$form,
+			{
+				ctor: '::',
+				_0: _user$project$IziCss$niceBoxed,
+				_1: {
+					ctor: '::',
+					_0: _rtfeldman$elm_css$Html_Styled_Events$onSubmit(toRegisterMsg),
+					_1: {
+						ctor: '::',
+						_0: _rtfeldman$elm_css$Html_Styled_Attributes$action('javascript:void(0);'),
+						_1: {ctor: '[]'}
+					}
+				}
+			},
+			{
+				ctor: '::',
+				_0: A2(
+					_rtfeldman$elm_css$Html_Styled$input,
+					{
+						ctor: '::',
+						_0: _rtfeldman$elm_css$Html_Styled_Events$onInput(
+							function (v) {
+								return toUpdateRegisterModel(
+									_elm_lang$core$Native_Utils.update(
+										newUser,
+										{username: v}));
+							}),
+						_1: {
+							ctor: '::',
+							_0: _rtfeldman$elm_css$Html_Styled_Attributes$placeholder('username'),
+							_1: {ctor: '[]'}
+						}
+					},
+					{ctor: '[]'}),
+				_1: {
+					ctor: '::',
+					_0: A2(
+						_rtfeldman$elm_css$Html_Styled$input,
+						{
+							ctor: '::',
+							_0: _rtfeldman$elm_css$Html_Styled_Events$onInput(
+								function (v) {
+									return toUpdateRegisterModel(
+										_elm_lang$core$Native_Utils.update(
+											newUser,
+											{password: v}));
+								}),
+							_1: {
+								ctor: '::',
+								_0: _rtfeldman$elm_css$Html_Styled_Attributes$placeholder('password'),
+								_1: {
+									ctor: '::',
+									_0: A2(_rtfeldman$elm_css$Html_Styled_Attributes$attribute, 'type', 'password'),
+									_1: {ctor: '[]'}
+								}
+							}
+						},
+						{ctor: '[]'}),
+					_1: {
+						ctor: '::',
+						_0: A2(
+							_rtfeldman$elm_css$Html_Styled$input,
+							{
+								ctor: '::',
+								_0: _rtfeldman$elm_css$Html_Styled_Events$onInput(
+									function (v) {
+										return toUpdateRegisterModel(
+											_elm_lang$core$Native_Utils.update(
+												newUser,
+												{email: v}));
+									}),
+								_1: {
+									ctor: '::',
+									_0: _rtfeldman$elm_css$Html_Styled_Attributes$placeholder('email'),
+									_1: {ctor: '[]'}
+								}
+							},
+							{ctor: '[]'}),
+						_1: {
+							ctor: '::',
+							_0: A2(
+								_user$project$IziCss$btn,
+								{
+									ctor: '::',
+									_0: _rtfeldman$elm_css$Html_Styled_Attributes$type_('submit'),
+									_1: {ctor: '[]'}
+								},
+								{
+									ctor: '::',
+									_0: _rtfeldman$elm_css$Html_Styled$text('please, register me'),
+									_1: {ctor: '[]'}
+								}),
+							_1: {ctor: '[]'}
 						}
 					}
 				}
@@ -22178,6 +22537,133 @@ var _user$project$Page_Quizz$Model = function (a) {
 };
 var _user$project$Page_Quizz$TestMsg = {ctor: 'TestMsg'};
 
+var _user$project$Page_Register$init = _elm_lang$http$Http$toTask(_user$project$API$getToken);
+var _user$project$Page_Register$initialModel = {
+	token: '',
+	newUser: A3(_user$project$API$NewUser, '', '', '')
+};
+var _user$project$Page_Register$Model = F2(
+	function (a, b) {
+		return {token: a, newUser: b};
+	});
+var _user$project$Page_Register$RetrieveUserFinished = function (a) {
+	return {ctor: 'RetrieveUserFinished', _0: a};
+};
+var _user$project$Page_Register$RegisterFinished = function (a) {
+	return {ctor: 'RegisterFinished', _0: a};
+};
+var _user$project$Page_Register$Register = {ctor: 'Register'};
+var _user$project$Page_Register$UpdateNewUser = function (a) {
+	return {ctor: 'UpdateNewUser', _0: a};
+};
+var _user$project$Page_Register$view = function (model) {
+	return A2(
+		_rtfeldman$elm_css$Html_Styled$div,
+		{ctor: '[]'},
+		{
+			ctor: '::',
+			_0: A3(_user$project$Views_Forms$viewFormRegister, model.newUser, _user$project$Page_Register$UpdateNewUser, _user$project$Page_Register$Register),
+			_1: {ctor: '[]'}
+		});
+};
+var _user$project$Page_Register$InitFinished = function (a) {
+	return {ctor: 'InitFinished', _0: a};
+};
+var _user$project$Page_Register$SetAuthUser = function (a) {
+	return {ctor: 'SetAuthUser', _0: a};
+};
+var _user$project$Page_Register$NoOp = {ctor: 'NoOp'};
+var _user$project$Page_Register$update = F2(
+	function (msg, model) {
+		var _p0 = msg;
+		switch (_p0.ctor) {
+			case 'InitFinished':
+				if (_p0._0.ctor === 'Ok') {
+					return A2(
+						_user$project$Util_ops['=>'],
+						A2(
+							_user$project$Util_ops['=>'],
+							_elm_lang$core$Native_Utils.update(
+								model,
+								{token: _p0._0._0}),
+							_elm_lang$core$Platform_Cmd$none),
+						_user$project$Page_Register$NoOp);
+				} else {
+					return A2(
+						_user$project$Util_ops['=>'],
+						A2(_user$project$Util_ops['=>'], model, _elm_lang$core$Platform_Cmd$none),
+						_user$project$Page_Register$NoOp);
+				}
+			case 'UpdateNewUser':
+				return A2(
+					_user$project$Util_ops['=>'],
+					A2(
+						_user$project$Util_ops['=>'],
+						_elm_lang$core$Native_Utils.update(
+							model,
+							{newUser: _p0._0}),
+						_elm_lang$core$Platform_Cmd$none),
+					_user$project$Page_Register$NoOp);
+			case 'Register':
+				return A2(
+					_user$project$Util_ops['=>'],
+					A2(
+						_user$project$Util_ops['=>'],
+						model,
+						A2(
+							_elm_lang$http$Http$send,
+							_user$project$Page_Register$RegisterFinished,
+							A2(_user$project$API$postNewUser, model.token, model.newUser))),
+					_user$project$Page_Register$NoOp);
+			case 'RegisterFinished':
+				if (_p0._0.ctor === 'Ok') {
+					return A2(
+						_user$project$Util_ops['=>'],
+						A2(
+							_user$project$Util_ops['=>'],
+							model,
+							A3(_user$project$Request$getUserCmd, _user$project$Page_Register$RetrieveUserFinished, model.newUser.username, model.newUser.password)),
+						_user$project$Page_Register$NoOp);
+				} else {
+					return A2(
+						_user$project$Util_ops['=>'],
+						A2(_user$project$Util_ops['=>'], model, _elm_lang$core$Platform_Cmd$none),
+						_user$project$Page_Register$NoOp);
+				}
+			default:
+				if (_p0._0.ctor === 'Ok') {
+					var authUser = A3(
+						_user$project$Data_Session$AuthUser,
+						function (_) {
+							return _.userid;
+						}(_p0._0._0),
+						model.newUser.username,
+						model.newUser.password);
+					return A2(
+						_user$project$Util_ops['=>'],
+						A2(
+							_user$project$Util_ops['=>'],
+							model,
+							_elm_lang$core$Platform_Cmd$batch(
+								{
+									ctor: '::',
+									_0: _user$project$Data_Session$storeSession(authUser),
+									_1: {
+										ctor: '::',
+										_0: _user$project$Route$modifyUrl(_user$project$Route$Home),
+										_1: {ctor: '[]'}
+									}
+								})),
+						_user$project$Page_Register$SetAuthUser(authUser));
+				} else {
+					return A2(
+						_user$project$Util_ops['=>'],
+						A2(_user$project$Util_ops['=>'], model, _elm_lang$core$Platform_Cmd$none),
+						_user$project$Page_Register$NoOp);
+				}
+		}
+	});
+
 var _user$project$Page_WordEdit$init = F2(
 	function (user, wordId) {
 		return _elm_lang$http$Http$toTask(
@@ -22187,9 +22673,10 @@ var _user$project$Page_WordEdit$initialModel = {word: _elm_lang$core$Maybe$Nothi
 var _user$project$Page_WordEdit$Model = function (a) {
 	return {word: a};
 };
-var _user$project$Page_WordEdit$WordEditInitFinished = function (a) {
-	return {ctor: 'WordEditInitFinished', _0: a};
+var _user$project$Page_WordEdit$UpdateWordRequestFinished = function (a) {
+	return {ctor: 'UpdateWordRequestFinished', _0: a};
 };
+var _user$project$Page_WordEdit$UpdateWordRequest = {ctor: 'UpdateWordRequest'};
 var _user$project$Page_WordEdit$UpdateWord = function (a) {
 	return {ctor: 'UpdateWord', _0: a};
 };
@@ -22235,13 +22722,17 @@ var _user$project$Page_WordEdit$view = function (model) {
 					}),
 				_1: {
 					ctor: '::',
-					_0: A2(_user$project$Views_Forms$viewWordForm, _p1, _user$project$Page_WordEdit$UpdateWord),
+					_0: A3(_user$project$Views_Forms$viewWordForm, _p1, _user$project$Page_WordEdit$UpdateWord, _user$project$Page_WordEdit$UpdateWordRequest),
 					_1: {ctor: '[]'}
 				}
 			});
 	}
 };
+var _user$project$Page_WordEdit$WordEditInitFinished = function (a) {
+	return {ctor: 'WordEditInitFinished', _0: a};
+};
 var _user$project$Page_WordEdit$TestMsg = {ctor: 'TestMsg'};
+var _user$project$Page_WordEdit$GoHome = {ctor: 'GoHome'};
 var _user$project$Page_WordEdit$NoOp = {ctor: 'NoOp'};
 var _user$project$Page_WordEdit$update = F3(
 	function (session, msg, model) {
@@ -22257,17 +22748,14 @@ var _user$project$Page_WordEdit$update = F3(
 					_user$project$Util_ops['=>'],
 					A2(
 						_user$project$Util_ops['=>'],
-						A2(
-							_elm_lang$core$Debug$log,
-							'new word: ',
-							_elm_lang$core$Native_Utils.update(
-								model,
-								{
-									word: _elm_lang$core$Maybe$Just(_p2._0)
-								})),
+						_elm_lang$core$Native_Utils.update(
+							model,
+							{
+								word: _elm_lang$core$Maybe$Just(_p2._0)
+							}),
 						_elm_lang$core$Platform_Cmd$none),
 					_user$project$Page_WordEdit$NoOp);
-			default:
+			case 'WordEditInitFinished':
 				if (_p2._0.ctor === 'Err') {
 					return A2(
 						_user$project$Util_ops['=>'],
@@ -22286,11 +22774,46 @@ var _user$project$Page_WordEdit$update = F3(
 							_elm_lang$core$Platform_Cmd$none),
 						_user$project$Page_WordEdit$NoOp);
 				}
+			case 'UpdateWordRequest':
+				var _p3 = model.word;
+				if (_p3.ctor === 'Nothing') {
+					return A2(
+						_user$project$Util_ops['=>'],
+						A2(_user$project$Util_ops['=>'], model, _elm_lang$core$Platform_Cmd$none),
+						_user$project$Page_WordEdit$NoOp);
+				} else {
+					return A2(
+						_user$project$Util_ops['=>'],
+						A2(
+							_user$project$Util_ops['=>'],
+							model,
+							A3(_user$project$Request$putWordsIdByWordIdCmd, _user$project$Page_WordEdit$UpdateWordRequestFinished, session, _p3._0)),
+						_user$project$Page_WordEdit$NoOp);
+				}
+			default:
+				if (_p2._0.ctor === 'Ok') {
+					return A2(
+						_user$project$Util_ops['=>'],
+						A2(
+							_user$project$Util_ops['=>'],
+							_elm_lang$core$Native_Utils.update(
+								model,
+								{
+									word: _elm_lang$core$Maybe$Just(_p2._0._0)
+								}),
+							_elm_lang$core$Platform_Cmd$none),
+						_user$project$Page_WordEdit$GoHome);
+				} else {
+					return A2(
+						_user$project$Util_ops['=>'],
+						A2(_user$project$Util_ops['=>'], model, _elm_lang$core$Platform_Cmd$none),
+						_user$project$Page_WordEdit$NoOp);
+				}
 		}
 	});
 
-var _user$project$Views_Page$viewNav = function (maybeUser) {
-	var _p0 = maybeUser;
+var _user$project$Views_Page$viewNav = function (session) {
+	var _p0 = session.user;
 	if (_p0.ctor === 'Just') {
 		return A2(
 			_rtfeldman$elm_css$Html_Styled$nav,
@@ -22309,13 +22832,43 @@ var _user$project$Views_Page$viewNav = function (maybeUser) {
 						_0: _rtfeldman$elm_css$Html_Styled$text('Go home'),
 						_1: {ctor: '[]'}
 					}),
-				_1: {ctor: '[]'}
+				_1: {
+					ctor: '::',
+					_0: A2(
+						_rtfeldman$elm_css$Html_Styled$a,
+						{
+							ctor: '::',
+							_0: _user$project$Route$href(_user$project$Route$Logout),
+							_1: {ctor: '[]'}
+						},
+						{
+							ctor: '::',
+							_0: _rtfeldman$elm_css$Html_Styled$text('- Logout -'),
+							_1: {ctor: '[]'}
+						}),
+					_1: {ctor: '[]'}
+				}
 			});
 	} else {
 		return A2(
 			_rtfeldman$elm_css$Html_Styled$nav,
 			{ctor: '[]'},
-			{ctor: '[]'});
+			{
+				ctor: '::',
+				_0: A2(
+					_rtfeldman$elm_css$Html_Styled$a,
+					{
+						ctor: '::',
+						_0: _user$project$Route$href(_user$project$Route$Register),
+						_1: {ctor: '[]'}
+					},
+					{
+						ctor: '::',
+						_0: _rtfeldman$elm_css$Html_Styled$text('- REGISTER -'),
+						_1: {ctor: '[]'}
+					}),
+				_1: {ctor: '[]'}
+			});
 	}
 };
 var _user$project$Views_Page$viewFooter = A2(
@@ -22395,7 +22948,7 @@ var _user$project$Views_Page$viewHeader = function (session) {
 							}),
 						_1: {
 							ctor: '::',
-							_0: _user$project$Views_Page$viewNav(session.user),
+							_0: _user$project$Views_Page$viewNav(session),
 							_1: {ctor: '[]'}
 						}
 					}),
@@ -22463,6 +23016,9 @@ var _user$project$WordApp$WordEdit = function (a) {
 var _user$project$WordApp$Home = function (a) {
 	return {ctor: 'Home', _0: a};
 };
+var _user$project$WordApp$Register = function (a) {
+	return {ctor: 'Register', _0: a};
+};
 var _user$project$WordApp$Login = function (a) {
 	return {ctor: 'Login', _0: a};
 };
@@ -22481,6 +23037,9 @@ var _user$project$WordApp$HomeMsg = function (a) {
 };
 var _user$project$WordApp$HomeInit = function (a) {
 	return {ctor: 'HomeInit', _0: a};
+};
+var _user$project$WordApp$RegisterInit = function (a) {
+	return {ctor: 'RegisterInit', _0: a};
 };
 var _user$project$WordApp$setRoute = F2(
 	function (maybeRoute, model) {
@@ -22503,6 +23062,33 @@ var _user$project$WordApp$setRoute = F2(
 								page: _user$project$WordApp$Login(_user$project$Page_Login$initialModel)
 							}),
 						_elm_lang$core$Platform_Cmd$none);
+				case 'Register':
+					return A2(
+						_user$project$Util_ops['=>'],
+						_elm_lang$core$Native_Utils.update(
+							model,
+							{
+								page: _user$project$WordApp$Register(_user$project$Page_Register$initialModel)
+							}),
+						A2(_elm_lang$core$Task$attempt, _user$project$WordApp$RegisterInit, _user$project$Page_Register$init));
+				case 'Logout':
+					return A2(
+						_user$project$Util_ops['=>'],
+						_elm_lang$core$Native_Utils.update(
+							model,
+							{
+								session: {user: _elm_lang$core$Maybe$Nothing}
+							}),
+						_elm_lang$core$Platform_Cmd$batch(
+							{
+								ctor: '::',
+								_0: _user$project$Data_Session$deleteSession,
+								_1: {
+									ctor: '::',
+									_0: _user$project$Route$modifyUrl(_user$project$Route$Login),
+									_1: {ctor: '[]'}
+								}
+							}));
 				case 'Home':
 					var newModel = _elm_lang$core$Native_Utils.update(
 						model,
@@ -22561,6 +23147,9 @@ var _user$project$WordApp$init = F2(
 				page: _user$project$WordApp$NotFound
 			});
 	});
+var _user$project$WordApp$RegisterMsg = function (a) {
+	return {ctor: 'RegisterMsg', _0: a};
+};
 var _user$project$WordApp$LoginMsg = function (a) {
 	return {ctor: 'LoginMsg', _0: a};
 };
@@ -22575,6 +23164,13 @@ var _user$project$WordApp$view = function (model) {
 					_user$project$WordApp$LoginMsg,
 					frame(
 						_user$project$Page_Login$view(_p3._0))));
+		case 'Register':
+			return _rtfeldman$elm_css$Html_Styled$toUnstyled(
+				A2(
+					_rtfeldman$elm_css$Html_Styled$map,
+					_user$project$WordApp$RegisterMsg,
+					frame(
+						_user$project$Page_Register$view(_p3._0))));
 		case 'Home':
 			return _rtfeldman$elm_css$Html_Styled$toUnstyled(
 				A2(
@@ -22603,7 +23199,7 @@ var _user$project$WordApp$view = function (model) {
 var _user$project$WordApp$updatePage = F3(
 	function (page, msg, model) {
 		var _p4 = {ctor: '_Tuple2', _0: page, _1: msg};
-		_v4_7:
+		_v4_9:
 		do {
 			_v4_0:
 			do {
@@ -22640,17 +23236,16 @@ var _user$project$WordApp$updatePage = F3(
 										}),
 									A2(_elm_lang$core$Platform_Cmd$map, _user$project$WordApp$LoginMsg, pageMsg));
 							default:
-								break _v4_7;
+								break _v4_9;
 						}
-					case 'Home':
+					case 'Register':
 						switch (_p4._1.ctor) {
 							case 'SetRoute':
 								break _v4_0;
-							case 'HomeInit':
-								var _p7 = A3(
-									_user$project$Page_Home$update,
-									model.session,
-									_user$project$Page_Home$InitFinished(_p4._1._0),
+							case 'RegisterInit':
+								var _p7 = A2(
+									_user$project$Page_Register$update,
+									_user$project$Page_Register$InitFinished(_p4._1._0),
 									_p4._0._0);
 								var pageModel = _p7._0._0;
 								var pageMsg = _p7._0._1;
@@ -22660,16 +23255,67 @@ var _user$project$WordApp$updatePage = F3(
 									_elm_lang$core$Native_Utils.update(
 										model,
 										{
+											page: _user$project$WordApp$Register(pageModel)
+										}),
+									A2(_elm_lang$core$Platform_Cmd$map, _user$project$WordApp$RegisterMsg, pageMsg));
+							case 'RegisterMsg':
+								var _p8 = A2(_user$project$Page_Register$update, _p4._1._0, _p4._0._0);
+								var pageModel = _p8._0._0;
+								var pageMsg = _p8._0._1;
+								var externalMsg = _p8._1;
+								var newModel = function () {
+									var _p9 = externalMsg;
+									if (_p9.ctor === 'NoOp') {
+										return model;
+									} else {
+										return _elm_lang$core$Native_Utils.update(
+											model,
+											{
+												session: {
+													user: _elm_lang$core$Maybe$Just(_p9._0)
+												}
+											});
+									}
+								}();
+								return A2(
+									_user$project$Util_ops['=>'],
+									_elm_lang$core$Native_Utils.update(
+										newModel,
+										{
+											page: _user$project$WordApp$Register(pageModel)
+										}),
+									A2(_elm_lang$core$Platform_Cmd$map, _user$project$WordApp$RegisterMsg, pageMsg));
+							default:
+								break _v4_9;
+						}
+					case 'Home':
+						switch (_p4._1.ctor) {
+							case 'SetRoute':
+								break _v4_0;
+							case 'HomeInit':
+								var _p10 = A3(
+									_user$project$Page_Home$update,
+									model.session,
+									_user$project$Page_Home$InitFinished(_p4._1._0),
+									_p4._0._0);
+								var pageModel = _p10._0._0;
+								var pageMsg = _p10._0._1;
+								var externalMsg = _p10._1;
+								return A2(
+									_user$project$Util_ops['=>'],
+									_elm_lang$core$Native_Utils.update(
+										model,
+										{
 											page: _user$project$WordApp$Home(pageModel)
 										}),
 									A2(_elm_lang$core$Platform_Cmd$map, _user$project$WordApp$HomeMsg, pageMsg));
 							case 'HomeMsg':
-								var _p8 = A3(_user$project$Page_Home$update, model.session, _p4._1._0, _p4._0._0);
-								var pageModel = _p8._0._0;
-								var pageMsg = _p8._0._1;
-								var externalMsg = _p8._1;
-								var _p9 = externalMsg;
-								if (_p9.ctor === 'NoOp') {
+								var _p11 = A3(_user$project$Page_Home$update, model.session, _p4._1._0, _p4._0._0);
+								var pageModel = _p11._0._0;
+								var pageMsg = _p11._0._1;
+								var externalMsg = _p11._1;
+								var _p12 = externalMsg;
+								if (_p12.ctor === 'NoOp') {
 									return A2(
 										_user$project$Util_ops['=>'],
 										_elm_lang$core$Native_Utils.update(
@@ -22679,8 +23325,8 @@ var _user$project$WordApp$updatePage = F3(
 											}),
 										A2(_elm_lang$core$Platform_Cmd$map, _user$project$WordApp$HomeMsg, pageMsg));
 								} else {
-									var _p10 = model.session.user;
-									if (_p10.ctor === 'Nothing') {
+									var _p13 = model.session.user;
+									if (_p13.ctor === 'Nothing') {
 										return A2(
 											_user$project$Util_ops['=>'],
 											_elm_lang$core$Native_Utils.update(
@@ -22700,25 +23346,25 @@ var _user$project$WordApp$updatePage = F3(
 											A2(
 												_elm_lang$core$Task$attempt,
 												_user$project$WordApp$HomeInit,
-												_user$project$Page_Home$init(_p10._0)));
+												_user$project$Page_Home$init(_p13._0)));
 									}
 								}
 							default:
-								break _v4_7;
+								break _v4_9;
 						}
 					case 'WordEdit':
 						switch (_p4._1.ctor) {
 							case 'SetRoute':
 								break _v4_0;
 							case 'WordEditInitMsg':
-								var _p11 = A3(
+								var _p14 = A3(
 									_user$project$Page_WordEdit$update,
 									model.session,
 									_user$project$Page_WordEdit$WordEditInitFinished(_p4._1._0),
 									_p4._0._0);
-								var pageModel = _p11._0._0;
-								var pageMsg = _p11._0._1;
-								var externalMsg = _p11._1;
+								var pageModel = _p14._0._0;
+								var pageMsg = _p14._0._1;
+								var externalMsg = _p14._1;
 								return A2(
 									_user$project$Util_ops['=>'],
 									_elm_lang$core$Native_Utils.update(
@@ -22728,20 +23374,28 @@ var _user$project$WordApp$updatePage = F3(
 										}),
 									A2(_elm_lang$core$Platform_Cmd$map, _user$project$WordApp$WordEditMsg, pageMsg));
 							case 'WordEditMsg':
-								var _p12 = A3(_user$project$Page_WordEdit$update, model.session, _p4._1._0, _p4._0._0);
-								var pageModel = _p12._0._0;
-								var pageMsg = _p12._0._1;
-								var externalMsg = _p12._1;
-								return A2(
-									_user$project$Util_ops['=>'],
-									_elm_lang$core$Native_Utils.update(
+								var _p15 = A3(_user$project$Page_WordEdit$update, model.session, _p4._1._0, _p4._0._0);
+								var pageModel = _p15._0._0;
+								var pageMsg = _p15._0._1;
+								var externalMsg = _p15._1;
+								var _p16 = externalMsg;
+								if (_p16.ctor === 'NoOp') {
+									return A2(
+										_user$project$Util_ops['=>'],
+										_elm_lang$core$Native_Utils.update(
+											model,
+											{
+												page: _user$project$WordApp$WordEdit(pageModel)
+											}),
+										A2(_elm_lang$core$Platform_Cmd$map, _user$project$WordApp$WordEditMsg, pageMsg));
+								} else {
+									return A2(
+										_user$project$Util_ops['=>'],
 										model,
-										{
-											page: _user$project$WordApp$WordEdit(pageModel)
-										}),
-									A2(_elm_lang$core$Platform_Cmd$map, _user$project$WordApp$WordEditMsg, pageMsg));
+										_user$project$Route$modifyUrl(_user$project$Route$Home));
+								}
 							default:
-								break _v4_7;
+								break _v4_9;
 						}
 					case 'Quizz':
 						if (_p4._1.ctor === 'SetRoute') {
@@ -22753,7 +23407,7 @@ var _user$project$WordApp$updatePage = F3(
 						if (_p4._1.ctor === 'SetRoute') {
 							break _v4_0;
 						} else {
-							break _v4_7;
+							break _v4_9;
 						}
 				}
 			} while(false);
@@ -22776,16 +23430,16 @@ var _user$project$WordApp$SetRoute = function (a) {
 };
 var _user$project$WordApp$main = A2(
 	_elm_lang$navigation$Navigation$programWithFlags,
-	function (_p13) {
+	function (_p17) {
 		return _user$project$WordApp$SetRoute(
-			_user$project$Route$fromLocation(_p13));
+			_user$project$Route$fromLocation(_p17));
 	},
 	{init: _user$project$WordApp$init, view: _user$project$WordApp$view, update: _user$project$WordApp$update, subscriptions: _user$project$WordApp$subscriptions})(_elm_lang$core$Json_Decode$value);
 
 var Elm = {};
 Elm['WordApp'] = Elm['WordApp'] || {};
 if (typeof _user$project$WordApp$main !== 'undefined') {
-    _user$project$WordApp$main(Elm['WordApp'], 'WordApp', {"types":{"unions":{"Dict.LeafColor":{"args":[],"tags":{"LBBlack":[],"LBlack":[]}},"Dict.Dict":{"args":["k","v"],"tags":{"RBNode_elm_builtin":["Dict.NColor","k","v","Dict.Dict k v","Dict.Dict k v"],"RBEmpty_elm_builtin":["Dict.LeafColor"]}},"Route.Route":{"args":[],"tags":{"Home":[],"WordEdit":["Int"],"Quizz":[],"Login":[]}},"API.NoContent":{"args":[],"tags":{"NoContent":[]}},"Maybe.Maybe":{"args":["a"],"tags":{"Just":["a"],"Nothing":[]}},"Page.Quizz.Msg":{"args":[],"tags":{"TestMsg":[]}},"Dict.NColor":{"args":[],"tags":{"BBlack":[],"Red":[],"NBlack":[],"Black":[]}},"Page.Home.Msg":{"args":[],"tags":{"HomeAddNewWord":[],"TypeHomeLanguage":["String"],"LastWordsReqCompletedMsg":["Result.Result Http.Error (List API.Word)"],"HomeAddNewWordFinished":["Result.Result Http.Error API.NoContent"],"TestMsg":[],"TypeHomeDefinition":["String"],"InitFinished":["Result.Result Http.Error (List API.Word)"],"TypeHomeWord":["String"]}},"Page.WordEdit.Msg":{"args":[],"tags":{"TestMsg":[],"UpdateWord":["API.Word"],"WordEditInitFinished":["Result.Result Http.Error API.Word"]}},"WordApp.Msg":{"args":[],"tags":{"QuizzMsg":["Page.Quizz.Msg"],"LoginMsg":["Page.Login.Msg"],"HomeInit":["Result.Result Http.Error (List API.Word)"],"SetRoute":["Maybe.Maybe Route.Route"],"WordEditMsg":["Page.WordEdit.Msg"],"HomeMsg":["Page.Home.Msg"],"WordEditInitMsg":["Result.Result Http.Error API.Word"]}},"Http.Error":{"args":[],"tags":{"BadUrl":["String"],"NetworkError":[],"Timeout":[],"BadStatus":["Http.Response String"],"BadPayload":["String","Http.Response String"]}},"Result.Result":{"args":["error","value"],"tags":{"Ok":["value"],"Err":["error"]}},"Page.Login.Msg":{"args":[],"tags":{"TypePasswordMsg":["String"],"LoginCompletedMsg":["Result.Result Http.Error API.User"],"TypeLoginMsg":["String"],"LoginTryMsg":[]}}},"aliases":{"API.User":{"args":[],"type":"{ userid : Int, username : String }"},"Http.Response":{"args":["body"],"type":"{ url : String , status : { code : Int, message : String } , headers : Dict.Dict String String , body : body }"},"API.Word":{"args":[],"type":"{ wordId : Int , wordLanguage : String , wordWord : String , wordKeywords : List String , wordDefinition : String , wordDifficulty : Maybe.Maybe Int }"}},"message":"WordApp.Msg"},"versions":{"elm":"0.18.0"}});
+    _user$project$WordApp$main(Elm['WordApp'], 'WordApp', {"types":{"unions":{"Dict.LeafColor":{"args":[],"tags":{"LBBlack":[],"LBlack":[]}},"Dict.Dict":{"args":["k","v"],"tags":{"RBNode_elm_builtin":["Dict.NColor","k","v","Dict.Dict k v","Dict.Dict k v"],"RBEmpty_elm_builtin":["Dict.LeafColor"]}},"Route.Route":{"args":[],"tags":{"Home":[],"WordEdit":["Int"],"Logout":[],"Register":[],"Quizz":[],"Login":[]}},"API.NoContent":{"args":[],"tags":{"NoContent":[]}},"Maybe.Maybe":{"args":["a"],"tags":{"Just":["a"],"Nothing":[]}},"Page.Quizz.Msg":{"args":[],"tags":{"TestMsg":[]}},"Dict.NColor":{"args":[],"tags":{"BBlack":[],"Red":[],"NBlack":[],"Black":[]}},"Page.Home.Msg":{"args":[],"tags":{"HomeAddNewWord":[],"TypeHomeLanguage":["String"],"LastWordsReqCompletedMsg":["Result.Result Http.Error (List API.Word)"],"HomeAddNewWordFinished":["Result.Result Http.Error API.NoContent"],"TestMsg":[],"TypeHomeDefinition":["String"],"InitFinished":["Result.Result Http.Error (List API.Word)"],"TypeHomeWord":["String"]}},"Page.WordEdit.Msg":{"args":[],"tags":{"UpdateWordRequestFinished":["Result.Result Http.Error API.Word"],"UpdateWordRequest":[],"TestMsg":[],"UpdateWord":["API.Word"],"WordEditInitFinished":["Result.Result Http.Error API.Word"]}},"WordApp.Msg":{"args":[],"tags":{"QuizzMsg":["Page.Quizz.Msg"],"LoginMsg":["Page.Login.Msg"],"HomeInit":["Result.Result Http.Error (List API.Word)"],"SetRoute":["Maybe.Maybe Route.Route"],"WordEditMsg":["Page.WordEdit.Msg"],"RegisterInit":["Result.Result Http.Error String"],"HomeMsg":["Page.Home.Msg"],"WordEditInitMsg":["Result.Result Http.Error API.Word"],"RegisterMsg":["Page.Register.Msg"]}},"Page.Register.Msg":{"args":[],"tags":{"Register":[],"UpdateNewUser":["API.NewUser"],"RetrieveUserFinished":["Result.Result Http.Error API.User"],"InitFinished":["Result.Result Http.Error String"],"RegisterFinished":["Result.Result Http.Error API.NoContent"]}},"Http.Error":{"args":[],"tags":{"BadUrl":["String"],"NetworkError":[],"Timeout":[],"BadStatus":["Http.Response String"],"BadPayload":["String","Http.Response String"]}},"Result.Result":{"args":["error","value"],"tags":{"Ok":["value"],"Err":["error"]}},"Page.Login.Msg":{"args":[],"tags":{"TypePasswordMsg":["String"],"LoginCompletedMsg":["Result.Result Http.Error API.User"],"TypeLoginMsg":["String"],"LoginTryMsg":[]}}},"aliases":{"API.User":{"args":[],"type":"{ userid : Int, username : String }"},"Http.Response":{"args":["body"],"type":"{ url : String , status : { code : Int, message : String } , headers : Dict.Dict String String , body : body }"},"API.Word":{"args":[],"type":"{ wordId : Int , wordLanguage : String , wordWord : String , wordKeywords : List String , wordDefinition : String , wordDifficulty : Maybe.Maybe Int }"},"API.NewUser":{"args":[],"type":"{ username : String, password : String, email : String }"}},"message":"WordApp.Msg"},"versions":{"elm":"0.18.0"}});
 }
 
 if (typeof define === "function" && define['amd'])

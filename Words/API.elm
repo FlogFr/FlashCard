@@ -46,11 +46,27 @@ type alias User =
     }
 
 
+type alias NewUser =
+    { username : String
+    , password : String
+    , email : String
+    }
+
+
 encodeUser : User -> Json.Encode.Value
 encodeUser x =
     Json.Encode.object
         [ ( "userid", Json.Encode.int x.userid )
         , ( "username", Json.Encode.string x.username )
+        ]
+
+
+encodeNewUser : NewUser -> Json.Encode.Value
+encodeNewUser newUser =
+    Json.Encode.object
+        [ ( "newUsername", Json.Encode.string (.username newUser) )
+        , ( "newPassword", Json.Encode.string (.password newUser) )
+        , ( "newEmail", Json.Encode.string (.email newUser) )
         ]
 
 
@@ -61,8 +77,68 @@ decodeUser =
         |> required "username" string
 
 
+decodeToken : Decoder String
+decodeToken =
+    field "token" string
+
+
 type NoContent
     = NoContent
+
+
+getToken : Http.Request String
+getToken =
+    Http.request
+        { method =
+            "GET"
+        , headers =
+            []
+        , url =
+            String.join "/"
+                [ "http://127.1:8080"
+                , "auth"
+                , "token"
+                ]
+        , body =
+            Http.emptyBody
+        , expect =
+            Http.expectJson decodeToken
+        , timeout =
+            Nothing
+        , withCredentials =
+            False
+        }
+
+
+postNewUser : String -> NewUser -> Http.Request NoContent
+postNewUser token newUser =
+    Http.request
+        { method =
+            "POST"
+        , headers =
+            []
+        , url =
+            String.join "/"
+                [ "http://127.1:8080"
+                , "auth"
+                , "create"
+                , token
+                ]
+        , body =
+            Http.jsonBody (encodeNewUser newUser)
+        , expect =
+            Http.expectStringResponse
+                (\{ body } ->
+                    if String.isEmpty body then
+                        Ok NoContent
+                    else
+                        Err "Expected the response body to be empty"
+                )
+        , timeout =
+            Nothing
+        , withCredentials =
+            False
+        }
 
 
 getUser : List Http.Header -> Http.Request User
@@ -152,6 +228,31 @@ getWordsIdByWordId headers capture_wordId =
                 ]
         , body =
             Http.emptyBody
+        , expect =
+            Http.expectJson decodeWord
+        , timeout =
+            Nothing
+        , withCredentials =
+            False
+        }
+
+
+putWordsIdByWordId : List Http.Header -> Int -> Word -> Http.Request Word
+putWordsIdByWordId headers capture_wordId body =
+    Http.request
+        { method =
+            "PUT"
+        , headers =
+            headers
+        , url =
+            String.join "/"
+                [ "http://127.1:8080"
+                , "words"
+                , "id"
+                , capture_wordId |> toString |> Http.encodeUri
+                ]
+        , body =
+            Http.jsonBody (encodeWord body)
         , expect =
             Http.expectJson decodeWord
         , timeout =
