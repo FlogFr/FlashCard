@@ -9,7 +9,9 @@ module PostgreSQL
   , getUser
   , getAllWords
   , getLastWords
+  , getSearchWords
   , getWordById
+  , deleteWordById
   , updateWordById
   , insertWord
   )

@@ -14,12 +14,14 @@ import Page.Login as Login
 import Page.Register as Register
 import Page.Home as Home
 import Page.WordEdit as WordEdit
+import Page.WordDelete as WordDelete
 import Page.Quizz as Quizz
 import Page.NotFound as NotFound
 import Data.Session exposing (..)
 import Request exposing (..)
 import API exposing (..)
 import Ports exposing (..)
+import Debug
 
 
 type Page
@@ -28,6 +30,7 @@ type Page
     | Register Register.Model
     | Home Home.Model
     | WordEdit WordEdit.Model
+    | WordDelete WordDelete.Model
     | Quizz
 
 
@@ -84,6 +87,12 @@ view model =
                     |> Html.Styled.map WordEditMsg
                     |> Html.Styled.toUnstyled
 
+            WordDelete subModel ->
+                WordDelete.view subModel
+                    |> frame
+                    |> Html.Styled.map WordDeleteMsg
+                    |> Html.Styled.toUnstyled
+
             Quizz ->
                 Quizz.view
                     |> frame
@@ -118,6 +127,8 @@ type Msg
     | HomeMsg Home.Msg
     | WordEditInitMsg (Result Http.Error Word)
     | WordEditMsg WordEdit.Msg
+    | WordDeleteInitMsg (Result Http.Error NoContent)
+    | WordDeleteMsg WordDelete.Msg
     | QuizzMsg Quizz.Msg
 
 
@@ -188,7 +199,7 @@ updatePage page msg model =
                 case externalMsg of
                     Home.NoOp ->
                         { model | page = Home pageModel }
-                            => Cmd.map HomeMsg pageMsg
+                            => Cmd.map HomeMsg (Debug.log "page msg on home: " pageMsg)
 
                     Home.ReloadPage ->
                         case model.session.user of
@@ -219,6 +230,20 @@ updatePage page msg model =
                             => Cmd.map WordEditMsg pageMsg
 
                     WordEdit.GoHome ->
+                        model
+                            => Route.modifyUrl Route.Home
+
+        ( WordDelete subModel, WordDeleteInitMsg subMsg ) ->
+            let
+                ( ( pageModel, pageMsg ), externalMsg ) =
+                    WordDelete.update model.session (WordDelete.WordDeleteInitFinished subMsg) subModel
+            in
+                case externalMsg of
+                    WordDelete.NoOp ->
+                        { model | page = WordDelete pageModel }
+                            => Cmd.map WordDeleteMsg pageMsg
+
+                    WordDelete.GoHome ->
                         model
                             => Route.modifyUrl Route.Home
 
@@ -276,6 +301,20 @@ setRoute maybeRoute model =
                     Just user ->
                         newModel
                             => Task.attempt WordEditInitMsg (WordEdit.init user wordId)
+
+        Just (Route.WordDelete wordId) ->
+            let
+                newModel =
+                    { model | page = WordDelete (WordDelete.Model wordId) }
+            in
+                case model.session.user of
+                    Nothing ->
+                        newModel
+                            => Cmd.none
+
+                    Just user ->
+                        newModel
+                            => Task.attempt WordDeleteInitMsg (WordDelete.init user wordId)
 
         Just (Route.Quizz) ->
             { model | page = Quizz } => Cmd.none

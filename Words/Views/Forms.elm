@@ -1,4 +1,4 @@
-module Views.Forms exposing (viewFormAddWord, viewFormLogin, viewWordForm, viewFormRegister)
+module Views.Forms exposing (..)
 
 import IziCss exposing (..)
 import Html.Styled as Html exposing (..)
@@ -19,6 +19,14 @@ viewFormAddWord homeAddNewWord typeHomeLanguage typeHomeWord typeHomeDefinition 
         , input [ onInput typeHomeWord, placeholder "word" ] []
         , input [ onInput typeHomeDefinition, placeholder "definition" ] []
         , button [ type_ "submit" ] [ text "add word" ]
+        ]
+
+
+viewFormSearchWord : msg -> (String -> msg) -> Html msg
+viewFormSearchWord toSearchMsg toUpdateSearchWord =
+    Html.form [ onSubmit toSearchMsg, action "javascript:void(0);" ]
+        [ input [ onInput toUpdateSearchWord, placeholder "original word" ] []
+        , button [ type_ "submit" ] [ text "update search word" ]
         ]
 
 

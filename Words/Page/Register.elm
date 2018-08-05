@@ -12,6 +12,7 @@ import Html.Styled.Attributes exposing (attribute, placeholder, type_, action)
 import API exposing (..)
 import Data.Session exposing (..)
 import Views.Forms exposing (..)
+import Views.Errors exposing (..)
 import Debug
 
 
@@ -19,14 +20,16 @@ import Debug
 
 
 type alias Model =
-    { token : String
+    { errors : List String
+    , token : String
     , newUser : NewUser
     }
 
 
 initialModel : Model
 initialModel =
-    { token = ""
+    { errors = []
+    , token = ""
     , newUser = NewUser "" "" ""
     }
 
@@ -56,7 +59,9 @@ type ExternalMsg
 view : Model -> Html Msg
 view model =
     div []
-        [ viewFormRegister model.newUser UpdateNewUser Register ]
+        [ viewErrorsDiv model.errors
+        , viewFormRegister model.newUser UpdateNewUser Register
+        ]
 
 
 
@@ -71,10 +76,28 @@ update msg model =
                 => Cmd.none
                 => NoOp
 
-        InitFinished (Err _) ->
-            model
-                => Cmd.none
-                => NoOp
+        InitFinished (Err err) ->
+            let
+                errorString =
+                    case err of
+                        Http.BadUrl _ ->
+                            "bad url"
+
+                        Http.Timeout ->
+                            "timeout"
+
+                        Http.NetworkError ->
+                            "network error"
+
+                        Http.BadStatus _ ->
+                            "bad status"
+
+                        Http.BadPayload _ _ ->
+                            "bad payload"
+            in
+                { model | errors = errorString :: model.errors }
+                    => Cmd.none
+                    => NoOp
 
         UpdateNewUser newUser ->
             { model | newUser = newUser }
@@ -91,10 +114,28 @@ update msg model =
                 => getUserCmd RetrieveUserFinished model.newUser.username model.newUser.password
                 => NoOp
 
-        RegisterFinished (Err _) ->
-            model
-                => Cmd.none
-                => NoOp
+        RegisterFinished (Err err) ->
+            let
+                errorString =
+                    case Debug.log "error: " err of
+                        Http.BadUrl _ ->
+                            "bad url"
+
+                        Http.Timeout ->
+                            "timeout"
+
+                        Http.NetworkError ->
+                            "network error"
+
+                        Http.BadStatus _ ->
+                            "bad status"
+
+                        Http.BadPayload _ _ ->
+                            "bad payload"
+            in
+                { model | errors = errorString :: model.errors }
+                    => Cmd.none
+                    => NoOp
 
         RetrieveUserFinished (Ok user) ->
             let

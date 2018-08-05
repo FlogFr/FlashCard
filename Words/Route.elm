@@ -25,6 +25,7 @@ type Route
     | Register
     | Home
     | WordEdit Int
+    | WordDelete Int
     | Quizz
 
 
@@ -36,6 +37,7 @@ route =
         , Url.map Register (s "register")
         , Url.map Home (s "home")
         , Url.map WordEdit (s "wordEdit" </> int)
+        , Url.map WordDelete (s "wordDelete" </> int)
         , Url.map Quizz (s "quizz")
         ]
 
@@ -63,6 +65,9 @@ routeToString page =
 
                 WordEdit wordId ->
                     [ "wordEdit", toString wordId ]
+
+                WordDelete wordId ->
+                    [ "wordDelete", toString wordId ]
 
                 Quizz ->
                     [ "quizz" ]

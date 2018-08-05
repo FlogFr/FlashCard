@@ -2,7 +2,7 @@
 --
 -- see: https://github.com/sol/hpack
 --
--- hash: c4efd334c0bbd7324566b7528fedf400bbafd9612c645ec61145039f18ca02b0
+-- hash: dbb9ccb9c346eb15e82921d6dabb41016c98a7a6460db78ada49c2afc3c10d7a
 
 name:           izidict
 version:        0.1.0.0
@@ -106,7 +106,7 @@ executable generate-elm-api
   default-language: Haskell2010
 
 executable test-sql
-  main-is: testSQL.hs
+  main-is: testSQLError.hs
   other-modules:
       API
       Auth

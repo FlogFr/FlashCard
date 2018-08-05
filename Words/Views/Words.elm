@@ -15,7 +15,10 @@ viewWordTr word =
         , td [ tdBorder ] [ text (.wordDefinition word) ]
         , td [ tdBorder ] [ text (String.concat (List.intersperse ", " (.wordKeywords word))) ]
         , td [ tdBorder ] [ text (toString (Maybe.withDefault 0 (.wordDifficulty word))) ]
-        , td [ tdBorder ] [ a [ href (WordEdit (.wordId word)) ] [ text "edit" ] ]
+        , td [ tdBorder ]
+            [ a [ href (WordEdit (.wordId word)) ] [ text "edit" ]
+            , a [ href (WordDelete (.wordId word)) ] [ text "delete" ]
+            ]
         ]
 
 

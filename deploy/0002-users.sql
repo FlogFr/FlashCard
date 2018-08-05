@@ -7,12 +7,14 @@ BEGIN;
   
   CREATE TABLE IF NOT EXISTS users (
            "id" BIGINT NOT NULL PRIMARY KEY DEFAULT nextval('users_id_seq'),
-     "username" TEXT NOT NULL,
+     "username" TEXT NOT NULL UNIQUE,
         "email" TEXT NULL,
      "passpass" TEXT NOT NULL
   );
   
   ALTER SEQUENCE users_id_seq OWNED BY users.id;
+
+  ALTER TABLE users ADD CONSTRAINT users_unique UNIQUE (username);
 
   ALTER TABLE words ADD COLUMN userid BIGINT NOT NULL;
 

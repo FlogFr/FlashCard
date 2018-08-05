@@ -212,6 +212,31 @@ getWordsLast headers =
         }
 
 
+getWordsSearchBySearchWord : List Http.Header -> String -> Http.Request (List Word)
+getWordsSearchBySearchWord headers capture_searchWord =
+    Http.request
+        { method =
+            "GET"
+        , headers =
+            headers
+        , url =
+            String.join "/"
+                [ "http://127.1:8080"
+                , "words"
+                , "search"
+                , capture_searchWord |> Http.encodeUri
+                ]
+        , body =
+            Http.emptyBody
+        , expect =
+            Http.expectJson (list decodeWord)
+        , timeout =
+            Nothing
+        , withCredentials =
+            False
+        }
+
+
 getWordsIdByWordId : List Http.Header -> Int -> Http.Request Word
 getWordsIdByWordId headers capture_wordId =
     Http.request
@@ -230,6 +255,37 @@ getWordsIdByWordId headers capture_wordId =
             Http.emptyBody
         , expect =
             Http.expectJson decodeWord
+        , timeout =
+            Nothing
+        , withCredentials =
+            False
+        }
+
+
+deleteWordsIdByWordId : List Http.Header -> Int -> Http.Request NoContent
+deleteWordsIdByWordId headers capture_wordId =
+    Http.request
+        { method =
+            "DELETE"
+        , headers =
+            headers
+        , url =
+            String.join "/"
+                [ "http://127.1:8080"
+                , "words"
+                , "id"
+                , capture_wordId |> toString |> Http.encodeUri
+                ]
+        , body =
+            Http.emptyBody
+        , expect =
+            Http.expectStringResponse
+                (\{ body } ->
+                    if String.isEmpty body then
+                        Ok NoContent
+                    else
+                        Err "Expected the response body to be empty"
+                )
         , timeout =
             Nothing
         , withCredentials =

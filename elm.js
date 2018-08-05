@@ -20687,6 +20687,39 @@ var _user$project$API$getWordsLast = function (headers) {
 			withCredentials: false
 		});
 };
+var _user$project$API$getWordsSearchBySearchWord = F2(
+	function (headers, capture_searchWord) {
+		return _elm_lang$http$Http$request(
+			{
+				method: 'GET',
+				headers: headers,
+				url: A2(
+					_elm_lang$core$String$join,
+					'/',
+					{
+						ctor: '::',
+						_0: 'http://127.1:8080',
+						_1: {
+							ctor: '::',
+							_0: 'words',
+							_1: {
+								ctor: '::',
+								_0: 'search',
+								_1: {
+									ctor: '::',
+									_0: _elm_lang$http$Http$encodeUri(capture_searchWord),
+									_1: {ctor: '[]'}
+								}
+							}
+						}
+					}),
+				body: _elm_lang$http$Http$emptyBody,
+				expect: _elm_lang$http$Http$expectJson(
+					_elm_lang$core$Json_Decode$list(_user$project$API$decodeWord)),
+				timeout: _elm_lang$core$Maybe$Nothing,
+				withCredentials: false
+			});
+	});
 var _user$project$API$getWordsIdByWordId = F2(
 	function (headers, capture_wordId) {
 		return _elm_lang$http$Http$request(
@@ -20832,6 +20865,43 @@ var _user$project$API$postNewUser = F2(
 				withCredentials: false
 			});
 	});
+var _user$project$API$deleteWordsIdByWordId = F2(
+	function (headers, capture_wordId) {
+		return _elm_lang$http$Http$request(
+			{
+				method: 'DELETE',
+				headers: headers,
+				url: A2(
+					_elm_lang$core$String$join,
+					'/',
+					{
+						ctor: '::',
+						_0: 'http://127.1:8080',
+						_1: {
+							ctor: '::',
+							_0: 'words',
+							_1: {
+								ctor: '::',
+								_0: 'id',
+								_1: {
+									ctor: '::',
+									_0: _elm_lang$http$Http$encodeUri(
+										_elm_lang$core$Basics$toString(capture_wordId)),
+									_1: {ctor: '[]'}
+								}
+							}
+						}
+					}),
+				body: _elm_lang$http$Http$emptyBody,
+				expect: _elm_lang$http$Http$expectStringResponse(
+					function (_p4) {
+						var _p5 = _p4;
+						return _elm_lang$core$String$isEmpty(_p5.body) ? _elm_lang$core$Result$Ok(_user$project$API$NoContent) : _elm_lang$core$Result$Err('Expected the response body to be empty');
+					}),
+				timeout: _elm_lang$core$Maybe$Nothing,
+				withCredentials: false
+			});
+	});
 var _user$project$API$postWords = F2(
 	function (headers, body) {
 		return _elm_lang$http$Http$request(
@@ -20853,9 +20923,9 @@ var _user$project$API$postWords = F2(
 				body: _elm_lang$http$Http$jsonBody(
 					_user$project$API$encodeWord(body)),
 				expect: _elm_lang$http$Http$expectStringResponse(
-					function (_p4) {
-						var _p5 = _p4;
-						return _elm_lang$core$String$isEmpty(_p5.body) ? _elm_lang$core$Result$Ok(_user$project$API$NoContent) : _elm_lang$core$Result$Err('Expected the response body to be empty');
+					function (_p6) {
+						var _p7 = _p6;
+						return _elm_lang$core$String$isEmpty(_p7.body) ? _elm_lang$core$Result$Ok(_user$project$API$NoContent) : _elm_lang$core$Result$Err('Expected the response body to be empty');
 					}),
 				timeout: _elm_lang$core$Maybe$Nothing,
 				withCredentials: false
@@ -20995,6 +21065,12 @@ var _user$project$IziCss$logo = _rtfeldman$elm_css$Html_Styled_Attributes$css(
 				_rtfeldman$elm_css$Css$px(25)),
 			_1: {ctor: '[]'}
 		}
+	});
+var _user$project$IziCss$errorStyle = _rtfeldman$elm_css$Html_Styled_Attributes$css(
+	{
+		ctor: '::',
+		_0: _rtfeldman$elm_css$Css$color(_rtfeldman$elm_css$Css_Colors$red),
+		_1: {ctor: '[]'}
 	});
 var _user$project$IziCss$bottomFrame = _rtfeldman$elm_css$Html_Styled_Attributes$css(
 	{
@@ -21246,6 +21322,33 @@ var _user$project$Request$putWordsIdByWordIdCmd = F3(
 			return _elm_lang$core$Platform_Cmd$none;
 		}
 	});
+var _user$project$Request$deleteWordByIdRequest = F2(
+	function (user, wordId) {
+		var base64Authorization = _truqu$elm_base64$Base64$encode(
+			A2(
+				_elm_lang$core$Basics_ops['++'],
+				function (_) {
+					return _.username;
+				}(user),
+				A2(
+					_elm_lang$core$Basics_ops['++'],
+					':',
+					function (_) {
+						return _.userpassword;
+					}(user))));
+		var requestAuthHeader = A2(
+			_elm_lang$http$Http$header,
+			'Authorization',
+			A2(_elm_lang$core$Basics_ops['++'], 'Basic ', base64Authorization));
+		return A2(
+			_user$project$API$deleteWordsIdByWordId,
+			{
+				ctor: '::',
+				_0: requestAuthHeader,
+				_1: {ctor: '[]'}
+			},
+			wordId);
+	});
 var _user$project$Request$getWordByIdRequest = F2(
 	function (user, wordId) {
 		var base64Authorization = _truqu$elm_base64$Base64$encode(
@@ -21280,6 +21383,45 @@ var _user$project$Request$getWordByIdCmd = F3(
 			msgType,
 			A2(_user$project$Request$getWordByIdRequest, authUser, wordId));
 	});
+var _user$project$Request$getWordsSearchRequest = F2(
+	function (user, searchWord) {
+		var base64Authorization = _truqu$elm_base64$Base64$encode(
+			A2(
+				_elm_lang$core$Basics_ops['++'],
+				function (_) {
+					return _.username;
+				}(user),
+				A2(
+					_elm_lang$core$Basics_ops['++'],
+					':',
+					function (_) {
+						return _.userpassword;
+					}(user))));
+		var requestAuthHeader = A2(
+			_elm_lang$http$Http$header,
+			'Authorization',
+			A2(_elm_lang$core$Basics_ops['++'], 'Basic ', base64Authorization));
+		return A2(
+			_user$project$API$getWordsSearchBySearchWord,
+			{
+				ctor: '::',
+				_0: requestAuthHeader,
+				_1: {ctor: '[]'}
+			},
+			searchWord);
+	});
+var _user$project$Request$getWordsSearchCmd = F3(
+	function (msgType, session, searchWord) {
+		var _p4 = session.user;
+		if (_p4.ctor === 'Nothing') {
+			return _elm_lang$core$Platform_Cmd$none;
+		} else {
+			return A2(
+				_elm_lang$http$Http$send,
+				msgType,
+				A2(_user$project$Request$getWordsSearchRequest, _p4._0, searchWord));
+		}
+	});
 var _user$project$Request$getWordsLastRequest = function (user) {
 	var base64Authorization = _truqu$elm_base64$Base64$encode(
 		A2(
@@ -21306,14 +21448,14 @@ var _user$project$Request$getWordsLastRequest = function (user) {
 };
 var _user$project$Request$getWordsLastCmd = F2(
 	function (msgType, session) {
-		var _p4 = session.user;
-		if (_p4.ctor === 'Nothing') {
+		var _p5 = session.user;
+		if (_p5.ctor === 'Nothing') {
 			return _elm_lang$core$Platform_Cmd$none;
 		} else {
 			return A2(
 				_elm_lang$http$Http$send,
 				msgType,
-				_user$project$Request$getWordsLastRequest(_p4._0));
+				_user$project$Request$getWordsLastRequest(_p5._0));
 		}
 	});
 var _user$project$Request$getUserRequest = F2(
@@ -21380,6 +21522,16 @@ var _user$project$Route$routeToString = function (page) {
 						_1: {ctor: '[]'}
 					}
 				};
+			case 'WordDelete':
+				return {
+					ctor: '::',
+					_0: 'wordDelete',
+					_1: {
+						ctor: '::',
+						_0: _elm_lang$core$Basics$toString(_p0._0),
+						_1: {ctor: '[]'}
+					}
+				};
 			default:
 				return {
 					ctor: '::',
@@ -21402,6 +21554,9 @@ var _user$project$Route$modifyUrl = function (_p1) {
 		_user$project$Route$routeToString(_p1));
 };
 var _user$project$Route$Quizz = {ctor: 'Quizz'};
+var _user$project$Route$WordDelete = function (a) {
+	return {ctor: 'WordDelete', _0: a};
+};
 var _user$project$Route$WordEdit = function (a) {
 	return {ctor: 'WordEdit', _0: a};
 };
@@ -21447,9 +21602,19 @@ var _user$project$Route$route = _evancz$url_parser$UrlParser$oneOf(
 							ctor: '::',
 							_0: A2(
 								_evancz$url_parser$UrlParser$map,
-								_user$project$Route$Quizz,
-								_evancz$url_parser$UrlParser$s('quizz')),
-							_1: {ctor: '[]'}
+								_user$project$Route$WordDelete,
+								A2(
+									_evancz$url_parser$UrlParser_ops['</>'],
+									_evancz$url_parser$UrlParser$s('wordDelete'),
+									_evancz$url_parser$UrlParser$int)),
+							_1: {
+								ctor: '::',
+								_0: A2(
+									_evancz$url_parser$UrlParser$map,
+									_user$project$Route$Quizz,
+									_evancz$url_parser$UrlParser$s('quizz')),
+								_1: {ctor: '[]'}
+							}
 						}
 					}
 				}
@@ -21584,7 +21749,26 @@ var _user$project$Views_Words$viewWordTr = function (word) {
 												_0: _rtfeldman$elm_css$Html_Styled$text('edit'),
 												_1: {ctor: '[]'}
 											}),
-										_1: {ctor: '[]'}
+										_1: {
+											ctor: '::',
+											_0: A2(
+												_rtfeldman$elm_css$Html_Styled$a,
+												{
+													ctor: '::',
+													_0: _user$project$Route$href(
+														_user$project$Route$WordDelete(
+															function (_) {
+																return _.wordId;
+															}(word))),
+													_1: {ctor: '[]'}
+												},
+												{
+													ctor: '::',
+													_0: _rtfeldman$elm_css$Html_Styled$text('delete'),
+													_1: {ctor: '[]'}
+												}),
+											_1: {ctor: '[]'}
+										}
 									}),
 								_1: {ctor: '[]'}
 							}
@@ -22037,6 +22221,51 @@ var _user$project$Views_Forms$viewFormLogin = F3(
 				}
 			});
 	});
+var _user$project$Views_Forms$viewFormSearchWord = F2(
+	function (toSearchMsg, toUpdateSearchWord) {
+		return A2(
+			_rtfeldman$elm_css$Html_Styled$form,
+			{
+				ctor: '::',
+				_0: _rtfeldman$elm_css$Html_Styled_Events$onSubmit(toSearchMsg),
+				_1: {
+					ctor: '::',
+					_0: _rtfeldman$elm_css$Html_Styled_Attributes$action('javascript:void(0);'),
+					_1: {ctor: '[]'}
+				}
+			},
+			{
+				ctor: '::',
+				_0: A2(
+					_rtfeldman$elm_css$Html_Styled$input,
+					{
+						ctor: '::',
+						_0: _rtfeldman$elm_css$Html_Styled_Events$onInput(toUpdateSearchWord),
+						_1: {
+							ctor: '::',
+							_0: _rtfeldman$elm_css$Html_Styled_Attributes$placeholder('original word'),
+							_1: {ctor: '[]'}
+						}
+					},
+					{ctor: '[]'}),
+				_1: {
+					ctor: '::',
+					_0: A2(
+						_rtfeldman$elm_css$Html_Styled$button,
+						{
+							ctor: '::',
+							_0: _rtfeldman$elm_css$Html_Styled_Attributes$type_('submit'),
+							_1: {ctor: '[]'}
+						},
+						{
+							ctor: '::',
+							_0: _rtfeldman$elm_css$Html_Styled$text('update search word'),
+							_1: {ctor: '[]'}
+						}),
+					_1: {ctor: '[]'}
+				}
+			});
+	});
 var _user$project$Views_Forms$viewFormAddWord = F4(
 	function (homeAddNewWord, typeHomeLanguage, typeHomeWord, typeHomeDefinition) {
 		return A2(
@@ -22171,11 +22400,13 @@ var _user$project$Page_Home$initialModel = {
 	myLastWords: {ctor: '[]'},
 	addWordLanguage: 'EN',
 	addWordWord: '',
-	addWordDefinition: ''
+	addWordDefinition: '',
+	searchWord: '',
+	searchWords: {ctor: '[]'}
 };
-var _user$project$Page_Home$Model = F4(
-	function (a, b, c, d) {
-		return {myLastWords: a, addWordLanguage: b, addWordWord: c, addWordDefinition: d};
+var _user$project$Page_Home$Model = F6(
+	function (a, b, c, d, e, f) {
+		return {myLastWords: a, addWordLanguage: b, addWordWord: c, addWordDefinition: d, searchWord: e, searchWords: f};
 	});
 var _user$project$Page_Home$LastWordsReqCompletedMsg = function (a) {
 	return {ctor: 'LastWordsReqCompletedMsg', _0: a};
@@ -22185,6 +22416,13 @@ var _user$project$Page_Home$InitFinished = function (a) {
 };
 var _user$project$Page_Home$HomeAddNewWordFinished = function (a) {
 	return {ctor: 'HomeAddNewWordFinished', _0: a};
+};
+var _user$project$Page_Home$HomeSearchWordFinished = function (a) {
+	return {ctor: 'HomeSearchWordFinished', _0: a};
+};
+var _user$project$Page_Home$HomeSearchWord = {ctor: 'HomeSearchWord'};
+var _user$project$Page_Home$UpdateSearchWord = function (a) {
+	return {ctor: 'UpdateSearchWord', _0: a};
 };
 var _user$project$Page_Home$TypeHomeDefinition = function (a) {
 	return {ctor: 'TypeHomeDefinition', _0: a};
@@ -22247,16 +22485,42 @@ var _user$project$Page_Home$view = function (model) {
 								{ctor: '[]'},
 								{
 									ctor: '::',
-									_0: _rtfeldman$elm_css$Html_Styled$text('Your last words of the week:'),
+									_0: _rtfeldman$elm_css$Html_Styled$text('Search a particular word in your dict?'),
 									_1: {ctor: '[]'}
 								}),
 							_1: {
 								ctor: '::',
-								_0: _user$project$Views_Words$viewWordsTable(model.myLastWords),
-								_1: {ctor: '[]'}
+								_0: A2(_user$project$Views_Forms$viewFormSearchWord, _user$project$Page_Home$HomeSearchWord, _user$project$Page_Home$UpdateSearchWord),
+								_1: {
+									ctor: '::',
+									_0: _user$project$Views_Words$viewWordsTable(model.searchWords),
+									_1: {ctor: '[]'}
+								}
 							}
 						}),
-					_1: {ctor: '[]'}
+					_1: {
+						ctor: '::',
+						_0: A2(
+							_rtfeldman$elm_css$Html_Styled$div,
+							{ctor: '[]'},
+							{
+								ctor: '::',
+								_0: A2(
+									_rtfeldman$elm_css$Html_Styled$h1,
+									{ctor: '[]'},
+									{
+										ctor: '::',
+										_0: _rtfeldman$elm_css$Html_Styled$text('Your last words of the week:'),
+										_1: {ctor: '[]'}
+									}),
+								_1: {
+									ctor: '::',
+									_0: _user$project$Views_Words$viewWordsTable(model.myLastWords),
+									_1: {ctor: '[]'}
+								}
+							}),
+						_1: {ctor: '[]'}
+					}
 				}
 			}
 		});
@@ -22363,7 +22627,7 @@ var _user$project$Page_Home$update = F3(
 						A2(_user$project$Util_ops['=>'], model, _elm_lang$core$Platform_Cmd$none),
 						_user$project$Page_Home$NoOp);
 				}
-			default:
+			case 'InitFinished':
 				if (_p0._0.ctor === 'Ok') {
 					return A2(
 						_user$project$Util_ops['=>'],
@@ -22372,6 +22636,47 @@ var _user$project$Page_Home$update = F3(
 							_elm_lang$core$Native_Utils.update(
 								model,
 								{myLastWords: _p0._0._0}),
+							_elm_lang$core$Platform_Cmd$none),
+						_user$project$Page_Home$NoOp);
+				} else {
+					return A2(
+						_user$project$Util_ops['=>'],
+						A2(_user$project$Util_ops['=>'], model, _elm_lang$core$Platform_Cmd$none),
+						_user$project$Page_Home$NoOp);
+				}
+			case 'UpdateSearchWord':
+				return A2(
+					_user$project$Util_ops['=>'],
+					A2(
+						_user$project$Util_ops['=>'],
+						_elm_lang$core$Native_Utils.update(
+							model,
+							{searchWord: _p0._0}),
+						_elm_lang$core$Platform_Cmd$none),
+					_user$project$Page_Home$NoOp);
+			case 'HomeSearchWord':
+				return A2(
+					_user$project$Util_ops['=>'],
+					A2(
+						_user$project$Util_ops['=>'],
+						model,
+						A3(
+							_user$project$Request$getWordsSearchCmd,
+							_user$project$Page_Home$HomeSearchWordFinished,
+							session,
+							function (_) {
+								return _.searchWord;
+							}(model))),
+					_user$project$Page_Home$NoOp);
+			default:
+				if (_p0._0.ctor === 'Ok') {
+					return A2(
+						_user$project$Util_ops['=>'],
+						A2(
+							_user$project$Util_ops['=>'],
+							_elm_lang$core$Native_Utils.update(
+								model,
+								{searchWords: _p0._0._0}),
 							_elm_lang$core$Platform_Cmd$none),
 						_user$project$Page_Home$NoOp);
 				} else {
@@ -22537,14 +22842,36 @@ var _user$project$Page_Quizz$Model = function (a) {
 };
 var _user$project$Page_Quizz$TestMsg = {ctor: 'TestMsg'};
 
+var _user$project$Views_Errors$viewErrorParagraph = function (error) {
+	return A2(
+		_rtfeldman$elm_css$Html_Styled$p,
+		{
+			ctor: '::',
+			_0: _user$project$IziCss$errorStyle,
+			_1: {ctor: '[]'}
+		},
+		{
+			ctor: '::',
+			_0: _rtfeldman$elm_css$Html_Styled$text(error),
+			_1: {ctor: '[]'}
+		});
+};
+var _user$project$Views_Errors$viewErrorsDiv = function (errors) {
+	return A2(
+		_rtfeldman$elm_css$Html_Styled$div,
+		{ctor: '[]'},
+		A2(_elm_lang$core$List$map, _user$project$Views_Errors$viewErrorParagraph, errors));
+};
+
 var _user$project$Page_Register$init = _elm_lang$http$Http$toTask(_user$project$API$getToken);
 var _user$project$Page_Register$initialModel = {
+	errors: {ctor: '[]'},
 	token: '',
 	newUser: A3(_user$project$API$NewUser, '', '', '')
 };
-var _user$project$Page_Register$Model = F2(
-	function (a, b) {
-		return {token: a, newUser: b};
+var _user$project$Page_Register$Model = F3(
+	function (a, b, c) {
+		return {errors: a, token: b, newUser: c};
 	});
 var _user$project$Page_Register$RetrieveUserFinished = function (a) {
 	return {ctor: 'RetrieveUserFinished', _0: a};
@@ -22562,8 +22889,12 @@ var _user$project$Page_Register$view = function (model) {
 		{ctor: '[]'},
 		{
 			ctor: '::',
-			_0: A3(_user$project$Views_Forms$viewFormRegister, model.newUser, _user$project$Page_Register$UpdateNewUser, _user$project$Page_Register$Register),
-			_1: {ctor: '[]'}
+			_0: _user$project$Views_Errors$viewErrorsDiv(model.errors),
+			_1: {
+				ctor: '::',
+				_0: A3(_user$project$Views_Forms$viewFormRegister, model.newUser, _user$project$Page_Register$UpdateNewUser, _user$project$Page_Register$Register),
+				_1: {ctor: '[]'}
+			}
 		});
 };
 var _user$project$Page_Register$InitFinished = function (a) {
@@ -22589,9 +22920,31 @@ var _user$project$Page_Register$update = F2(
 							_elm_lang$core$Platform_Cmd$none),
 						_user$project$Page_Register$NoOp);
 				} else {
+					var errorString = function () {
+						var _p1 = _p0._0._0;
+						switch (_p1.ctor) {
+							case 'BadUrl':
+								return 'bad url';
+							case 'Timeout':
+								return 'timeout';
+							case 'NetworkError':
+								return 'network error';
+							case 'BadStatus':
+								return 'bad status';
+							default:
+								return 'bad payload';
+						}
+					}();
 					return A2(
 						_user$project$Util_ops['=>'],
-						A2(_user$project$Util_ops['=>'], model, _elm_lang$core$Platform_Cmd$none),
+						A2(
+							_user$project$Util_ops['=>'],
+							_elm_lang$core$Native_Utils.update(
+								model,
+								{
+									errors: {ctor: '::', _0: errorString, _1: model.errors}
+								}),
+							_elm_lang$core$Platform_Cmd$none),
 						_user$project$Page_Register$NoOp);
 				}
 			case 'UpdateNewUser':
@@ -22625,9 +22978,31 @@ var _user$project$Page_Register$update = F2(
 							A3(_user$project$Request$getUserCmd, _user$project$Page_Register$RetrieveUserFinished, model.newUser.username, model.newUser.password)),
 						_user$project$Page_Register$NoOp);
 				} else {
+					var errorString = function () {
+						var _p2 = A2(_elm_lang$core$Debug$log, 'error: ', _p0._0._0);
+						switch (_p2.ctor) {
+							case 'BadUrl':
+								return 'bad url';
+							case 'Timeout':
+								return 'timeout';
+							case 'NetworkError':
+								return 'network error';
+							case 'BadStatus':
+								return 'bad status';
+							default:
+								return 'bad payload';
+						}
+					}();
 					return A2(
 						_user$project$Util_ops['=>'],
-						A2(_user$project$Util_ops['=>'], model, _elm_lang$core$Platform_Cmd$none),
+						A2(
+							_user$project$Util_ops['=>'],
+							_elm_lang$core$Native_Utils.update(
+								model,
+								{
+									errors: {ctor: '::', _0: errorString, _1: model.errors}
+								}),
+							_elm_lang$core$Platform_Cmd$none),
 						_user$project$Page_Register$NoOp);
 				}
 			default:
@@ -22661,6 +23036,52 @@ var _user$project$Page_Register$update = F2(
 						A2(_user$project$Util_ops['=>'], model, _elm_lang$core$Platform_Cmd$none),
 						_user$project$Page_Register$NoOp);
 				}
+		}
+	});
+
+var _user$project$Page_WordDelete$view = function (model) {
+	return A2(
+		_rtfeldman$elm_css$Html_Styled$div,
+		{ctor: '[]'},
+		{
+			ctor: '::',
+			_0: A2(
+				_rtfeldman$elm_css$Html_Styled$p,
+				{ctor: '[]'},
+				{
+					ctor: '::',
+					_0: _rtfeldman$elm_css$Html_Styled$text('Deleting the word…'),
+					_1: {ctor: '[]'}
+				}),
+			_1: {ctor: '[]'}
+		});
+};
+var _user$project$Page_WordDelete$init = F2(
+	function (user, wordId) {
+		return _elm_lang$http$Http$toTask(
+			A2(_user$project$Request$deleteWordByIdRequest, user, wordId));
+	});
+var _user$project$Page_WordDelete$Model = function (a) {
+	return {wordId: a};
+};
+var _user$project$Page_WordDelete$WordDeleteInitFinished = function (a) {
+	return {ctor: 'WordDeleteInitFinished', _0: a};
+};
+var _user$project$Page_WordDelete$GoHome = {ctor: 'GoHome'};
+var _user$project$Page_WordDelete$NoOp = {ctor: 'NoOp'};
+var _user$project$Page_WordDelete$update = F3(
+	function (session, msg, model) {
+		var _p0 = msg;
+		if (_p0._0.ctor === 'Ok') {
+			return A2(
+				_user$project$Util_ops['=>'],
+				A2(_user$project$Util_ops['=>'], model, _elm_lang$core$Platform_Cmd$none),
+				_user$project$Page_WordDelete$GoHome);
+		} else {
+			return A2(
+				_user$project$Util_ops['=>'],
+				A2(_user$project$Util_ops['=>'], model, _elm_lang$core$Platform_Cmd$none),
+				_user$project$Page_WordDelete$NoOp);
 		}
 	});
 
@@ -23010,6 +23431,9 @@ var _user$project$WordApp$Model = F2(
 		return {session: a, page: b};
 	});
 var _user$project$WordApp$Quizz = {ctor: 'Quizz'};
+var _user$project$WordApp$WordDelete = function (a) {
+	return {ctor: 'WordDelete', _0: a};
+};
 var _user$project$WordApp$WordEdit = function (a) {
 	return {ctor: 'WordEdit', _0: a};
 };
@@ -23025,6 +23449,12 @@ var _user$project$WordApp$Login = function (a) {
 var _user$project$WordApp$NotFound = {ctor: 'NotFound'};
 var _user$project$WordApp$QuizzMsg = function (a) {
 	return {ctor: 'QuizzMsg', _0: a};
+};
+var _user$project$WordApp$WordDeleteMsg = function (a) {
+	return {ctor: 'WordDeleteMsg', _0: a};
+};
+var _user$project$WordApp$WordDeleteInitMsg = function (a) {
+	return {ctor: 'WordDeleteInitMsg', _0: a};
 };
 var _user$project$WordApp$WordEditMsg = function (a) {
 	return {ctor: 'WordEditMsg', _0: a};
@@ -23125,6 +23555,26 @@ var _user$project$WordApp$setRoute = F2(
 								_user$project$WordApp$WordEditInitMsg,
 								A2(_user$project$Page_WordEdit$init, _p2._0, _p0._0._0)));
 					}
+				case 'WordDelete':
+					var _p4 = _p0._0._0;
+					var newModel = _elm_lang$core$Native_Utils.update(
+						model,
+						{
+							page: _user$project$WordApp$WordDelete(
+								_user$project$Page_WordDelete$Model(_p4))
+						});
+					var _p3 = model.session.user;
+					if (_p3.ctor === 'Nothing') {
+						return A2(_user$project$Util_ops['=>'], newModel, _elm_lang$core$Platform_Cmd$none);
+					} else {
+						return A2(
+							_user$project$Util_ops['=>'],
+							newModel,
+							A2(
+								_elm_lang$core$Task$attempt,
+								_user$project$WordApp$WordDeleteInitMsg,
+								A2(_user$project$Page_WordDelete$init, _p3._0, _p4)));
+					}
 				default:
 					return A2(
 						_user$project$Util_ops['=>'],
@@ -23155,36 +23605,43 @@ var _user$project$WordApp$LoginMsg = function (a) {
 };
 var _user$project$WordApp$view = function (model) {
 	var frame = _user$project$Views_Page$frame(model.session);
-	var _p3 = model.page;
-	switch (_p3.ctor) {
+	var _p5 = model.page;
+	switch (_p5.ctor) {
 		case 'Login':
 			return _rtfeldman$elm_css$Html_Styled$toUnstyled(
 				A2(
 					_rtfeldman$elm_css$Html_Styled$map,
 					_user$project$WordApp$LoginMsg,
 					frame(
-						_user$project$Page_Login$view(_p3._0))));
+						_user$project$Page_Login$view(_p5._0))));
 		case 'Register':
 			return _rtfeldman$elm_css$Html_Styled$toUnstyled(
 				A2(
 					_rtfeldman$elm_css$Html_Styled$map,
 					_user$project$WordApp$RegisterMsg,
 					frame(
-						_user$project$Page_Register$view(_p3._0))));
+						_user$project$Page_Register$view(_p5._0))));
 		case 'Home':
 			return _rtfeldman$elm_css$Html_Styled$toUnstyled(
 				A2(
 					_rtfeldman$elm_css$Html_Styled$map,
 					_user$project$WordApp$HomeMsg,
 					frame(
-						_user$project$Page_Home$view(_p3._0))));
+						_user$project$Page_Home$view(_p5._0))));
 		case 'WordEdit':
 			return _rtfeldman$elm_css$Html_Styled$toUnstyled(
 				A2(
 					_rtfeldman$elm_css$Html_Styled$map,
 					_user$project$WordApp$WordEditMsg,
 					frame(
-						_user$project$Page_WordEdit$view(_p3._0))));
+						_user$project$Page_WordEdit$view(_p5._0))));
+		case 'WordDelete':
+			return _rtfeldman$elm_css$Html_Styled$toUnstyled(
+				A2(
+					_rtfeldman$elm_css$Html_Styled$map,
+					_user$project$WordApp$WordDeleteMsg,
+					frame(
+						_user$project$Page_WordDelete$view(_p5._0))));
 		case 'Quizz':
 			return _rtfeldman$elm_css$Html_Styled$toUnstyled(
 				A2(
@@ -23198,31 +23655,31 @@ var _user$project$WordApp$view = function (model) {
 };
 var _user$project$WordApp$updatePage = F3(
 	function (page, msg, model) {
-		var _p4 = {ctor: '_Tuple2', _0: page, _1: msg};
-		_v4_9:
+		var _p6 = {ctor: '_Tuple2', _0: page, _1: msg};
+		_v5_10:
 		do {
-			_v4_0:
+			_v5_0:
 			do {
-				switch (_p4._0.ctor) {
+				switch (_p6._0.ctor) {
 					case 'Login':
-						switch (_p4._1.ctor) {
+						switch (_p6._1.ctor) {
 							case 'SetRoute':
-								break _v4_0;
+								break _v5_0;
 							case 'LoginMsg':
-								var _p5 = A2(_user$project$Page_Login$update, _p4._1._0, _p4._0._0);
-								var pageModel = _p5._0._0;
-								var pageMsg = _p5._0._1;
-								var externalMsg = _p5._1;
+								var _p7 = A2(_user$project$Page_Login$update, _p6._1._0, _p6._0._0);
+								var pageModel = _p7._0._0;
+								var pageMsg = _p7._0._1;
+								var externalMsg = _p7._1;
 								var newModel = function () {
-									var _p6 = externalMsg;
-									if (_p6.ctor === 'NoOp') {
+									var _p8 = externalMsg;
+									if (_p8.ctor === 'NoOp') {
 										return model;
 									} else {
 										return _elm_lang$core$Native_Utils.update(
 											model,
 											{
 												session: {
-													user: _elm_lang$core$Maybe$Just(_p6._0)
+													user: _elm_lang$core$Maybe$Just(_p8._0)
 												}
 											});
 									}
@@ -23236,20 +23693,20 @@ var _user$project$WordApp$updatePage = F3(
 										}),
 									A2(_elm_lang$core$Platform_Cmd$map, _user$project$WordApp$LoginMsg, pageMsg));
 							default:
-								break _v4_9;
+								break _v5_10;
 						}
 					case 'Register':
-						switch (_p4._1.ctor) {
+						switch (_p6._1.ctor) {
 							case 'SetRoute':
-								break _v4_0;
+								break _v5_0;
 							case 'RegisterInit':
-								var _p7 = A2(
+								var _p9 = A2(
 									_user$project$Page_Register$update,
-									_user$project$Page_Register$InitFinished(_p4._1._0),
-									_p4._0._0);
-								var pageModel = _p7._0._0;
-								var pageMsg = _p7._0._1;
-								var externalMsg = _p7._1;
+									_user$project$Page_Register$InitFinished(_p6._1._0),
+									_p6._0._0);
+								var pageModel = _p9._0._0;
+								var pageMsg = _p9._0._1;
+								var externalMsg = _p9._1;
 								return A2(
 									_user$project$Util_ops['=>'],
 									_elm_lang$core$Native_Utils.update(
@@ -23259,20 +23716,20 @@ var _user$project$WordApp$updatePage = F3(
 										}),
 									A2(_elm_lang$core$Platform_Cmd$map, _user$project$WordApp$RegisterMsg, pageMsg));
 							case 'RegisterMsg':
-								var _p8 = A2(_user$project$Page_Register$update, _p4._1._0, _p4._0._0);
-								var pageModel = _p8._0._0;
-								var pageMsg = _p8._0._1;
-								var externalMsg = _p8._1;
+								var _p10 = A2(_user$project$Page_Register$update, _p6._1._0, _p6._0._0);
+								var pageModel = _p10._0._0;
+								var pageMsg = _p10._0._1;
+								var externalMsg = _p10._1;
 								var newModel = function () {
-									var _p9 = externalMsg;
-									if (_p9.ctor === 'NoOp') {
+									var _p11 = externalMsg;
+									if (_p11.ctor === 'NoOp') {
 										return model;
 									} else {
 										return _elm_lang$core$Native_Utils.update(
 											model,
 											{
 												session: {
-													user: _elm_lang$core$Maybe$Just(_p9._0)
+													user: _elm_lang$core$Maybe$Just(_p11._0)
 												}
 											});
 									}
@@ -23286,21 +23743,21 @@ var _user$project$WordApp$updatePage = F3(
 										}),
 									A2(_elm_lang$core$Platform_Cmd$map, _user$project$WordApp$RegisterMsg, pageMsg));
 							default:
-								break _v4_9;
+								break _v5_10;
 						}
 					case 'Home':
-						switch (_p4._1.ctor) {
+						switch (_p6._1.ctor) {
 							case 'SetRoute':
-								break _v4_0;
+								break _v5_0;
 							case 'HomeInit':
-								var _p10 = A3(
+								var _p12 = A3(
 									_user$project$Page_Home$update,
 									model.session,
-									_user$project$Page_Home$InitFinished(_p4._1._0),
-									_p4._0._0);
-								var pageModel = _p10._0._0;
-								var pageMsg = _p10._0._1;
-								var externalMsg = _p10._1;
+									_user$project$Page_Home$InitFinished(_p6._1._0),
+									_p6._0._0);
+								var pageModel = _p12._0._0;
+								var pageMsg = _p12._0._1;
+								var externalMsg = _p12._1;
 								return A2(
 									_user$project$Util_ops['=>'],
 									_elm_lang$core$Native_Utils.update(
@@ -23310,12 +23767,12 @@ var _user$project$WordApp$updatePage = F3(
 										}),
 									A2(_elm_lang$core$Platform_Cmd$map, _user$project$WordApp$HomeMsg, pageMsg));
 							case 'HomeMsg':
-								var _p11 = A3(_user$project$Page_Home$update, model.session, _p4._1._0, _p4._0._0);
-								var pageModel = _p11._0._0;
-								var pageMsg = _p11._0._1;
-								var externalMsg = _p11._1;
-								var _p12 = externalMsg;
-								if (_p12.ctor === 'NoOp') {
+								var _p13 = A3(_user$project$Page_Home$update, model.session, _p6._1._0, _p6._0._0);
+								var pageModel = _p13._0._0;
+								var pageMsg = _p13._0._1;
+								var externalMsg = _p13._1;
+								var _p14 = externalMsg;
+								if (_p14.ctor === 'NoOp') {
 									return A2(
 										_user$project$Util_ops['=>'],
 										_elm_lang$core$Native_Utils.update(
@@ -23323,10 +23780,13 @@ var _user$project$WordApp$updatePage = F3(
 											{
 												page: _user$project$WordApp$Home(pageModel)
 											}),
-										A2(_elm_lang$core$Platform_Cmd$map, _user$project$WordApp$HomeMsg, pageMsg));
+										A2(
+											_elm_lang$core$Platform_Cmd$map,
+											_user$project$WordApp$HomeMsg,
+											A2(_elm_lang$core$Debug$log, 'page msg on home: ', pageMsg)));
 								} else {
-									var _p13 = model.session.user;
-									if (_p13.ctor === 'Nothing') {
+									var _p15 = model.session.user;
+									if (_p15.ctor === 'Nothing') {
 										return A2(
 											_user$project$Util_ops['=>'],
 											_elm_lang$core$Native_Utils.update(
@@ -23346,25 +23806,25 @@ var _user$project$WordApp$updatePage = F3(
 											A2(
 												_elm_lang$core$Task$attempt,
 												_user$project$WordApp$HomeInit,
-												_user$project$Page_Home$init(_p13._0)));
+												_user$project$Page_Home$init(_p15._0)));
 									}
 								}
 							default:
-								break _v4_9;
+								break _v5_10;
 						}
 					case 'WordEdit':
-						switch (_p4._1.ctor) {
+						switch (_p6._1.ctor) {
 							case 'SetRoute':
-								break _v4_0;
+								break _v5_0;
 							case 'WordEditInitMsg':
-								var _p14 = A3(
+								var _p16 = A3(
 									_user$project$Page_WordEdit$update,
 									model.session,
-									_user$project$Page_WordEdit$WordEditInitFinished(_p4._1._0),
-									_p4._0._0);
-								var pageModel = _p14._0._0;
-								var pageMsg = _p14._0._1;
-								var externalMsg = _p14._1;
+									_user$project$Page_WordEdit$WordEditInitFinished(_p6._1._0),
+									_p6._0._0);
+								var pageModel = _p16._0._0;
+								var pageMsg = _p16._0._1;
+								var externalMsg = _p16._1;
 								return A2(
 									_user$project$Util_ops['=>'],
 									_elm_lang$core$Native_Utils.update(
@@ -23374,12 +23834,12 @@ var _user$project$WordApp$updatePage = F3(
 										}),
 									A2(_elm_lang$core$Platform_Cmd$map, _user$project$WordApp$WordEditMsg, pageMsg));
 							case 'WordEditMsg':
-								var _p15 = A3(_user$project$Page_WordEdit$update, model.session, _p4._1._0, _p4._0._0);
-								var pageModel = _p15._0._0;
-								var pageMsg = _p15._0._1;
-								var externalMsg = _p15._1;
-								var _p16 = externalMsg;
-								if (_p16.ctor === 'NoOp') {
+								var _p17 = A3(_user$project$Page_WordEdit$update, model.session, _p6._1._0, _p6._0._0);
+								var pageModel = _p17._0._0;
+								var pageMsg = _p17._0._1;
+								var externalMsg = _p17._1;
+								var _p18 = externalMsg;
+								if (_p18.ctor === 'NoOp') {
 									return A2(
 										_user$project$Util_ops['=>'],
 										_elm_lang$core$Native_Utils.update(
@@ -23395,23 +23855,55 @@ var _user$project$WordApp$updatePage = F3(
 										_user$project$Route$modifyUrl(_user$project$Route$Home));
 								}
 							default:
-								break _v4_9;
+								break _v5_10;
+						}
+					case 'WordDelete':
+						switch (_p6._1.ctor) {
+							case 'SetRoute':
+								break _v5_0;
+							case 'WordDeleteInitMsg':
+								var _p19 = A3(
+									_user$project$Page_WordDelete$update,
+									model.session,
+									_user$project$Page_WordDelete$WordDeleteInitFinished(_p6._1._0),
+									_p6._0._0);
+								var pageModel = _p19._0._0;
+								var pageMsg = _p19._0._1;
+								var externalMsg = _p19._1;
+								var _p20 = externalMsg;
+								if (_p20.ctor === 'NoOp') {
+									return A2(
+										_user$project$Util_ops['=>'],
+										_elm_lang$core$Native_Utils.update(
+											model,
+											{
+												page: _user$project$WordApp$WordDelete(pageModel)
+											}),
+										A2(_elm_lang$core$Platform_Cmd$map, _user$project$WordApp$WordDeleteMsg, pageMsg));
+								} else {
+									return A2(
+										_user$project$Util_ops['=>'],
+										model,
+										_user$project$Route$modifyUrl(_user$project$Route$Home));
+								}
+							default:
+								break _v5_10;
 						}
 					case 'Quizz':
-						if (_p4._1.ctor === 'SetRoute') {
-							break _v4_0;
+						if (_p6._1.ctor === 'SetRoute') {
+							break _v5_0;
 						} else {
 							return {ctor: '_Tuple2', _0: model, _1: _elm_lang$core$Platform_Cmd$none};
 						}
 					default:
-						if (_p4._1.ctor === 'SetRoute') {
-							break _v4_0;
+						if (_p6._1.ctor === 'SetRoute') {
+							break _v5_0;
 						} else {
-							break _v4_9;
+							break _v5_10;
 						}
 				}
 			} while(false);
-			return A2(_user$project$WordApp$setRoute, _p4._1._0, model);
+			return A2(_user$project$WordApp$setRoute, _p6._1._0, model);
 		} while(false);
 		return A2(_user$project$Util_ops['=>'], model, _elm_lang$core$Platform_Cmd$none);
 	});
@@ -23430,16 +23922,16 @@ var _user$project$WordApp$SetRoute = function (a) {
 };
 var _user$project$WordApp$main = A2(
 	_elm_lang$navigation$Navigation$programWithFlags,
-	function (_p17) {
+	function (_p21) {
 		return _user$project$WordApp$SetRoute(
-			_user$project$Route$fromLocation(_p17));
+			_user$project$Route$fromLocation(_p21));
 	},
 	{init: _user$project$WordApp$init, view: _user$project$WordApp$view, update: _user$project$WordApp$update, subscriptions: _user$project$WordApp$subscriptions})(_elm_lang$core$Json_Decode$value);
 
 var Elm = {};
 Elm['WordApp'] = Elm['WordApp'] || {};
 if (typeof _user$project$WordApp$main !== 'undefined') {
-    _user$project$WordApp$main(Elm['WordApp'], 'WordApp', {"types":{"unions":{"Dict.LeafColor":{"args":[],"tags":{"LBBlack":[],"LBlack":[]}},"Dict.Dict":{"args":["k","v"],"tags":{"RBNode_elm_builtin":["Dict.NColor","k","v","Dict.Dict k v","Dict.Dict k v"],"RBEmpty_elm_builtin":["Dict.LeafColor"]}},"Route.Route":{"args":[],"tags":{"Home":[],"WordEdit":["Int"],"Logout":[],"Register":[],"Quizz":[],"Login":[]}},"API.NoContent":{"args":[],"tags":{"NoContent":[]}},"Maybe.Maybe":{"args":["a"],"tags":{"Just":["a"],"Nothing":[]}},"Page.Quizz.Msg":{"args":[],"tags":{"TestMsg":[]}},"Dict.NColor":{"args":[],"tags":{"BBlack":[],"Red":[],"NBlack":[],"Black":[]}},"Page.Home.Msg":{"args":[],"tags":{"HomeAddNewWord":[],"TypeHomeLanguage":["String"],"LastWordsReqCompletedMsg":["Result.Result Http.Error (List API.Word)"],"HomeAddNewWordFinished":["Result.Result Http.Error API.NoContent"],"TestMsg":[],"TypeHomeDefinition":["String"],"InitFinished":["Result.Result Http.Error (List API.Word)"],"TypeHomeWord":["String"]}},"Page.WordEdit.Msg":{"args":[],"tags":{"UpdateWordRequestFinished":["Result.Result Http.Error API.Word"],"UpdateWordRequest":[],"TestMsg":[],"UpdateWord":["API.Word"],"WordEditInitFinished":["Result.Result Http.Error API.Word"]}},"WordApp.Msg":{"args":[],"tags":{"QuizzMsg":["Page.Quizz.Msg"],"LoginMsg":["Page.Login.Msg"],"HomeInit":["Result.Result Http.Error (List API.Word)"],"SetRoute":["Maybe.Maybe Route.Route"],"WordEditMsg":["Page.WordEdit.Msg"],"RegisterInit":["Result.Result Http.Error String"],"HomeMsg":["Page.Home.Msg"],"WordEditInitMsg":["Result.Result Http.Error API.Word"],"RegisterMsg":["Page.Register.Msg"]}},"Page.Register.Msg":{"args":[],"tags":{"Register":[],"UpdateNewUser":["API.NewUser"],"RetrieveUserFinished":["Result.Result Http.Error API.User"],"InitFinished":["Result.Result Http.Error String"],"RegisterFinished":["Result.Result Http.Error API.NoContent"]}},"Http.Error":{"args":[],"tags":{"BadUrl":["String"],"NetworkError":[],"Timeout":[],"BadStatus":["Http.Response String"],"BadPayload":["String","Http.Response String"]}},"Result.Result":{"args":["error","value"],"tags":{"Ok":["value"],"Err":["error"]}},"Page.Login.Msg":{"args":[],"tags":{"TypePasswordMsg":["String"],"LoginCompletedMsg":["Result.Result Http.Error API.User"],"TypeLoginMsg":["String"],"LoginTryMsg":[]}}},"aliases":{"API.User":{"args":[],"type":"{ userid : Int, username : String }"},"Http.Response":{"args":["body"],"type":"{ url : String , status : { code : Int, message : String } , headers : Dict.Dict String String , body : body }"},"API.Word":{"args":[],"type":"{ wordId : Int , wordLanguage : String , wordWord : String , wordKeywords : List String , wordDefinition : String , wordDifficulty : Maybe.Maybe Int }"},"API.NewUser":{"args":[],"type":"{ username : String, password : String, email : String }"}},"message":"WordApp.Msg"},"versions":{"elm":"0.18.0"}});
+    _user$project$WordApp$main(Elm['WordApp'], 'WordApp', {"types":{"unions":{"Dict.LeafColor":{"args":[],"tags":{"LBBlack":[],"LBlack":[]}},"Page.WordDelete.Msg":{"args":[],"tags":{"WordDeleteInitFinished":["Result.Result Http.Error API.NoContent"]}},"Dict.Dict":{"args":["k","v"],"tags":{"RBNode_elm_builtin":["Dict.NColor","k","v","Dict.Dict k v","Dict.Dict k v"],"RBEmpty_elm_builtin":["Dict.LeafColor"]}},"Route.Route":{"args":[],"tags":{"Home":[],"WordEdit":["Int"],"Logout":[],"Register":[],"WordDelete":["Int"],"Quizz":[],"Login":[]}},"API.NoContent":{"args":[],"tags":{"NoContent":[]}},"Maybe.Maybe":{"args":["a"],"tags":{"Just":["a"],"Nothing":[]}},"Page.Quizz.Msg":{"args":[],"tags":{"TestMsg":[]}},"Dict.NColor":{"args":[],"tags":{"BBlack":[],"Red":[],"NBlack":[],"Black":[]}},"Page.Home.Msg":{"args":[],"tags":{"HomeAddNewWord":[],"HomeSearchWord":[],"TypeHomeLanguage":["String"],"LastWordsReqCompletedMsg":["Result.Result Http.Error (List API.Word)"],"HomeAddNewWordFinished":["Result.Result Http.Error API.NoContent"],"TestMsg":[],"TypeHomeDefinition":["String"],"HomeSearchWordFinished":["Result.Result Http.Error (List API.Word)"],"InitFinished":["Result.Result Http.Error (List API.Word)"],"TypeHomeWord":["String"],"UpdateSearchWord":["String"]}},"Page.WordEdit.Msg":{"args":[],"tags":{"UpdateWordRequestFinished":["Result.Result Http.Error API.Word"],"UpdateWordRequest":[],"TestMsg":[],"UpdateWord":["API.Word"],"WordEditInitFinished":["Result.Result Http.Error API.Word"]}},"WordApp.Msg":{"args":[],"tags":{"WordDeleteInitMsg":["Result.Result Http.Error API.NoContent"],"QuizzMsg":["Page.Quizz.Msg"],"LoginMsg":["Page.Login.Msg"],"HomeInit":["Result.Result Http.Error (List API.Word)"],"SetRoute":["Maybe.Maybe Route.Route"],"WordEditMsg":["Page.WordEdit.Msg"],"RegisterInit":["Result.Result Http.Error String"],"HomeMsg":["Page.Home.Msg"],"WordEditInitMsg":["Result.Result Http.Error API.Word"],"RegisterMsg":["Page.Register.Msg"],"WordDeleteMsg":["Page.WordDelete.Msg"]}},"Page.Register.Msg":{"args":[],"tags":{"Register":[],"UpdateNewUser":["API.NewUser"],"RetrieveUserFinished":["Result.Result Http.Error API.User"],"InitFinished":["Result.Result Http.Error String"],"RegisterFinished":["Result.Result Http.Error API.NoContent"]}},"Http.Error":{"args":[],"tags":{"BadUrl":["String"],"NetworkError":[],"Timeout":[],"BadStatus":["Http.Response String"],"BadPayload":["String","Http.Response String"]}},"Result.Result":{"args":["error","value"],"tags":{"Ok":["value"],"Err":["error"]}},"Page.Login.Msg":{"args":[],"tags":{"TypePasswordMsg":["String"],"LoginCompletedMsg":["Result.Result Http.Error API.User"],"TypeLoginMsg":["String"],"LoginTryMsg":[]}}},"aliases":{"API.User":{"args":[],"type":"{ userid : Int, username : String }"},"Http.Response":{"args":["body"],"type":"{ url : String , status : { code : Int, message : String } , headers : Dict.Dict String String , body : body }"},"API.Word":{"args":[],"type":"{ wordId : Int , wordLanguage : String , wordWord : String , wordKeywords : List String , wordDefinition : String , wordDifficulty : Maybe.Maybe Int }"},"API.NewUser":{"args":[],"type":"{ username : String, password : String, email : String }"}},"message":"WordApp.Msg"},"versions":{"elm":"0.18.0"}});
 }
 
 if (typeof define === "function" && define['amd'])

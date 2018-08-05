@@ -54,10 +54,23 @@ SELECT
 FROM
   words
 WHERE
-  userid = :user.userid AND 
-  inserted_at > (now() - (INTERVAL '7 days'))
+  userid = :user.userid
 ORDER BY
   inserted_at DESC
+LIMIT 20
+;;;
+-- name:getSearchWords :: [(Int, String, String, String, StringArray, MaybeInt)]
+-- :user :: User
+-- :searchWord :: String
+SELECT
+  id, COALESCE(language, 'EN'), word, COALESCE(definition, 'def'), keywords, difficulty
+FROM
+  words
+WHERE
+  userid = :user.userid AND
+  word LIKE '%' || :searchWord || '%'
+LIMIT
+  20
 ;;;
 -- name:getWordById :: [(Int, String, String, String, StringArray, MaybeInt)]
 -- :user :: User
@@ -96,3 +109,13 @@ INSERT INTO
   (userid, language, word, definition)
 VALUES
   (:user.userid, :wordLanguage, :wordWord, :wordDefinition)
+;;;
+-- name:deleteWordById :: (Integer)
+-- :user :: User
+-- :wordId :: Int
+DELETE
+FROM
+  words
+WHERE
+          id = :wordId
+  AND userid = :user.userid

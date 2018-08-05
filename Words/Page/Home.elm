@@ -11,6 +11,7 @@ import Data.Session exposing (..)
 import Route as Route exposing (Route(..), href)
 import Views.Words exposing (..)
 import Views.Forms exposing (..)
+import Debug
 
 
 -- MODEL --
@@ -21,6 +22,8 @@ type alias Model =
     , addWordLanguage : String
     , addWordWord : String
     , addWordDefinition : String
+    , searchWord : String
+    , searchWords : List Word
     }
 
 
@@ -30,6 +33,8 @@ initialModel =
     , addWordLanguage = "EN"
     , addWordWord = ""
     , addWordDefinition = ""
+    , searchWord = ""
+    , searchWords = []
     }
 
 
@@ -53,6 +58,9 @@ type Msg
     | TypeHomeLanguage String
     | TypeHomeWord String
     | TypeHomeDefinition String
+    | UpdateSearchWord String
+    | HomeSearchWord
+    | HomeSearchWordFinished (Result Http.Error (List Word))
     | HomeAddNewWordFinished (Result Http.Error NoContent)
     | InitFinished (Result Http.Error (List Word))
     | LastWordsReqCompletedMsg (Result Http.Error (List Word))
@@ -71,6 +79,11 @@ view model =
         , div []
             [ h1 [] [ text "You want to add a word?" ]
             , viewFormAddWord HomeAddNewWord TypeHomeLanguage TypeHomeWord TypeHomeDefinition
+            ]
+        , div []
+            [ h1 [] [ text "Search a particular word in your dict?" ]
+            , viewFormSearchWord HomeSearchWord UpdateSearchWord
+            , viewWordsTable model.searchWords
             ]
         , div []
             [ h1 [] [ text "Your last words of the week:" ]
@@ -141,6 +154,26 @@ update session msg model =
                 => NoOp
 
         InitFinished (Err error) ->
+            model
+                => Cmd.none
+                => NoOp
+
+        UpdateSearchWord searchWord ->
+            { model | searchWord = searchWord }
+                => Cmd.none
+                => NoOp
+
+        HomeSearchWord ->
+            model
+                => getWordsSearchCmd HomeSearchWordFinished session (.searchWord model)
+                => NoOp
+
+        HomeSearchWordFinished (Ok listSearchWords) ->
+            { model | searchWords = listSearchWords }
+                => Cmd.none
+                => NoOp
+
+        HomeSearchWordFinished (Err _) ->
             model
                 => Cmd.none
                 => NoOp

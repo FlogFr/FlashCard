@@ -32,7 +32,8 @@ import Control.Lens
 import Control.Monad.IO.Class (liftIO)
 import Servant.API ((:<|>) ((:<|>)), (:>), BasicAuth, Get, Post, ReqBody, JSON, NoContent(..))
 import Servant.API.BasicAuth (BasicAuthData (BasicAuthData))
-import Database.HDBC (commit)
+import qualified Data.ByteString.Lazy.UTF8 as BU
+import Database.HDBC (commit, catchSql)
 import Database.HDBC.PostgreSQL (Connection, begin)
 import Network.Wai
 import Network.Wai.Handler.Warp
@@ -42,11 +43,21 @@ import Servant
 import Servant.Server
 import Servant.Swagger
 import Servant.Swagger.UI
-import PostgreSQL (getAllWords, getLastWords, getWordById, updateWordById, insertWord, getNewToken, verifyToken, insertUser)
+import PostgreSQL
 import Word (Word(..), WordId, wordConstructor)
 import User (User(..), NewUser(..))
 import Token (Token(..))
 import Auth
+
+
+mkError :: ServantErr -> String -> ServantErr
+mkError errorType message = errorType
+  { errBody = BU.fromString message
+  }
+
+
+error400 :: String -> ServantErr
+error400 = mkError err400
 
 
 pgNewToken :: Connection -> IO Token
@@ -90,13 +101,14 @@ authServer conns = newToken
 
         createUser :: String -> NewUser -> Handler NoContent
         createUser uuid newUser = do
-          liftIO $ 
-            withResource conns $ \conn -> do
+          liftIO pgExec
+          return NoContent
+          where
+            pgExec = withResource conns $ \conn -> do
               begin conn
               token <- pgCreateUser uuid newUser conn
               commit conn
               return ()
-          return NoContent
 
 -- | API for the users
 type UserAPI = Get '[JSON] User
@@ -115,6 +127,11 @@ pgRetrieveLastWords user conn = do
   listWords <- getLastWords user conn
   return $ map wordConstructor listWords
 
+pgRetrieveSearchWords :: User -> String -> Connection -> IO [Word]
+pgRetrieveSearchWords user searchWord conn = do
+  listWords <- getSearchWords user searchWord conn
+  return $ map wordConstructor listWords
+
 pgRetrieveWordById :: User -> WordId -> Connection -> IO Word
 pgRetrieveWordById user wordId conn = do
   listWords <- getWordById user wordId conn
@@ -126,14 +143,18 @@ pgUpdateWordById user wordId word conn = updateWordById user wordId word conn
 -- | API for the words
 type WordAPI = "all" :> Get '[JSON] [Word]
           :<|> "last" :> Get '[JSON] [Word]
+          :<|> "search" :> Capture "searchWord" String :> Get '[JSON] [Word]
           :<|> "id" :> Capture "wordId" WordId :> Get '[JSON] Word
+          :<|> "id" :> Capture "wordId" WordId :> Delete '[JSON] NoContent
           :<|> ReqBody '[JSON] Word :> "id" :> Capture "wordId" WordId :> Put '[JSON] Word
           :<|> ReqBody '[JSON] Word :> Post '[JSON] NoContent
 
 wordServer :: User -> Pool Connection -> Server WordAPI
 wordServer user conns = retrieveAllWords
                    :<|> retrieveLastWords
+                   :<|> retrieveSearchWords
                    :<|> retrieveWordById
+                   :<|> deleteWordByIdHandler
                    :<|> putWordById
                    :<|> postWord
 
@@ -155,6 +176,15 @@ wordServer user conns = retrieveAllWords
               commit conn
               return words
 
+        retrieveSearchWords :: String -> Handler [Word]
+        retrieveSearchWords searchWord = do
+          liftIO $ 
+            withResource conns $ \conn -> do
+              begin conn
+              words <- pgRetrieveSearchWords user searchWord conn
+              commit conn
+              return words
+
         retrieveWordById :: WordId -> Handler Word
         retrieveWordById wordId = do
           liftIO $ 
@@ -163,6 +193,16 @@ wordServer user conns = retrieveAllWords
               words <- pgRetrieveWordById user wordId conn
               commit conn
               return words
+
+        deleteWordByIdHandler :: WordId -> Handler NoContent
+        deleteWordByIdHandler wordId = do
+          liftIO $ 
+            withResource conns $ \conn -> do
+              begin conn
+              words <- deleteWordById user wordId conn
+              commit conn
+              return ()
+          return NoContent
 
         putWordById :: Word -> WordId -> Handler Word
         putWordById word wordId = do
@@ -221,7 +261,7 @@ app conns = serveWithContext api basicAuthServerContext (apiServer conns)
 corsPolicy :: CorsResourcePolicy
 corsPolicy = CorsResourcePolicy {
     corsOrigins = Nothing
-  , corsMethods = ["GET", "HEAD", "PUT", "POST"]
+  , corsMethods = ["GET", "HEAD", "PUT", "POST", "DELETE"]
   , corsRequestHeaders =["Authorization", "Content-Type"]
   , corsExposedHeaders = corsExposedHeaders simpleCorsResourcePolicy
   , corsMaxAge = corsMaxAge simpleCorsResourcePolicy

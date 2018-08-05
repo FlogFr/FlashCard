@@ -16,4 +16,6 @@ BEGIN;
   
   ALTER SEQUENCE words_id_seq OWNED BY words.id;
 
+  CREATE INDEX words_trgm ON words USING GIN(word gin_trgm_ops);
+
 COMMIT;

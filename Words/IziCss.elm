@@ -87,6 +87,11 @@ bottomFrame =
 {- Design of the components -}
 
 
+errorStyle : Attribute msg
+errorStyle =
+    css [ color Css.Colors.red ]
+
+
 logo : Attribute msg
 logo =
     css
