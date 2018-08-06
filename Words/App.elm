@@ -47,7 +47,7 @@ type alias Model =
 init : Value -> Location -> ( Model, Cmd Msg )
 init val location =
     setRoute (Route.fromLocation location)
-        { session = { user = decodeAuthUserFromJson val }
+        { session = (retrieveSessionFromJson val)
         , page = NotFound
         }
 
@@ -153,8 +153,8 @@ updatePage page msg model =
                         Login.NoOp ->
                             model
 
-                        Login.SetAuthUser authUser ->
-                            { model | session = { user = Just authUser } }
+                        Login.SetSession newSession ->
+                            { model | session = newSession }
             in
                 { newModel | page = Login pageModel }
                     => Cmd.map LoginMsg pageMsg
@@ -171,17 +171,14 @@ updatePage page msg model =
             let
                 ( ( pageModel, pageMsg ), externalMsg ) =
                     Register.update subMsg subModel
-
-                newModel =
-                    case externalMsg of
-                        Register.NoOp ->
-                            model
-
-                        Register.SetAuthUser authUser ->
-                            { model | session = { user = Just authUser } }
             in
-                { newModel | page = Register pageModel }
-                    => Cmd.map RegisterMsg pageMsg
+                case externalMsg of
+                    Register.NoOp ->
+                        { model | page = Register pageModel }
+                            => Cmd.map RegisterMsg pageMsg
+
+                    Register.GoLogin ->
+                        setRoute (Just Route.Login) model
 
         ( Home subModel, HomeInit subMsg ) ->
             let
@@ -199,7 +196,7 @@ updatePage page msg model =
                 case externalMsg of
                     Home.NoOp ->
                         { model | page = Home pageModel }
-                            => Cmd.map HomeMsg (Debug.log "page msg on home: " pageMsg)
+                            => Cmd.map HomeMsg pageMsg
 
                     Home.ReloadPage ->
                         case model.session.user of
@@ -209,7 +206,7 @@ updatePage page msg model =
 
                             Just user ->
                                 { model | page = Home pageModel }
-                                    => Task.attempt HomeInit (Home.init user)
+                                    => Task.attempt HomeInit (Home.init (.session model))
 
         ( WordEdit subModel, WordEditInitMsg subMsg ) ->
             let
@@ -271,7 +268,7 @@ setRoute maybeRoute model =
                 => Task.attempt RegisterInit Register.init
 
         Just (Route.Logout) ->
-            { model | session = { user = Nothing } }
+            { model | session = (Session Nothing Nothing) }
                 => Cmd.batch [ deleteSession, Route.modifyUrl Route.Login ]
 
         Just (Route.Home) ->
@@ -286,7 +283,7 @@ setRoute maybeRoute model =
 
                     Just user ->
                         newModel
-                            => Task.attempt HomeInit (Home.init user)
+                            => Task.attempt HomeInit (Home.init (.session model))
 
         Just (Route.WordEdit wordId) ->
             let
@@ -300,7 +297,7 @@ setRoute maybeRoute model =
 
                     Just user ->
                         newModel
-                            => Task.attempt WordEditInitMsg (WordEdit.init user wordId)
+                            => Task.attempt WordEditInitMsg (WordEdit.init (.session model) wordId)
 
         Just (Route.WordDelete wordId) ->
             let
@@ -314,7 +311,7 @@ setRoute maybeRoute model =
 
                     Just user ->
                         newModel
-                            => Task.attempt WordDeleteInitMsg (WordDelete.init user wordId)
+                            => Task.attempt WordDeleteInitMsg (WordDelete.init (.session model) wordId)
 
         Just (Route.Quizz) ->
             { model | page = Quizz } => Cmd.none

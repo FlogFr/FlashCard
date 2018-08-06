@@ -7,6 +7,17 @@ import Http
 import String
 
 
+type alias JWTToken =
+    { token : String }
+
+
+encodeJWTToken : JWTToken -> Json.Encode.Value
+encodeJWTToken x =
+    Json.Encode.object
+        [ ( "token", Json.Encode.string x.token )
+        ]
+
+
 type alias Word =
     { wordId : Int
     , wordLanguage : String
@@ -46,6 +57,12 @@ type alias User =
     }
 
 
+type alias GrantUser =
+    { username : String
+    , password : String
+    }
+
+
 type alias NewUser =
     { username : String
     , password : String
@@ -70,6 +87,14 @@ encodeNewUser newUser =
         ]
 
 
+encodeGrantUser : GrantUser -> Json.Encode.Value
+encodeGrantUser grantUser =
+    Json.Encode.object
+        [ ( "grantUsername", Json.Encode.string (.username grantUser) )
+        , ( "grantPassword", Json.Encode.string (.password grantUser) )
+        ]
+
+
 decodeUser : Decoder User
 decodeUser =
     decode User
@@ -80,6 +105,12 @@ decodeUser =
 decodeToken : Decoder String
 decodeToken =
     field "token" string
+
+
+decodeJWTToken : Decoder JWTToken
+decodeJWTToken =
+    decode JWTToken
+        |> required "token" string
 
 
 type NoContent
@@ -103,6 +134,30 @@ getToken =
             Http.emptyBody
         , expect =
             Http.expectJson decodeToken
+        , timeout =
+            Nothing
+        , withCredentials =
+            False
+        }
+
+
+getJWTToken : GrantUser -> Http.Request JWTToken
+getJWTToken grantUser =
+    Http.request
+        { method =
+            "POST"
+        , headers =
+            []
+        , url =
+            String.join "/"
+                [ "http://127.1:8080"
+                , "auth"
+                , "grant"
+                ]
+        , body =
+            Http.jsonBody (encodeGrantUser grantUser)
+        , expect =
+            Http.expectJson decodeJWTToken
         , timeout =
             Nothing
         , withCredentials =

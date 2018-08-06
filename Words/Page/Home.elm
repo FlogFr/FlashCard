@@ -43,9 +43,9 @@ updateLastWords model listWords =
     { model | myLastWords = listWords }
 
 
-init : AuthUser -> Task Http.Error (List Word)
-init user =
-    Http.toTask (getWordsLastRequest user)
+init : Session -> Task Http.Error (List Word)
+init session =
+    Http.toTask (getWordsLastRequest session)
 
 
 

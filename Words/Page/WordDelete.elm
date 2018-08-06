@@ -22,9 +22,9 @@ type alias Model =
     }
 
 
-init : AuthUser -> Int -> Task Http.Error NoContent
-init user wordId =
-    Http.toTask (deleteWordByIdRequest user wordId)
+init : Session -> Int -> Task Http.Error NoContent
+init session wordId =
+    Http.toTask (deleteWordByIdRequest session wordId)
 
 
 

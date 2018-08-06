@@ -30,8 +30,7 @@ import Data.Swagger
 import GHC.Generics
 import Control.Lens
 import Control.Monad.IO.Class (liftIO)
-import Servant.API ((:<|>) ((:<|>)), (:>), BasicAuth, Get, Post, ReqBody, JSON, NoContent(..))
-import Servant.API.BasicAuth (BasicAuthData (BasicAuthData))
+import Servant.API ((:<|>) ((:<|>)), (:>), Get, Post, ReqBody, JSON, NoContent(..))
 import qualified Data.ByteString.Lazy.UTF8 as BU
 import Database.HDBC (commit, catchSql)
 import Database.HDBC.PostgreSQL (Connection, begin)
@@ -45,8 +44,9 @@ import Servant.Swagger
 import Servant.Swagger.UI
 import PostgreSQL
 import Word (Word(..), WordId, wordConstructor)
-import User (User(..), NewUser(..))
+import User (User(..), GrantUser(..), NewUser(..))
 import Token (Token(..))
+import JWTToken (JWTToken(..))
 import Auth
 
 
@@ -82,13 +82,25 @@ pgCreateUser uuid newUser conn = do
     Nothing ->
       return NoContent
 
+pgGrantUserJWTToken :: GrantUser -> Connection -> IO JWTToken
+pgGrantUserJWTToken grantUser conn = do
+  maybeJWTToken <- getSessionJWT (grantUsername grantUser) (grantPassword grantUser) conn
+  case maybeJWTToken of
+    Just jwtToken ->
+      return $ JWTToken jwtToken
+    Nothing ->
+      return $ JWTToken ""
+
+
 -- | API for the users
 type AuthAPI = "token" :> Get '[JSON] Token
           :<|> "create" :> Capture "uuid" String :> ReqBody '[JSON] NewUser :> Post '[JSON] NoContent
+          :<|> "grant" :> ReqBody '[JSON] GrantUser :> Post '[JSON] JWTToken
 
 authServer :: Pool Connection -> Server AuthAPI
 authServer conns = newToken
               :<|> createUser
+              :<|> grantHandler
 
   where newToken :: Handler Token
         newToken = do
@@ -109,6 +121,15 @@ authServer conns = newToken
               token <- pgCreateUser uuid newUser conn
               commit conn
               return ()
+
+        grantHandler :: GrantUser -> Handler JWTToken
+        grantHandler grantUser = do
+          liftIO $ 
+            withResource conns $ \conn -> do
+              begin conn
+              jwtToken <- pgGrantUserJWTToken grantUser conn
+              commit conn
+              return jwtToken
 
 -- | API for the users
 type UserAPI = Get '[JSON] User
@@ -232,7 +253,7 @@ type CombinedAPI = "user" :> UserAPI
               :<|> "words" :> WordAPI
 
 -- | Combined API of a Todo service with Swagger documentation.
-type API = BasicAuth "words-realm" User :> CombinedAPI
+type API = AuthProtect "jwt-auth" :> CombinedAPI
       :<|> "auth" :> AuthAPI
       :<|> SwaggerSchemaUI "swagger-ui" "swagger.json"
 
@@ -256,7 +277,7 @@ apiSwagger = toSwagger (Proxy :: Proxy CombinedAPI)
   & info.license      ?~ "MIT"
 
 app :: Pool Connection -> Application
-app conns = serveWithContext api basicAuthServerContext (apiServer conns)
+app conns = serveWithContext api genAuthServerContext (apiServer conns)
 
 corsPolicy :: CorsResourcePolicy
 corsPolicy = CorsResourcePolicy {

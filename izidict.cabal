@@ -2,7 +2,7 @@
 --
 -- see: https://github.com/sol/hpack
 --
--- hash: dbb9ccb9c346eb15e82921d6dabb41016c98a7a6460db78ada49c2afc3c10d7a
+-- hash: 625f7ed19f296b1c10ce1080213c098c7eaa643e9659dac8e79b70062c7a377f
 
 name:           izidict
 version:        0.1.0.0
@@ -26,6 +26,7 @@ executable backend-exe
   other-modules:
       API
       Auth
+      JWTToken
       PostgreSQL
       Token
       User
@@ -68,6 +69,7 @@ executable generate-elm-api
   other-modules:
       API
       Auth
+      JWTToken
       PostgreSQL
       Token
       User
@@ -110,6 +112,7 @@ executable test-sql
   other-modules:
       API
       Auth
+      JWTToken
       PostgreSQL
       Token
       User
@@ -153,6 +156,7 @@ test-suite spec
   other-modules:
       API
       Auth
+      JWTToken
       PostgreSQL
       Token
       User

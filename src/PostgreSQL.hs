@@ -5,6 +5,8 @@ module PostgreSQL
   ( initConnectionPool
   , getNewToken
   , verifyToken
+  , getSessionJWT
+  , verifyJWT
   , insertUser
   , getUser
   , getAllWords

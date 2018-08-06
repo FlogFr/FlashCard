@@ -27,9 +27,9 @@ initialModel =
     { word = Nothing }
 
 
-init : AuthUser -> Int -> Task Http.Error Word
-init user wordId =
-    Http.toTask (getWordByIdRequest user wordId)
+init : Session -> Int -> Task Http.Error Word
+init session wordId =
+    Http.toTask (getWordByIdRequest session wordId)
 
 
 

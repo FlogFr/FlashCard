@@ -20485,6 +20485,32 @@ var _user$project$API$getToken = _elm_lang$http$Http$request(
 		timeout: _elm_lang$core$Maybe$Nothing,
 		withCredentials: false
 	});
+var _user$project$API$encodeGrantUser = function (grantUser) {
+	return _elm_lang$core$Json_Encode$object(
+		{
+			ctor: '::',
+			_0: {
+				ctor: '_Tuple2',
+				_0: 'grantUsername',
+				_1: _elm_lang$core$Json_Encode$string(
+					function (_) {
+						return _.username;
+					}(grantUser))
+			},
+			_1: {
+				ctor: '::',
+				_0: {
+					ctor: '_Tuple2',
+					_0: 'grantPassword',
+					_1: _elm_lang$core$Json_Encode$string(
+						function (_) {
+							return _.password;
+						}(grantUser))
+				},
+				_1: {ctor: '[]'}
+			}
+		});
+};
 var _user$project$API$encodeNewUser = function (newUser) {
 	return _elm_lang$core$Json_Encode$object(
 		{
@@ -20600,6 +20626,54 @@ var _user$project$API$encodeWord = function (x) {
 					}
 				}
 			}
+		});
+};
+var _user$project$API$encodeJWTToken = function (x) {
+	return _elm_lang$core$Json_Encode$object(
+		{
+			ctor: '::',
+			_0: {
+				ctor: '_Tuple2',
+				_0: 'token',
+				_1: _elm_lang$core$Json_Encode$string(x.token)
+			},
+			_1: {ctor: '[]'}
+		});
+};
+var _user$project$API$JWTToken = function (a) {
+	return {token: a};
+};
+var _user$project$API$decodeJWTToken = A3(
+	_NoRedInk$elm_decode_pipeline$Json_Decode_Pipeline$required,
+	'token',
+	_elm_lang$core$Json_Decode$string,
+	_NoRedInk$elm_decode_pipeline$Json_Decode_Pipeline$decode(_user$project$API$JWTToken));
+var _user$project$API$getJWTToken = function (grantUser) {
+	return _elm_lang$http$Http$request(
+		{
+			method: 'POST',
+			headers: {ctor: '[]'},
+			url: A2(
+				_elm_lang$core$String$join,
+				'/',
+				{
+					ctor: '::',
+					_0: 'http://127.1:8080',
+					_1: {
+						ctor: '::',
+						_0: 'auth',
+						_1: {
+							ctor: '::',
+							_0: 'grant',
+							_1: {ctor: '[]'}
+						}
+					}
+				}),
+			body: _elm_lang$http$Http$jsonBody(
+				_user$project$API$encodeGrantUser(grantUser)),
+			expect: _elm_lang$http$Http$expectJson(_user$project$API$decodeJWTToken),
+			timeout: _elm_lang$core$Maybe$Nothing,
+			withCredentials: false
 		});
 };
 var _user$project$API$Word = F6(
@@ -20823,6 +20897,10 @@ var _user$project$API$getUser = function (headers) {
 			withCredentials: false
 		});
 };
+var _user$project$API$GrantUser = F2(
+	function (a, b) {
+		return {username: a, password: b};
+	});
 var _user$project$API$NewUser = F3(
 	function (a, b, c) {
 		return {username: a, password: b, email: c};
@@ -20949,6 +21027,11 @@ _user$project$Util_ops['=>'] = F2(
 		return {ctor: '_Tuple2', _0: v0, _1: v1};
 	});
 
+var _user$project$Data_Session$decodeAuthToken = A3(
+	_NoRedInk$elm_decode_pipeline$Json_Decode_Pipeline$required,
+	'token',
+	_elm_lang$core$Json_Decode$string,
+	_NoRedInk$elm_decode_pipeline$Json_Decode_Pipeline$decode(_user$project$API$JWTToken));
 var _user$project$Data_Session$deleteSession = _user$project$Ports$deleteLocalStorage(
 	{ctor: '_Tuple0'});
 var _user$project$Data_Session$encodeAuthUser = function (x) {
@@ -20957,39 +21040,57 @@ var _user$project$Data_Session$encodeAuthUser = function (x) {
 			ctor: '::',
 			_0: {
 				ctor: '_Tuple2',
-				_0: 'userid',
-				_1: _elm_lang$core$Json_Encode$int(x.userid)
+				_0: 'username',
+				_1: _elm_lang$core$Json_Encode$string(x.username)
 			},
 			_1: {
 				ctor: '::',
 				_0: {
 					ctor: '_Tuple2',
-					_0: 'username',
-					_1: _elm_lang$core$Json_Encode$string(x.username)
+					_0: 'userpassword',
+					_1: _elm_lang$core$Json_Encode$string(x.userpassword)
+				},
+				_1: {ctor: '[]'}
+			}
+		});
+};
+var _user$project$Data_Session$encodeSession = function (session) {
+	var _p0 = {ctor: '_Tuple2', _0: session.user, _1: session.authToken};
+	if ((_p0._0.ctor === 'Just') && (_p0._1.ctor === 'Just')) {
+		return _elm_lang$core$Json_Encode$object(
+			{
+				ctor: '::',
+				_0: {
+					ctor: '_Tuple2',
+					_0: 'user',
+					_1: _user$project$Data_Session$encodeAuthUser(_p0._0._0)
 				},
 				_1: {
 					ctor: '::',
 					_0: {
 						ctor: '_Tuple2',
-						_0: 'userpassword',
-						_1: _elm_lang$core$Json_Encode$string(x.userpassword)
+						_0: 'authToken',
+						_1: _user$project$API$encodeJWTToken(_p0._1._0)
 					},
 					_1: {ctor: '[]'}
 				}
-			}
-		});
+			});
+	} else {
+		return _elm_lang$core$Json_Encode$object(
+			{ctor: '[]'});
+	}
 };
-var _user$project$Data_Session$storeSession = function (authUser) {
+var _user$project$Data_Session$storeSession = function (session) {
 	return _user$project$Ports$storeSession(
 		_elm_lang$core$Maybe$Just(
 			A2(
 				_elm_lang$core$Json_Encode$encode,
 				0,
-				_user$project$Data_Session$encodeAuthUser(authUser))));
+				_user$project$Data_Session$encodeSession(session))));
 };
-var _user$project$Data_Session$AuthUser = F3(
-	function (a, b, c) {
-		return {userid: a, username: b, userpassword: c};
+var _user$project$Data_Session$AuthUser = F2(
+	function (a, b) {
+		return {username: a, userpassword: b};
 	});
 var _user$project$Data_Session$decodeAuthUser = A3(
 	_NoRedInk$elm_decode_pipeline$Json_Decode_Pipeline$required,
@@ -20999,23 +21100,45 @@ var _user$project$Data_Session$decodeAuthUser = A3(
 		_NoRedInk$elm_decode_pipeline$Json_Decode_Pipeline$required,
 		'username',
 		_elm_lang$core$Json_Decode$string,
-		A3(
-			_NoRedInk$elm_decode_pipeline$Json_Decode_Pipeline$required,
-			'userid',
-			_elm_lang$core$Json_Decode$int,
-			_NoRedInk$elm_decode_pipeline$Json_Decode_Pipeline$decode(_user$project$Data_Session$AuthUser))));
+		_NoRedInk$elm_decode_pipeline$Json_Decode_Pipeline$decode(_user$project$Data_Session$AuthUser)));
 var _user$project$Data_Session$decodeAuthUserFromJson = function (json) {
 	return A2(
 		_elm_lang$core$Maybe$andThen,
-		function (_p0) {
+		function (_p1) {
 			return _elm_lang$core$Result$toMaybe(
-				A2(_elm_lang$core$Json_Decode$decodeString, _user$project$Data_Session$decodeAuthUser, _p0));
+				A2(_elm_lang$core$Json_Decode$decodeString, _user$project$Data_Session$decodeAuthUser, _p1));
 		},
 		_elm_lang$core$Result$toMaybe(
 			A2(_elm_lang$core$Json_Decode$decodeValue, _elm_lang$core$Json_Decode$string, json)));
 };
-var _user$project$Data_Session$Session = function (a) {
-	return {user: a};
+var _user$project$Data_Session$Session = F2(
+	function (a, b) {
+		return {authToken: a, user: b};
+	});
+var _user$project$Data_Session$decodeAuthSession = A3(
+	_NoRedInk$elm_decode_pipeline$Json_Decode_Pipeline$required,
+	'user',
+	_elm_lang$core$Json_Decode$nullable(_user$project$Data_Session$decodeAuthUser),
+	A3(
+		_NoRedInk$elm_decode_pipeline$Json_Decode_Pipeline$required,
+		'authToken',
+		_elm_lang$core$Json_Decode$nullable(_user$project$Data_Session$decodeAuthToken),
+		_NoRedInk$elm_decode_pipeline$Json_Decode_Pipeline$decode(_user$project$Data_Session$Session)));
+var _user$project$Data_Session$decodeAuthSessionFromJson = function (json) {
+	return A2(
+		_elm_lang$core$Maybe$andThen,
+		function (_p2) {
+			return _elm_lang$core$Result$toMaybe(
+				A2(_elm_lang$core$Json_Decode$decodeString, _user$project$Data_Session$decodeAuthSession, _p2));
+		},
+		_elm_lang$core$Result$toMaybe(
+			A2(_elm_lang$core$Json_Decode$decodeValue, _elm_lang$core$Json_Decode$string, json)));
+};
+var _user$project$Data_Session$retrieveSessionFromJson = function (json) {
+	return A2(
+		_elm_lang$core$Maybe$withDefault,
+		A2(_user$project$Data_Session$Session, _elm_lang$core$Maybe$Nothing, _elm_lang$core$Maybe$Nothing),
+		_user$project$Data_Session$decodeAuthSessionFromJson(json));
 };
 
 var _user$project$IziCss$inputCss = _rtfeldman$elm_css$Html_Styled_Attributes$css(
@@ -21065,6 +21188,12 @@ var _user$project$IziCss$logo = _rtfeldman$elm_css$Html_Styled_Attributes$css(
 				_rtfeldman$elm_css$Css$px(25)),
 			_1: {ctor: '[]'}
 		}
+	});
+var _user$project$IziCss$whiteLink = _rtfeldman$elm_css$Html_Styled_Attributes$css(
+	{
+		ctor: '::',
+		_0: _rtfeldman$elm_css$Css$color(_rtfeldman$elm_css$Css_Colors$white),
+		_1: {ctor: '[]'}
 	});
 var _user$project$IziCss$errorStyle = _rtfeldman$elm_css$Html_Styled_Attributes$css(
 	{
@@ -21237,17 +21366,19 @@ var _user$project$IziCss$btn = A2(
 		}
 	});
 
-var _user$project$Request$postWordRequest = F3(
-	function (username, password, word) {
-		var base64Authorization = _truqu$elm_base64$Base64$encode(
-			A2(
-				_elm_lang$core$Basics_ops['++'],
-				username,
-				A2(_elm_lang$core$Basics_ops['++'], ':', password)));
-		var requestAuthHeader = A2(
-			_elm_lang$http$Http$header,
-			'Authorization',
-			A2(_elm_lang$core$Basics_ops['++'], 'Basic ', base64Authorization));
+var _user$project$Request$postWordRequest = F2(
+	function (session, word) {
+		var jwtToken = function () {
+			var _p0 = session.authToken;
+			if (_p0.ctor === 'Just') {
+				return function (_) {
+					return _.token;
+				}(_p0._0);
+			} else {
+				return '';
+			}
+		}();
+		var requestAuthHeader = A2(_elm_lang$http$Http$header, 'Authorization', jwtToken);
 		return A2(
 			_user$project$API$postWords,
 			{
@@ -21259,36 +21390,24 @@ var _user$project$Request$postWordRequest = F3(
 	});
 var _user$project$Request$postWordCmd = F3(
 	function (msgType, session, word) {
-		var _p0 = session.user;
-		if (_p0.ctor === 'Just') {
-			var _p1 = _p0._0;
-			return A2(
-				_elm_lang$http$Http$send,
-				msgType,
-				A3(
-					_user$project$Request$postWordRequest,
-					function (_) {
-						return _.username;
-					}(_p1),
-					function (_) {
-						return _.userpassword;
-					}(_p1),
-					word));
-		} else {
-			return _elm_lang$core$Platform_Cmd$none;
-		}
+		return A2(
+			_elm_lang$http$Http$send,
+			msgType,
+			A2(_user$project$Request$postWordRequest, session, word));
 	});
-var _user$project$Request$putWordsIdByWordIdRequest = F3(
-	function (username, password, word) {
-		var base64Authorization = _truqu$elm_base64$Base64$encode(
-			A2(
-				_elm_lang$core$Basics_ops['++'],
-				username,
-				A2(_elm_lang$core$Basics_ops['++'], ':', password)));
-		var requestAuthHeader = A2(
-			_elm_lang$http$Http$header,
-			'Authorization',
-			A2(_elm_lang$core$Basics_ops['++'], 'Basic ', base64Authorization));
+var _user$project$Request$putWordsIdByWordIdRequest = F2(
+	function (session, word) {
+		var jwtToken = function () {
+			var _p1 = session.authToken;
+			if (_p1.ctor === 'Just') {
+				return function (_) {
+					return _.token;
+				}(_p1._0);
+			} else {
+				return '';
+			}
+		}();
+		var requestAuthHeader = A2(_elm_lang$http$Http$header, 'Authorization', jwtToken);
 		return A3(
 			_user$project$API$putWordsIdByWordId,
 			{
@@ -21303,43 +21422,24 @@ var _user$project$Request$putWordsIdByWordIdRequest = F3(
 	});
 var _user$project$Request$putWordsIdByWordIdCmd = F3(
 	function (msgType, session, word) {
-		var _p2 = session.user;
-		if (_p2.ctor === 'Just') {
-			var _p3 = _p2._0;
-			return A2(
-				_elm_lang$http$Http$send,
-				msgType,
-				A3(
-					_user$project$Request$putWordsIdByWordIdRequest,
-					function (_) {
-						return _.username;
-					}(_p3),
-					function (_) {
-						return _.userpassword;
-					}(_p3),
-					word));
-		} else {
-			return _elm_lang$core$Platform_Cmd$none;
-		}
+		return A2(
+			_elm_lang$http$Http$send,
+			msgType,
+			A2(_user$project$Request$putWordsIdByWordIdRequest, session, word));
 	});
 var _user$project$Request$deleteWordByIdRequest = F2(
-	function (user, wordId) {
-		var base64Authorization = _truqu$elm_base64$Base64$encode(
-			A2(
-				_elm_lang$core$Basics_ops['++'],
-				function (_) {
-					return _.username;
-				}(user),
-				A2(
-					_elm_lang$core$Basics_ops['++'],
-					':',
-					function (_) {
-						return _.userpassword;
-					}(user))));
-		var requestAuthHeader = A2(
-			_elm_lang$http$Http$header,
-			'Authorization',
-			A2(_elm_lang$core$Basics_ops['++'], 'Basic ', base64Authorization));
+	function (session, wordId) {
+		var jwtToken = function () {
+			var _p2 = session.authToken;
+			if (_p2.ctor === 'Just') {
+				return function (_) {
+					return _.token;
+				}(_p2._0);
+			} else {
+				return '';
+			}
+		}();
+		var requestAuthHeader = A2(_elm_lang$http$Http$header, 'Authorization', jwtToken);
 		return A2(
 			_user$project$API$deleteWordsIdByWordId,
 			{
@@ -21350,23 +21450,18 @@ var _user$project$Request$deleteWordByIdRequest = F2(
 			wordId);
 	});
 var _user$project$Request$getWordByIdRequest = F2(
-	function (user, wordId) {
-		var base64Authorization = _truqu$elm_base64$Base64$encode(
-			A2(
-				_elm_lang$core$Basics_ops['++'],
-				function (_) {
-					return _.username;
-				}(user),
-				A2(
-					_elm_lang$core$Basics_ops['++'],
-					':',
-					function (_) {
-						return _.userpassword;
-					}(user))));
-		var requestAuthHeader = A2(
-			_elm_lang$http$Http$header,
-			'Authorization',
-			A2(_elm_lang$core$Basics_ops['++'], 'Basic ', base64Authorization));
+	function (session, wordId) {
+		var jwtToken = function () {
+			var _p3 = session.authToken;
+			if (_p3.ctor === 'Just') {
+				return function (_) {
+					return _.token;
+				}(_p3._0);
+			} else {
+				return '';
+			}
+		}();
+		var requestAuthHeader = A2(_elm_lang$http$Http$header, 'Authorization', jwtToken);
 		return A2(
 			_user$project$API$getWordsIdByWordId,
 			{
@@ -21377,30 +21472,25 @@ var _user$project$Request$getWordByIdRequest = F2(
 			wordId);
 	});
 var _user$project$Request$getWordByIdCmd = F3(
-	function (msgType, authUser, wordId) {
+	function (msgType, session, wordId) {
 		return A2(
 			_elm_lang$http$Http$send,
 			msgType,
-			A2(_user$project$Request$getWordByIdRequest, authUser, wordId));
+			A2(_user$project$Request$getWordByIdRequest, session, wordId));
 	});
 var _user$project$Request$getWordsSearchRequest = F2(
-	function (user, searchWord) {
-		var base64Authorization = _truqu$elm_base64$Base64$encode(
-			A2(
-				_elm_lang$core$Basics_ops['++'],
-				function (_) {
-					return _.username;
-				}(user),
-				A2(
-					_elm_lang$core$Basics_ops['++'],
-					':',
-					function (_) {
-						return _.userpassword;
-					}(user))));
-		var requestAuthHeader = A2(
-			_elm_lang$http$Http$header,
-			'Authorization',
-			A2(_elm_lang$core$Basics_ops['++'], 'Basic ', base64Authorization));
+	function (session, searchWord) {
+		var jwtToken = function () {
+			var _p4 = session.authToken;
+			if (_p4.ctor === 'Just') {
+				return function (_) {
+					return _.token;
+				}(_p4._0);
+			} else {
+				return '';
+			}
+		}();
+		var requestAuthHeader = A2(_elm_lang$http$Http$header, 'Authorization', jwtToken);
 		return A2(
 			_user$project$API$getWordsSearchBySearchWord,
 			{
@@ -21412,33 +21502,23 @@ var _user$project$Request$getWordsSearchRequest = F2(
 	});
 var _user$project$Request$getWordsSearchCmd = F3(
 	function (msgType, session, searchWord) {
-		var _p4 = session.user;
-		if (_p4.ctor === 'Nothing') {
-			return _elm_lang$core$Platform_Cmd$none;
-		} else {
-			return A2(
-				_elm_lang$http$Http$send,
-				msgType,
-				A2(_user$project$Request$getWordsSearchRequest, _p4._0, searchWord));
-		}
+		return A2(
+			_elm_lang$http$Http$send,
+			msgType,
+			A2(_user$project$Request$getWordsSearchRequest, session, searchWord));
 	});
-var _user$project$Request$getWordsLastRequest = function (user) {
-	var base64Authorization = _truqu$elm_base64$Base64$encode(
-		A2(
-			_elm_lang$core$Basics_ops['++'],
-			function (_) {
-				return _.username;
-			}(user),
-			A2(
-				_elm_lang$core$Basics_ops['++'],
-				':',
-				function (_) {
-					return _.userpassword;
-				}(user))));
-	var requestAuthHeader = A2(
-		_elm_lang$http$Http$header,
-		'Authorization',
-		A2(_elm_lang$core$Basics_ops['++'], 'Basic ', base64Authorization));
+var _user$project$Request$getWordsLastRequest = function (session) {
+	var jwtToken = function () {
+		var _p5 = session.authToken;
+		if (_p5.ctor === 'Just') {
+			return function (_) {
+				return _.token;
+			}(_p5._0);
+		} else {
+			return '';
+		}
+	}();
+	var requestAuthHeader = A2(_elm_lang$http$Http$header, 'Authorization', jwtToken);
 	return _user$project$API$getWordsLast(
 		{
 			ctor: '::',
@@ -21446,43 +21526,35 @@ var _user$project$Request$getWordsLastRequest = function (user) {
 			_1: {ctor: '[]'}
 		});
 };
-var _user$project$Request$getWordsLastCmd = F2(
-	function (msgType, session) {
-		var _p5 = session.user;
-		if (_p5.ctor === 'Nothing') {
-			return _elm_lang$core$Platform_Cmd$none;
+var _user$project$Request$getUserRequest = function (session) {
+	var jwtToken = function () {
+		var _p6 = session.authToken;
+		if (_p6.ctor === 'Just') {
+			return function (_) {
+				return _.token;
+			}(_p6._0);
 		} else {
-			return A2(
-				_elm_lang$http$Http$send,
-				msgType,
-				_user$project$Request$getWordsLastRequest(_p5._0));
+			return '';
 		}
-	});
-var _user$project$Request$getUserRequest = F2(
-	function (username, password) {
-		var base64Authorization = _truqu$elm_base64$Base64$encode(
-			A2(
-				_elm_lang$core$Basics_ops['++'],
-				username,
-				A2(_elm_lang$core$Basics_ops['++'], ':', password)));
-		var requestAuthHeader = A2(
-			_elm_lang$http$Http$header,
-			'Authorization',
-			A2(_elm_lang$core$Basics_ops['++'], 'Basic ', base64Authorization));
-		return _user$project$API$getUser(
-			{
-				ctor: '::',
-				_0: requestAuthHeader,
-				_1: {ctor: '[]'}
-			});
-	});
-var _user$project$Request$getUserCmd = F3(
-	function (msgType, username, password) {
+	}();
+	var requestAuthHeader = A2(_elm_lang$http$Http$header, 'Authorization', jwtToken);
+	return _user$project$API$getUser(
+		{
+			ctor: '::',
+			_0: requestAuthHeader,
+			_1: {ctor: '[]'}
+		});
+};
+var _user$project$Request$getUserCmd = F2(
+	function (msgType, session) {
 		return A2(
 			_elm_lang$http$Http$send,
 			msgType,
-			A2(_user$project$Request$getUserRequest, username, password));
+			_user$project$Request$getUserRequest(session));
 	});
+var _user$project$Request$getJWTTokenRequest = function (grantUser) {
+	return _user$project$API$getJWTToken(grantUser);
+};
 
 var _user$project$Route$routeToString = function (page) {
 	var pieces = function () {
@@ -22386,9 +22458,9 @@ var _user$project$Views_Forms$viewFormAddWord = F4(
 			});
 	});
 
-var _user$project$Page_Home$init = function (user) {
+var _user$project$Page_Home$init = function (session) {
 	return _elm_lang$http$Http$toTask(
-		_user$project$Request$getWordsLastRequest(user));
+		_user$project$Request$getWordsLastRequest(session));
 };
 var _user$project$Page_Home$updateLastWords = F2(
 	function (model, listWords) {
@@ -22697,8 +22769,8 @@ var _user$project$Page_Login$Model = F3(
 	function (a, b, c) {
 		return {errors: a, username: b, userpassword: c};
 	});
-var _user$project$Page_Login$LoginCompletedMsg = function (a) {
-	return {ctor: 'LoginCompletedMsg', _0: a};
+var _user$project$Page_Login$LoginGrantCompletedMsg = function (a) {
+	return {ctor: 'LoginGrantCompletedMsg', _0: a};
 };
 var _user$project$Page_Login$LoginTryMsg = {ctor: 'LoginTryMsg'};
 var _user$project$Page_Login$TypePasswordMsg = function (a) {
@@ -22717,8 +22789,8 @@ var _user$project$Page_Login$view = function (model) {
 			_1: {ctor: '[]'}
 		});
 };
-var _user$project$Page_Login$SetAuthUser = function (a) {
-	return {ctor: 'SetAuthUser', _0: a};
+var _user$project$Page_Login$SetSession = function (a) {
+	return {ctor: 'SetSession', _0: a};
 };
 var _user$project$Page_Login$NoOp = {ctor: 'NoOp'};
 var _user$project$Page_Login$update = F2(
@@ -22746,15 +22818,18 @@ var _user$project$Page_Login$update = F2(
 						_elm_lang$core$Platform_Cmd$none),
 					_user$project$Page_Login$NoOp);
 			case 'LoginTryMsg':
-				var httpCmd = A3(
-					_user$project$Request$getUserCmd,
-					_user$project$Page_Login$LoginCompletedMsg,
-					function (_) {
-						return _.username;
-					}(model),
-					function (_) {
-						return _.userpassword;
-					}(model));
+				var httpCmd = A2(
+					_elm_lang$http$Http$send,
+					_user$project$Page_Login$LoginGrantCompletedMsg,
+					_user$project$Request$getJWTTokenRequest(
+						A2(
+							_user$project$API$GrantUser,
+							function (_) {
+								return _.username;
+							}(model),
+							function (_) {
+								return _.userpassword;
+							}(model))));
 				return A2(
 					_user$project$Util_ops['=>'],
 					A2(
@@ -22769,17 +22844,18 @@ var _user$project$Page_Login$update = F2(
 					_user$project$Page_Login$NoOp);
 			default:
 				if (_p0._0.ctor === 'Ok') {
-					var authUser = A3(
+					var authUser = A2(
 						_user$project$Data_Session$AuthUser,
-						function (_) {
-							return _.userid;
-						}(_p0._0._0),
 						function (_) {
 							return _.username;
 						}(model),
 						function (_) {
 							return _.userpassword;
 						}(model));
+					var session = A2(
+						_user$project$Data_Session$Session,
+						_elm_lang$core$Maybe$Just(_p0._0._0),
+						_elm_lang$core$Maybe$Just(authUser));
 					return A2(
 						_user$project$Util_ops['=>'],
 						A2(
@@ -22788,14 +22864,14 @@ var _user$project$Page_Login$update = F2(
 							_elm_lang$core$Platform_Cmd$batch(
 								{
 									ctor: '::',
-									_0: _user$project$Data_Session$storeSession(authUser),
+									_0: _user$project$Data_Session$storeSession(session),
 									_1: {
 										ctor: '::',
 										_0: _user$project$Route$modifyUrl(_user$project$Route$Home),
 										_1: {ctor: '[]'}
 									}
 								})),
-						_user$project$Page_Login$SetAuthUser(authUser));
+						_user$project$Page_Login$SetSession(session));
 				} else {
 					return A2(
 						_user$project$Util_ops['=>'],
@@ -22873,9 +22949,6 @@ var _user$project$Page_Register$Model = F3(
 	function (a, b, c) {
 		return {errors: a, token: b, newUser: c};
 	});
-var _user$project$Page_Register$RetrieveUserFinished = function (a) {
-	return {ctor: 'RetrieveUserFinished', _0: a};
-};
 var _user$project$Page_Register$RegisterFinished = function (a) {
 	return {ctor: 'RegisterFinished', _0: a};
 };
@@ -22900,9 +22973,7 @@ var _user$project$Page_Register$view = function (model) {
 var _user$project$Page_Register$InitFinished = function (a) {
 	return {ctor: 'InitFinished', _0: a};
 };
-var _user$project$Page_Register$SetAuthUser = function (a) {
-	return {ctor: 'SetAuthUser', _0: a};
-};
+var _user$project$Page_Register$GoLogin = {ctor: 'GoLogin'};
 var _user$project$Page_Register$NoOp = {ctor: 'NoOp'};
 var _user$project$Page_Register$update = F2(
 	function (msg, model) {
@@ -22968,15 +23039,12 @@ var _user$project$Page_Register$update = F2(
 							_user$project$Page_Register$RegisterFinished,
 							A2(_user$project$API$postNewUser, model.token, model.newUser))),
 					_user$project$Page_Register$NoOp);
-			case 'RegisterFinished':
+			default:
 				if (_p0._0.ctor === 'Ok') {
 					return A2(
 						_user$project$Util_ops['=>'],
-						A2(
-							_user$project$Util_ops['=>'],
-							model,
-							A3(_user$project$Request$getUserCmd, _user$project$Page_Register$RetrieveUserFinished, model.newUser.username, model.newUser.password)),
-						_user$project$Page_Register$NoOp);
+						A2(_user$project$Util_ops['=>'], model, _elm_lang$core$Platform_Cmd$none),
+						_user$project$Page_Register$GoLogin);
 				} else {
 					var errorString = function () {
 						var _p2 = A2(_elm_lang$core$Debug$log, 'error: ', _p0._0._0);
@@ -23005,37 +23073,6 @@ var _user$project$Page_Register$update = F2(
 							_elm_lang$core$Platform_Cmd$none),
 						_user$project$Page_Register$NoOp);
 				}
-			default:
-				if (_p0._0.ctor === 'Ok') {
-					var authUser = A3(
-						_user$project$Data_Session$AuthUser,
-						function (_) {
-							return _.userid;
-						}(_p0._0._0),
-						model.newUser.username,
-						model.newUser.password);
-					return A2(
-						_user$project$Util_ops['=>'],
-						A2(
-							_user$project$Util_ops['=>'],
-							model,
-							_elm_lang$core$Platform_Cmd$batch(
-								{
-									ctor: '::',
-									_0: _user$project$Data_Session$storeSession(authUser),
-									_1: {
-										ctor: '::',
-										_0: _user$project$Route$modifyUrl(_user$project$Route$Home),
-										_1: {ctor: '[]'}
-									}
-								})),
-						_user$project$Page_Register$SetAuthUser(authUser));
-				} else {
-					return A2(
-						_user$project$Util_ops['=>'],
-						A2(_user$project$Util_ops['=>'], model, _elm_lang$core$Platform_Cmd$none),
-						_user$project$Page_Register$NoOp);
-				}
 		}
 	});
 
@@ -23057,9 +23094,9 @@ var _user$project$Page_WordDelete$view = function (model) {
 		});
 };
 var _user$project$Page_WordDelete$init = F2(
-	function (user, wordId) {
+	function (session, wordId) {
 		return _elm_lang$http$Http$toTask(
-			A2(_user$project$Request$deleteWordByIdRequest, user, wordId));
+			A2(_user$project$Request$deleteWordByIdRequest, session, wordId));
 	});
 var _user$project$Page_WordDelete$Model = function (a) {
 	return {wordId: a};
@@ -23086,9 +23123,9 @@ var _user$project$Page_WordDelete$update = F3(
 	});
 
 var _user$project$Page_WordEdit$init = F2(
-	function (user, wordId) {
+	function (session, wordId) {
 		return _elm_lang$http$Http$toTask(
-			A2(_user$project$Request$getWordByIdRequest, user, wordId));
+			A2(_user$project$Request$getWordByIdRequest, session, wordId));
 	});
 var _user$project$Page_WordEdit$initialModel = {word: _elm_lang$core$Maybe$Nothing};
 var _user$project$Page_WordEdit$Model = function (a) {
@@ -23246,7 +23283,11 @@ var _user$project$Views_Page$viewNav = function (session) {
 					{
 						ctor: '::',
 						_0: _user$project$Route$href(_user$project$Route$Home),
-						_1: {ctor: '[]'}
+						_1: {
+							ctor: '::',
+							_0: _user$project$IziCss$whiteLink,
+							_1: {ctor: '[]'}
+						}
 					},
 					{
 						ctor: '::',
@@ -23260,7 +23301,11 @@ var _user$project$Views_Page$viewNav = function (session) {
 						{
 							ctor: '::',
 							_0: _user$project$Route$href(_user$project$Route$Logout),
-							_1: {ctor: '[]'}
+							_1: {
+								ctor: '::',
+								_0: _user$project$IziCss$whiteLink,
+								_1: {ctor: '[]'}
+							}
 						},
 						{
 							ctor: '::',
@@ -23367,11 +23412,7 @@ var _user$project$Views_Page$viewHeader = function (session) {
 									_1: {ctor: '[]'}
 								}
 							}),
-						_1: {
-							ctor: '::',
-							_0: _user$project$Views_Page$viewNav(session),
-							_1: {ctor: '[]'}
-						}
+						_1: {ctor: '[]'}
 					}),
 				_1: {
 					ctor: '::',
@@ -23382,7 +23423,11 @@ var _user$project$Views_Page$viewHeader = function (session) {
 							_0: _user$project$IziCss$rightHeaderFrame,
 							_1: {ctor: '[]'}
 						},
-						{ctor: '[]'}),
+						{
+							ctor: '::',
+							_0: _user$project$Views_Page$viewNav(session),
+							_1: {ctor: '[]'}
+						}),
 					_1: {ctor: '[]'}
 				}
 			}
@@ -23507,7 +23552,7 @@ var _user$project$WordApp$setRoute = F2(
 						_elm_lang$core$Native_Utils.update(
 							model,
 							{
-								session: {user: _elm_lang$core$Maybe$Nothing}
+								session: A2(_user$project$Data_Session$Session, _elm_lang$core$Maybe$Nothing, _elm_lang$core$Maybe$Nothing)
 							}),
 						_elm_lang$core$Platform_Cmd$batch(
 							{
@@ -23535,7 +23580,10 @@ var _user$project$WordApp$setRoute = F2(
 							A2(
 								_elm_lang$core$Task$attempt,
 								_user$project$WordApp$HomeInit,
-								_user$project$Page_Home$init(_p1._0)));
+								_user$project$Page_Home$init(
+									function (_) {
+										return _.session;
+									}(model))));
 					}
 				case 'WordEdit':
 					var newModel = _elm_lang$core$Native_Utils.update(
@@ -23553,7 +23601,12 @@ var _user$project$WordApp$setRoute = F2(
 							A2(
 								_elm_lang$core$Task$attempt,
 								_user$project$WordApp$WordEditInitMsg,
-								A2(_user$project$Page_WordEdit$init, _p2._0, _p0._0._0)));
+								A2(
+									_user$project$Page_WordEdit$init,
+									function (_) {
+										return _.session;
+									}(model),
+									_p0._0._0)));
 					}
 				case 'WordDelete':
 					var _p4 = _p0._0._0;
@@ -23573,7 +23626,12 @@ var _user$project$WordApp$setRoute = F2(
 							A2(
 								_elm_lang$core$Task$attempt,
 								_user$project$WordApp$WordDeleteInitMsg,
-								A2(_user$project$Page_WordDelete$init, _p3._0, _p4)));
+								A2(
+									_user$project$Page_WordDelete$init,
+									function (_) {
+										return _.session;
+									}(model),
+									_p4)));
 					}
 				default:
 					return A2(
@@ -23591,9 +23649,7 @@ var _user$project$WordApp$init = F2(
 			_user$project$WordApp$setRoute,
 			_user$project$Route$fromLocation(location),
 			{
-				session: {
-					user: _user$project$Data_Session$decodeAuthUserFromJson(val)
-				},
+				session: _user$project$Data_Session$retrieveSessionFromJson(val),
 				page: _user$project$WordApp$NotFound
 			});
 	});
@@ -23677,11 +23733,7 @@ var _user$project$WordApp$updatePage = F3(
 									} else {
 										return _elm_lang$core$Native_Utils.update(
 											model,
-											{
-												session: {
-													user: _elm_lang$core$Maybe$Just(_p8._0)
-												}
-											});
+											{session: _p8._0});
 									}
 								}();
 								return A2(
@@ -23720,28 +23772,22 @@ var _user$project$WordApp$updatePage = F3(
 								var pageModel = _p10._0._0;
 								var pageMsg = _p10._0._1;
 								var externalMsg = _p10._1;
-								var newModel = function () {
-									var _p11 = externalMsg;
-									if (_p11.ctor === 'NoOp') {
-										return model;
-									} else {
-										return _elm_lang$core$Native_Utils.update(
+								var _p11 = externalMsg;
+								if (_p11.ctor === 'NoOp') {
+									return A2(
+										_user$project$Util_ops['=>'],
+										_elm_lang$core$Native_Utils.update(
 											model,
 											{
-												session: {
-													user: _elm_lang$core$Maybe$Just(_p11._0)
-												}
-											});
-									}
-								}();
-								return A2(
-									_user$project$Util_ops['=>'],
-									_elm_lang$core$Native_Utils.update(
-										newModel,
-										{
-											page: _user$project$WordApp$Register(pageModel)
-										}),
-									A2(_elm_lang$core$Platform_Cmd$map, _user$project$WordApp$RegisterMsg, pageMsg));
+												page: _user$project$WordApp$Register(pageModel)
+											}),
+										A2(_elm_lang$core$Platform_Cmd$map, _user$project$WordApp$RegisterMsg, pageMsg));
+								} else {
+									return A2(
+										_user$project$WordApp$setRoute,
+										_elm_lang$core$Maybe$Just(_user$project$Route$Login),
+										model);
+								}
 							default:
 								break _v5_10;
 						}
@@ -23780,10 +23826,7 @@ var _user$project$WordApp$updatePage = F3(
 											{
 												page: _user$project$WordApp$Home(pageModel)
 											}),
-										A2(
-											_elm_lang$core$Platform_Cmd$map,
-											_user$project$WordApp$HomeMsg,
-											A2(_elm_lang$core$Debug$log, 'page msg on home: ', pageMsg)));
+										A2(_elm_lang$core$Platform_Cmd$map, _user$project$WordApp$HomeMsg, pageMsg));
 								} else {
 									var _p15 = model.session.user;
 									if (_p15.ctor === 'Nothing') {
@@ -23806,7 +23849,10 @@ var _user$project$WordApp$updatePage = F3(
 											A2(
 												_elm_lang$core$Task$attempt,
 												_user$project$WordApp$HomeInit,
-												_user$project$Page_Home$init(_p15._0)));
+												_user$project$Page_Home$init(
+													function (_) {
+														return _.session;
+													}(model))));
 									}
 								}
 							default:
@@ -23931,7 +23977,7 @@ var _user$project$WordApp$main = A2(
 var Elm = {};
 Elm['WordApp'] = Elm['WordApp'] || {};
 if (typeof _user$project$WordApp$main !== 'undefined') {
-    _user$project$WordApp$main(Elm['WordApp'], 'WordApp', {"types":{"unions":{"Dict.LeafColor":{"args":[],"tags":{"LBBlack":[],"LBlack":[]}},"Page.WordDelete.Msg":{"args":[],"tags":{"WordDeleteInitFinished":["Result.Result Http.Error API.NoContent"]}},"Dict.Dict":{"args":["k","v"],"tags":{"RBNode_elm_builtin":["Dict.NColor","k","v","Dict.Dict k v","Dict.Dict k v"],"RBEmpty_elm_builtin":["Dict.LeafColor"]}},"Route.Route":{"args":[],"tags":{"Home":[],"WordEdit":["Int"],"Logout":[],"Register":[],"WordDelete":["Int"],"Quizz":[],"Login":[]}},"API.NoContent":{"args":[],"tags":{"NoContent":[]}},"Maybe.Maybe":{"args":["a"],"tags":{"Just":["a"],"Nothing":[]}},"Page.Quizz.Msg":{"args":[],"tags":{"TestMsg":[]}},"Dict.NColor":{"args":[],"tags":{"BBlack":[],"Red":[],"NBlack":[],"Black":[]}},"Page.Home.Msg":{"args":[],"tags":{"HomeAddNewWord":[],"HomeSearchWord":[],"TypeHomeLanguage":["String"],"LastWordsReqCompletedMsg":["Result.Result Http.Error (List API.Word)"],"HomeAddNewWordFinished":["Result.Result Http.Error API.NoContent"],"TestMsg":[],"TypeHomeDefinition":["String"],"HomeSearchWordFinished":["Result.Result Http.Error (List API.Word)"],"InitFinished":["Result.Result Http.Error (List API.Word)"],"TypeHomeWord":["String"],"UpdateSearchWord":["String"]}},"Page.WordEdit.Msg":{"args":[],"tags":{"UpdateWordRequestFinished":["Result.Result Http.Error API.Word"],"UpdateWordRequest":[],"TestMsg":[],"UpdateWord":["API.Word"],"WordEditInitFinished":["Result.Result Http.Error API.Word"]}},"WordApp.Msg":{"args":[],"tags":{"WordDeleteInitMsg":["Result.Result Http.Error API.NoContent"],"QuizzMsg":["Page.Quizz.Msg"],"LoginMsg":["Page.Login.Msg"],"HomeInit":["Result.Result Http.Error (List API.Word)"],"SetRoute":["Maybe.Maybe Route.Route"],"WordEditMsg":["Page.WordEdit.Msg"],"RegisterInit":["Result.Result Http.Error String"],"HomeMsg":["Page.Home.Msg"],"WordEditInitMsg":["Result.Result Http.Error API.Word"],"RegisterMsg":["Page.Register.Msg"],"WordDeleteMsg":["Page.WordDelete.Msg"]}},"Page.Register.Msg":{"args":[],"tags":{"Register":[],"UpdateNewUser":["API.NewUser"],"RetrieveUserFinished":["Result.Result Http.Error API.User"],"InitFinished":["Result.Result Http.Error String"],"RegisterFinished":["Result.Result Http.Error API.NoContent"]}},"Http.Error":{"args":[],"tags":{"BadUrl":["String"],"NetworkError":[],"Timeout":[],"BadStatus":["Http.Response String"],"BadPayload":["String","Http.Response String"]}},"Result.Result":{"args":["error","value"],"tags":{"Ok":["value"],"Err":["error"]}},"Page.Login.Msg":{"args":[],"tags":{"TypePasswordMsg":["String"],"LoginCompletedMsg":["Result.Result Http.Error API.User"],"TypeLoginMsg":["String"],"LoginTryMsg":[]}}},"aliases":{"API.User":{"args":[],"type":"{ userid : Int, username : String }"},"Http.Response":{"args":["body"],"type":"{ url : String , status : { code : Int, message : String } , headers : Dict.Dict String String , body : body }"},"API.Word":{"args":[],"type":"{ wordId : Int , wordLanguage : String , wordWord : String , wordKeywords : List String , wordDefinition : String , wordDifficulty : Maybe.Maybe Int }"},"API.NewUser":{"args":[],"type":"{ username : String, password : String, email : String }"}},"message":"WordApp.Msg"},"versions":{"elm":"0.18.0"}});
+    _user$project$WordApp$main(Elm['WordApp'], 'WordApp', {"types":{"unions":{"Dict.LeafColor":{"args":[],"tags":{"LBBlack":[],"LBlack":[]}},"Page.WordDelete.Msg":{"args":[],"tags":{"WordDeleteInitFinished":["Result.Result Http.Error API.NoContent"]}},"Dict.Dict":{"args":["k","v"],"tags":{"RBNode_elm_builtin":["Dict.NColor","k","v","Dict.Dict k v","Dict.Dict k v"],"RBEmpty_elm_builtin":["Dict.LeafColor"]}},"Route.Route":{"args":[],"tags":{"Home":[],"WordEdit":["Int"],"Logout":[],"Register":[],"WordDelete":["Int"],"Quizz":[],"Login":[]}},"API.NoContent":{"args":[],"tags":{"NoContent":[]}},"Maybe.Maybe":{"args":["a"],"tags":{"Just":["a"],"Nothing":[]}},"Page.Quizz.Msg":{"args":[],"tags":{"TestMsg":[]}},"Dict.NColor":{"args":[],"tags":{"BBlack":[],"Red":[],"NBlack":[],"Black":[]}},"Page.Home.Msg":{"args":[],"tags":{"HomeAddNewWord":[],"HomeSearchWord":[],"TypeHomeLanguage":["String"],"LastWordsReqCompletedMsg":["Result.Result Http.Error (List API.Word)"],"HomeAddNewWordFinished":["Result.Result Http.Error API.NoContent"],"TestMsg":[],"TypeHomeDefinition":["String"],"HomeSearchWordFinished":["Result.Result Http.Error (List API.Word)"],"InitFinished":["Result.Result Http.Error (List API.Word)"],"TypeHomeWord":["String"],"UpdateSearchWord":["String"]}},"Page.WordEdit.Msg":{"args":[],"tags":{"UpdateWordRequestFinished":["Result.Result Http.Error API.Word"],"UpdateWordRequest":[],"TestMsg":[],"UpdateWord":["API.Word"],"WordEditInitFinished":["Result.Result Http.Error API.Word"]}},"WordApp.Msg":{"args":[],"tags":{"WordDeleteInitMsg":["Result.Result Http.Error API.NoContent"],"QuizzMsg":["Page.Quizz.Msg"],"LoginMsg":["Page.Login.Msg"],"HomeInit":["Result.Result Http.Error (List API.Word)"],"SetRoute":["Maybe.Maybe Route.Route"],"WordEditMsg":["Page.WordEdit.Msg"],"RegisterInit":["Result.Result Http.Error String"],"HomeMsg":["Page.Home.Msg"],"WordEditInitMsg":["Result.Result Http.Error API.Word"],"RegisterMsg":["Page.Register.Msg"],"WordDeleteMsg":["Page.WordDelete.Msg"]}},"Page.Register.Msg":{"args":[],"tags":{"Register":[],"UpdateNewUser":["API.NewUser"],"InitFinished":["Result.Result Http.Error String"],"RegisterFinished":["Result.Result Http.Error API.NoContent"]}},"Http.Error":{"args":[],"tags":{"BadUrl":["String"],"NetworkError":[],"Timeout":[],"BadStatus":["Http.Response String"],"BadPayload":["String","Http.Response String"]}},"Result.Result":{"args":["error","value"],"tags":{"Ok":["value"],"Err":["error"]}},"Page.Login.Msg":{"args":[],"tags":{"TypePasswordMsg":["String"],"TypeLoginMsg":["String"],"LoginTryMsg":[],"LoginGrantCompletedMsg":["Result.Result Http.Error API.JWTToken"]}}},"aliases":{"Http.Response":{"args":["body"],"type":"{ url : String , status : { code : Int, message : String } , headers : Dict.Dict String String , body : body }"},"API.Word":{"args":[],"type":"{ wordId : Int , wordLanguage : String , wordWord : String , wordKeywords : List String , wordDefinition : String , wordDifficulty : Maybe.Maybe Int }"},"API.JWTToken":{"args":[],"type":"{ token : String }"},"API.NewUser":{"args":[],"type":"{ username : String, password : String, email : String }"}},"message":"WordApp.Msg"},"versions":{"elm":"0.18.0"}});
 }
 
 if (typeof define === "function" && define['amd'])

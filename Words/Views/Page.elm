@@ -27,9 +27,8 @@ viewHeader session =
                 [ img [ logo, src "/ressources/dictionnary.logo.png" ] []
                 , text "IziDict.com"
                 ]
-            , viewNav session
             ]
-        , div [ rightHeaderFrame ] []
+        , div [ rightHeaderFrame ] [ viewNav session ]
         ]
 
 
@@ -44,11 +43,11 @@ viewNav session =
     case session.user of
         Just user ->
             nav []
-                [ a [ Route.href Route.Home ] [ text "Go home" ]
-                , a [ Route.href Route.Logout ] [ text "- Logout -" ]
+                [ a [ Route.href Route.Home, whiteLink ] [ text "Go home" ]
+                , a [ Route.href Route.Logout, whiteLink ] [ text "- Logout -" ]
                 ]
 
         Nothing ->
             nav
                 []
-                [ a [ Route.href Route.Register ] [ text "- REGISTER -" ] ]
+                [ a [ Route.href Route.Register, whiteLink ] [ text "- REGISTER -" ] ]

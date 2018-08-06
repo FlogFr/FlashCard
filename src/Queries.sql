@@ -16,6 +16,24 @@ FROM
 WHERE
   token = :uuid
 ;;;
+-- name:getSessionJWT :: (String)
+-- :username :: String
+-- :pass :: String
+SELECT auth_login(:username, :pass)
+;;;
+-- name:verifyJWT :: (Int, String)
+-- :jwt :: String
+WITH user_id AS (
+  SELECT auth_jwt_decode(:jwt) AS user_id
+)
+SELECT 
+    id
+  , username
+FROM
+  users
+  JOIN user_id
+  ON users.id = user_id.user_id
+;;;
 -- name:insertUser :: (String, String)
 -- :user :: NewUser
 INSERT INTO
@@ -37,6 +55,15 @@ FROM
 WHERE
       username = :userName
   AND passpass = crypt(:userPassword, passpass)
+;;;
+-- name:getUserById :: (Int, String)
+-- :userName :: String
+SELECT
+  id, username
+FROM
+  users
+WHERE
+  username = :userName
 ;;;
 -- name:getAllWords :: [(Int, String, String, String, StringArray, MaybeInt)]
 -- :user :: User

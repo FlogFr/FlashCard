@@ -48,12 +48,11 @@ type Msg
     | UpdateNewUser NewUser
     | Register
     | RegisterFinished (Result Http.Error NoContent)
-    | RetrieveUserFinished (Result Http.Error User)
 
 
 type ExternalMsg
     = NoOp
-    | SetAuthUser AuthUser
+    | GoLogin
 
 
 view : Model -> Html Msg
@@ -111,8 +110,8 @@ update msg model =
 
         RegisterFinished (Ok _) ->
             model
-                => getUserCmd RetrieveUserFinished model.newUser.username model.newUser.password
-                => NoOp
+                => Cmd.none
+                => GoLogin
 
         RegisterFinished (Err err) ->
             let
@@ -136,17 +135,3 @@ update msg model =
                 { model | errors = errorString :: model.errors }
                     => Cmd.none
                     => NoOp
-
-        RetrieveUserFinished (Ok user) ->
-            let
-                authUser =
-                    (AuthUser (.userid user) (model.newUser.username) (model.newUser.password))
-            in
-                model
-                    => Cmd.batch [ storeSession authUser, Route.modifyUrl Route.Home ]
-                    => SetAuthUser authUser
-
-        RetrieveUserFinished (Err _) ->
-            model
-                => Cmd.none
-                => NoOp

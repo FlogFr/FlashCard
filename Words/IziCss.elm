@@ -92,6 +92,11 @@ errorStyle =
     css [ color Css.Colors.red ]
 
 
+whiteLink : Attribute msg
+whiteLink =
+    css [ color Css.Colors.white ]
+
+
 logo : Attribute msg
 logo =
     css

@@ -39,12 +39,12 @@ type Msg
     = TypeLoginMsg String
     | TypePasswordMsg String
     | LoginTryMsg
-    | LoginCompletedMsg (Result Http.Error User)
+    | LoginGrantCompletedMsg (Result Http.Error JWTToken)
 
 
 type ExternalMsg
     = NoOp
-    | SetAuthUser AuthUser
+    | SetSession Session
 
 
 view : Model -> Html Msg
@@ -73,22 +73,26 @@ update msg model =
         LoginTryMsg ->
             let
                 httpCmd =
-                    getUserCmd LoginCompletedMsg (.username model) (.userpassword model)
+                    getJWTTokenRequest (GrantUser (.username model) (.userpassword model))
+                        |> Http.send LoginGrantCompletedMsg
             in
                 model
                     => Cmd.batch [ httpCmd ]
                     => NoOp
 
-        LoginCompletedMsg (Ok user) ->
+        LoginGrantCompletedMsg (Ok jwtToken) ->
             let
                 authUser =
-                    (AuthUser (.userid user) (.username model) (.userpassword model))
+                    (AuthUser (.username model) (.userpassword model))
+
+                session =
+                    Session (Just jwtToken) (Just authUser)
             in
                 model
-                    => Cmd.batch [ storeSession authUser, Route.modifyUrl Route.Home ]
-                    => SetAuthUser authUser
+                    => Cmd.batch [ storeSession session, Route.modifyUrl Route.Home ]
+                    => SetSession session
 
-        LoginCompletedMsg (Err error) ->
+        LoginGrantCompletedMsg (Err _) ->
             model
                 => Cmd.none
                 => NoOp
