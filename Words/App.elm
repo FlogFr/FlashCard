@@ -10,6 +10,7 @@ import Html.Styled
 import Route exposing (Route)
 import Request exposing (..)
 import Views.Page as Page
+import Page.Errored as Errored
 import Page.Login as Login
 import Page.Register as Register
 import Page.Home as Home
@@ -126,7 +127,7 @@ type Msg
     | LoginMsg Login.Msg
     | RegisterMsg Register.Msg
     | RegisterInit (Result Http.Error String)
-    | HomeInit (Result Http.Error (List Word))
+    | HomeInit (Result Errored.PageLoadError Home.InitModel)
     | HomeMsg Home.Msg
     | WordEditInitMsg (Result Http.Error Word)
     | WordEditMsg WordEdit.Msg

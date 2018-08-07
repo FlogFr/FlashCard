@@ -45,6 +45,20 @@ RETURNING
     id
   , username
 ;;;
+-- name:updateUser :: (Int, String)
+-- :user :: User
+-- :password :: String
+UPDATE
+  users
+  (password)
+VALUES
+  (:password)
+WHERE
+  users.id = :user.userid
+RETURNING
+    id
+  , username
+;;;
 -- name:getUser :: (Int, String)
 -- :userName :: String
 -- :userPassword :: String
@@ -85,6 +99,27 @@ WHERE
 ORDER BY
   inserted_at DESC
 LIMIT 20
+;;;
+-- name:getWordsByKeyword :: [(Int, String, String, String, StringArray, MaybeInt)]
+-- :user :: User
+-- :keyword :: String
+SELECT
+  id, COALESCE(language, 'EN'), word, COALESCE(definition, 'def'), keywords, difficulty
+FROM
+  words
+WHERE
+  userid = :user.userid AND
+  :keyword = ANY ( keywords )
+LIMIT 20
+;;;
+-- name:getAllKeywords :: [(String)]
+-- :user :: User
+SELECT
+  DISTINCT ( UNNEST ( keywords ) )
+FROM
+  words
+WHERE
+  userid = :user.userid
 ;;;
 -- name:getSearchWords :: [(Int, String, String, String, StringArray, MaybeInt)]
 -- :user :: User

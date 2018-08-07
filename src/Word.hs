@@ -46,8 +46,8 @@ instance FromJSON Word
 instance ElmType Word
 
 wordConstructor :: (Int, String, String, String, StringArray, Maybe Int) -> Word
-wordConstructor (wordId, wordLanguage, wordWord, wordDefinition, wordKeywords, wordDifficulty) =
-  Word wordId wordLanguage wordWord wordKeywords wordDefinition wordDifficulty
+wordConstructor (pWordId, pWordLanguage, pWordWord, pWordDefinition, pWordKeywords, pWordDifficulty) =
+  Word pWordId pWordLanguage pWordWord pWordKeywords pWordDefinition pWordDifficulty
 
 -- Convert From SQL / To SQL
 wordsWhen     :: (Char -> Bool) -> String -> [String]

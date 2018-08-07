@@ -243,6 +243,30 @@ getWordsAll headers =
         }
 
 
+getWordsKeywords : List Http.Header -> Http.Request (List String)
+getWordsKeywords headers =
+    Http.request
+        { method =
+            "GET"
+        , headers =
+            headers
+        , url =
+            String.join "/"
+                [ "http://127.1:8080"
+                , "words"
+                , "keywords"
+                ]
+        , body =
+            Http.emptyBody
+        , expect =
+            Http.expectJson (list string)
+        , timeout =
+            Nothing
+        , withCredentials =
+            False
+        }
+
+
 getWordsLast : List Http.Header -> Http.Request (List Word)
 getWordsLast headers =
     Http.request

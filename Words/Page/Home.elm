@@ -1,4 +1,4 @@
-module Page.Home exposing (Model, Msg(..), ExternalMsg(..), initialModel, view, update, init)
+module Page.Home exposing (Model, InitModel, Msg(..), ExternalMsg(..), initialModel, view, update, init)
 
 import Util exposing ((=>))
 import API exposing (..)
@@ -7,6 +7,7 @@ import Task exposing (..)
 import Http exposing (..)
 import Html.Styled as Html exposing (..)
 import Html.Styled.Attributes exposing (..)
+import Page.Errored exposing (..)
 import Data.Session exposing (..)
 import Route as Route exposing (Route(..), href)
 import Views.Words exposing (..)
@@ -17,8 +18,13 @@ import Debug
 -- MODEL --
 
 
+type InitModel
+    = InitModel (List Word) (List String)
+
+
 type alias Model =
     { myLastWords : List Word
+    , keywords : List String
     , addWordLanguage : String
     , addWordWord : String
     , addWordDefinition : String
@@ -30,6 +36,7 @@ type alias Model =
 initialModel : Model
 initialModel =
     { myLastWords = []
+    , keywords = []
     , addWordLanguage = "EN"
     , addWordWord = ""
     , addWordDefinition = ""
@@ -43,9 +50,20 @@ updateLastWords model listWords =
     { model | myLastWords = listWords }
 
 
-init : Session -> Task Http.Error (List Word)
+init : Session -> Task Page.Errored.PageLoadError InitModel
 init session =
-    Http.toTask (getWordsLastRequest session)
+    let
+        loadLastWords =
+            Http.toTask (getWordsLastRequest session)
+
+        loadKeywords =
+            Http.toTask (getWordsKeywordsRequest session)
+
+        handleLoadError _ =
+            PageLoadError
+    in
+        Task.map2 InitModel loadLastWords loadKeywords
+            |> Task.mapError handleLoadError
 
 
 
@@ -62,7 +80,7 @@ type Msg
     | HomeSearchWord
     | HomeSearchWordFinished (Result Http.Error (List Word))
     | HomeAddNewWordFinished (Result Http.Error NoContent)
-    | InitFinished (Result Http.Error (List Word))
+    | InitFinished (Result PageLoadError InitModel)
     | LastWordsReqCompletedMsg (Result Http.Error (List Word))
 
 
@@ -85,6 +103,10 @@ view model =
             [ h1 [] [ text "Search a particular word in your dict?" ]
             , viewFormSearchWord HomeSearchWord UpdateSearchWord
             , viewWordsTable model.searchWords
+            ]
+        , div []
+            [ h1 [] [ text "Your keywords:" ]
+            , viewKeywordsList model.keywords
             ]
         , div []
             [ h1 [] [ text "Your last words of the week:" ]
@@ -163,22 +185,15 @@ update session msg model =
                         => Cmd.none
                         => NoOp
 
-        InitFinished (Ok newLastWords) ->
-            { model | myLastWords = newLastWords }
+        InitFinished (Ok (InitModel lastWords keywords)) ->
+            { model | myLastWords = lastWords, keywords = keywords }
                 => Cmd.none
                 => NoOp
 
-        InitFinished (Err httpError) ->
-            case httpError of
-                BadStatus httpResponse ->
-                    model
-                        => Cmd.none
-                        => Logout
-
-                _ ->
-                    model
-                        => Cmd.none
-                        => NoOp
+        InitFinished (Err pageLoadError) ->
+            model
+                => Cmd.none
+                => Logout
 
         UpdateSearchWord searchWord ->
             { model | searchWord = searchWord }

@@ -1,4 +1,4 @@
-module Views.Words exposing (viewWordsTable)
+module Views.Words exposing (viewWordsTable, viewKeywordsList)
 
 import Html.Styled as Html exposing (..)
 import IziCss exposing (..)
@@ -38,3 +38,9 @@ viewWordsTable words =
         , tbody []
             (List.map viewWordTr words)
         ]
+
+
+viewKeywordsList : List String -> Html msg
+viewKeywordsList listKeywords =
+    List.map (\k -> li [] [ text k ]) listKeywords
+        |> ul []

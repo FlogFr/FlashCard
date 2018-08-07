@@ -13,9 +13,13 @@ module PostgreSQL
   , getLastWords
   , getSearchWords
   , getWordById
+  , getUserById
   , deleteWordById
   , updateWordById
+  , updateUser
   , insertWord
+  , getWordsByKeyword
+  , getAllKeywords
   )
   where
 

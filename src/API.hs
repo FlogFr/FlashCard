@@ -32,7 +32,7 @@ import Control.Lens
 import Control.Monad.IO.Class (liftIO)
 import Servant.API ((:<|>) ((:<|>)), (:>), Get, Post, ReqBody, JSON, NoContent(..))
 import qualified Data.ByteString.Lazy.UTF8 as BU
-import Database.HDBC (commit, catchSql)
+import Database.HDBC (commit, withTransaction, catchSql)
 import Database.HDBC.PostgreSQL (Connection, begin)
 import Network.Wai
 import Network.Wai.Handler.Warp
@@ -106,10 +106,9 @@ authServer conns = newToken
         newToken = do
           liftIO $ 
             withResource conns $ \conn -> do
-              begin conn
-              token <- pgNewToken conn
-              commit conn
-              return token
+              withTransaction conn $ \conn -> do
+                token <- pgNewToken conn
+                return token
 
         createUser :: String -> NewUser -> Handler NoContent
         createUser uuid newUser = do
@@ -117,25 +116,36 @@ authServer conns = newToken
           return NoContent
           where
             pgExec = withResource conns $ \conn -> do
-              begin conn
-              token <- pgCreateUser uuid newUser conn
-              commit conn
-              return ()
+              withTransaction conn $ \conn -> do
+                token <- pgCreateUser uuid newUser conn
+                return ()
 
         grantHandler :: GrantUser -> Handler JWTToken
         grantHandler grantUser = do
           liftIO $ 
             withResource conns $ \conn -> do
-              begin conn
-              jwtToken <- pgGrantUserJWTToken grantUser conn
-              commit conn
-              return jwtToken
+              withTransaction conn $ \conn -> do
+                jwtToken <- pgGrantUserJWTToken grantUser conn
+                return jwtToken
 
 -- | API for the users
 type UserAPI = Get '[JSON] User
+          :<|> ReqBody '[JSON] GrantUser :> Put '[JSON] User
 
-userServer :: User -> Server UserAPI
-userServer user = return user
+userServer :: User -> Pool Connection -> Server UserAPI
+userServer user conns = retrieveUser
+                   :<|> putUser
+
+  where retrieveUser :: Handler User
+        retrieveUser = return user
+
+        putUser :: GrantUser -> Handler User
+        putUser grantUser = do
+          liftIO $ 
+            withResource conns $ \conn -> do
+              withTransaction conn $ \conn -> do
+                newUser <- updateUser user (grantPassword grantUser) conn
+                return $ User 1 "flog"
 
 -- Helpers for the word API
 pgRetrieveAllWords :: User -> Connection -> IO [Word]
@@ -169,6 +179,7 @@ type WordAPI = "all" :> Get '[JSON] [Word]
           :<|> "id" :> Capture "wordId" WordId :> Delete '[JSON] NoContent
           :<|> ReqBody '[JSON] Word :> "id" :> Capture "wordId" WordId :> Put '[JSON] Word
           :<|> ReqBody '[JSON] Word :> Post '[JSON] NoContent
+          :<|> "keywords" :> Get '[JSON] [String]
 
 wordServer :: User -> Pool Connection -> Server WordAPI
 wordServer user conns = retrieveAllWords
@@ -178,71 +189,73 @@ wordServer user conns = retrieveAllWords
                    :<|> deleteWordByIdHandler
                    :<|> putWordById
                    :<|> postWord
+                   :<|> retrieveKeywords
 
   where retrieveAllWords :: Handler [Word]
         retrieveAllWords = do
           liftIO $ 
             withResource conns $ \conn -> do
-              begin conn
-              words <- pgRetrieveAllWords user conn
-              commit conn
-              return words
+              withTransaction conn $ \conn -> do
+                words <- pgRetrieveAllWords user conn
+                return words
 
         retrieveLastWords :: Handler [Word]
         retrieveLastWords = do
           liftIO $ 
             withResource conns $ \conn -> do
-              begin conn
-              words <- pgRetrieveLastWords user conn
-              commit conn
-              return words
+              withTransaction conn $ \conn -> do
+                words <- pgRetrieveLastWords user conn
+                return words
 
         retrieveSearchWords :: String -> Handler [Word]
         retrieveSearchWords searchWord = do
           liftIO $ 
             withResource conns $ \conn -> do
-              begin conn
-              words <- pgRetrieveSearchWords user searchWord conn
-              commit conn
-              return words
+              withTransaction conn $ \conn -> do
+                words <- pgRetrieveSearchWords user searchWord conn
+                return words
 
         retrieveWordById :: WordId -> Handler Word
         retrieveWordById wordId = do
           liftIO $ 
             withResource conns $ \conn -> do
-              begin conn
-              words <- pgRetrieveWordById user wordId conn
-              commit conn
-              return words
+              withTransaction conn $ \conn -> do
+                words <- pgRetrieveWordById user wordId conn
+                return words
 
         deleteWordByIdHandler :: WordId -> Handler NoContent
         deleteWordByIdHandler wordId = do
           liftIO $ 
             withResource conns $ \conn -> do
-              begin conn
-              words <- deleteWordById user wordId conn
-              commit conn
-              return ()
+              withTransaction conn $ \conn -> do
+                words <- deleteWordById user wordId conn
+                return ()
           return NoContent
 
         putWordById :: Word -> WordId -> Handler Word
         putWordById word wordId = do
           liftIO $ 
             withResource conns $ \conn -> do
-              begin conn
-              words <- pgUpdateWordById user wordId word conn
-              commit conn
-              return word
+              withTransaction conn $ \conn -> do
+                words <- pgUpdateWordById user wordId word conn
+                return word
 
         postWord :: Word -> Handler NoContent
         postWord word = do
           liftIO $
             withResource conns $ \conn -> do
-              begin conn
-              insertWord user (wordLanguage word) (wordWord word) (wordDefinition word) conn
-              commit conn
-              return ()
+              withTransaction conn $ \conn -> do
+                insertWord user (wordLanguage word) (wordWord word) (wordDefinition word) conn
+                return ()
           return NoContent
+
+        retrieveKeywords :: Handler [String]
+        retrieveKeywords = do
+          liftIO $
+            withResource conns $ \conn -> do
+              withTransaction conn $ \conn -> do
+                keywords <- getAllKeywords user conn
+                return keywords
 
 
 -- | API for serving @swagger.json@.
@@ -258,7 +271,7 @@ type API = AuthProtect "jwt-auth" :> CombinedAPI
       :<|> SwaggerSchemaUI "swagger-ui" "swagger.json"
 
 combinedServer :: User -> Pool Connection -> Server CombinedAPI
-combinedServer user conns = ( (userServer user) :<|> (wordServer user conns) )
+combinedServer user conns = ( (userServer user conns) :<|> (wordServer user conns) )
 
 apiServer :: Pool Connection -> Server API
 apiServer conns =
