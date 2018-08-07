@@ -1,19 +1,21 @@
 module Views.Page exposing (frame)
 
 import Data.Session exposing (AuthUser, Session)
+import Data.Message exposing (..)
 import API exposing (User)
 import Route as Route exposing (..)
 import IziCss exposing (..)
+import Views.Messages exposing (..)
 import Html.Styled as Html exposing (..)
 import Html.Styled.Attributes exposing (..)
 import Html.Styled.Events exposing (..)
 
 
-frame : Session -> Html msg -> Html msg
-frame session content =
+frame : Session -> List Message -> Html msg -> Html msg
+frame session listMessages content =
     div [ bodyFrame ]
         [ viewHeader session
-        , div [ mainFrame ] [ content ]
+        , div [ mainFrame ] [ viewMessages listMessages, content ]
         , viewFooter
         ]
 
@@ -29,6 +31,13 @@ viewHeader session =
                 ]
             ]
         , div [ rightHeaderFrame ] [ viewNav session ]
+        ]
+
+
+viewMessages : List Message -> Html msg
+viewMessages listMessages =
+    div []
+        [ ul [] (List.map viewMessageLi listMessages)
         ]
 
 

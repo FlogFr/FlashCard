@@ -4,7 +4,7 @@ import Util exposing ((=>))
 import API exposing (..)
 import Request exposing (..)
 import Task exposing (..)
-import Http
+import Http exposing (..)
 import Html.Styled as Html exposing (..)
 import Html.Styled.Attributes exposing (..)
 import Data.Session exposing (..)
@@ -38,6 +38,7 @@ type Msg
 type ExternalMsg
     = NoOp
     | GoHome
+    | Logout
 
 
 view : Model -> Html Msg
@@ -59,7 +60,14 @@ update session msg model =
                 => Cmd.none
                 => GoHome
 
-        WordDeleteInitFinished (Err err) ->
-            model
-                => Cmd.none
-                => NoOp
+        WordDeleteInitFinished (Err httpError) ->
+            case httpError of
+                BadStatus httpResponse ->
+                    model
+                        => Cmd.none
+                        => Logout
+
+                _ ->
+                    model
+                        => Cmd.none
+                        => NoOp

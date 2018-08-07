@@ -18,6 +18,7 @@ import Page.WordDelete as WordDelete
 import Page.Quizz as Quizz
 import Page.NotFound as NotFound
 import Data.Session exposing (..)
+import Data.Message exposing (..)
 import Request exposing (..)
 import API exposing (..)
 import Ports exposing (..)
@@ -39,7 +40,8 @@ type Page
 
 
 type alias Model =
-    { session : Session
+    { messages : List Message
+    , session : Session
     , page : Page
     }
 
@@ -47,7 +49,8 @@ type alias Model =
 init : Value -> Location -> ( Model, Cmd Msg )
 init val location =
     setRoute (Route.fromLocation location)
-        { session = (retrieveSessionFromJson val)
+        { messages = []
+        , session = (retrieveSessionFromJson val)
         , page = NotFound
         }
 
@@ -60,7 +63,7 @@ view : Model -> Html Msg
 view model =
     let
         frame =
-            Page.frame model.session
+            Page.frame model.session model.messages
     in
         case model.page of
             Login subModel ->
@@ -185,8 +188,24 @@ updatePage page msg model =
                 ( ( pageModel, pageMsg ), externalMsg ) =
                     Home.update model.session (Home.InitFinished subMsg) subModel
             in
-                { model | page = Home pageModel }
-                    => Cmd.map HomeMsg pageMsg
+                case externalMsg of
+                    Home.NoOp ->
+                        { model | page = Home pageModel }
+                            => Cmd.map HomeMsg pageMsg
+
+                    Home.Logout ->
+                        { model | session = (Session Nothing Nothing), messages = ((Message Warning "You got logged out") :: model.messages) }
+                            => Cmd.batch [ deleteSession, Route.modifyUrl Route.Login ]
+
+                    Home.ReloadPage ->
+                        case model.session.user of
+                            Nothing ->
+                                { model | page = Home pageModel }
+                                    => Cmd.none
+
+                            Just user ->
+                                { model | page = Home pageModel }
+                                    => Task.attempt HomeInit (Home.init (.session model))
 
         ( Home subModel, HomeMsg subMsg ) ->
             let
@@ -197,6 +216,10 @@ updatePage page msg model =
                     Home.NoOp ->
                         { model | page = Home pageModel }
                             => Cmd.map HomeMsg pageMsg
+
+                    Home.Logout ->
+                        { model | session = (Session Nothing Nothing), messages = ((Message Warning "You got logged out") :: model.messages) }
+                            => Cmd.batch [ deleteSession, Route.modifyUrl Route.Login ]
 
                     Home.ReloadPage ->
                         case model.session.user of
@@ -213,8 +236,18 @@ updatePage page msg model =
                 ( ( pageModel, pageMsg ), externalMsg ) =
                     WordEdit.update model.session (WordEdit.WordEditInitFinished subMsg) subModel
             in
-                { model | page = WordEdit pageModel }
-                    => Cmd.map WordEditMsg pageMsg
+                case externalMsg of
+                    WordEdit.NoOp ->
+                        { model | page = WordEdit pageModel }
+                            => Cmd.map WordEditMsg pageMsg
+
+                    WordEdit.Logout ->
+                        { model | session = (Session Nothing Nothing), messages = ((Message Warning "You got logged out") :: model.messages) }
+                            => Cmd.batch [ deleteSession, Route.modifyUrl Route.Login ]
+
+                    WordEdit.GoHome ->
+                        model
+                            => Route.modifyUrl Route.Home
 
         ( WordEdit subModel, WordEditMsg subMsg ) ->
             let
@@ -225,6 +258,10 @@ updatePage page msg model =
                     WordEdit.NoOp ->
                         { model | page = WordEdit pageModel }
                             => Cmd.map WordEditMsg pageMsg
+
+                    WordEdit.Logout ->
+                        { model | session = (Session Nothing Nothing), messages = ((Message Warning "You got logged out") :: model.messages) }
+                            => Cmd.batch [ deleteSession, Route.modifyUrl Route.Login ]
 
                     WordEdit.GoHome ->
                         model
@@ -239,6 +276,10 @@ updatePage page msg model =
                     WordDelete.NoOp ->
                         { model | page = WordDelete pageModel }
                             => Cmd.map WordDeleteMsg pageMsg
+
+                    WordDelete.Logout ->
+                        { model | session = (Session Nothing Nothing), messages = ((Message Warning "You got logged out") :: model.messages) }
+                            => Cmd.batch [ deleteSession, Route.modifyUrl Route.Login ]
 
                     WordDelete.GoHome ->
                         model

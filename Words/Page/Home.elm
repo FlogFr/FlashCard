@@ -4,7 +4,7 @@ import Util exposing ((=>))
 import API exposing (..)
 import Request exposing (..)
 import Task exposing (..)
-import Http
+import Http exposing (..)
 import Html.Styled as Html exposing (..)
 import Html.Styled.Attributes exposing (..)
 import Data.Session exposing (..)
@@ -69,6 +69,7 @@ type Msg
 type ExternalMsg
     = NoOp
     | ReloadPage
+    | Logout
 
 
 view : Model -> Html Msg
@@ -118,10 +119,17 @@ update session msg model =
                 => Cmd.none
                 => ReloadPage
 
-        HomeAddNewWordFinished (Err _) ->
-            model
-                => Cmd.none
-                => NoOp
+        HomeAddNewWordFinished (Err httpError) ->
+            case httpError of
+                BadStatus httpResponse ->
+                    model
+                        => Cmd.none
+                        => Logout
+
+                _ ->
+                    model
+                        => Cmd.none
+                        => NoOp
 
         TypeHomeLanguage newLanguage ->
             { model | addWordLanguage = newLanguage }
@@ -143,20 +151,34 @@ update session msg model =
                 => Cmd.none
                 => NoOp
 
-        LastWordsReqCompletedMsg (Err error) ->
-            model
-                => Cmd.none
-                => NoOp
+        LastWordsReqCompletedMsg (Err httpError) ->
+            case httpError of
+                BadStatus httpResponse ->
+                    model
+                        => Cmd.none
+                        => Logout
+
+                _ ->
+                    model
+                        => Cmd.none
+                        => NoOp
 
         InitFinished (Ok newLastWords) ->
             { model | myLastWords = newLastWords }
                 => Cmd.none
                 => NoOp
 
-        InitFinished (Err error) ->
-            model
-                => Cmd.none
-                => NoOp
+        InitFinished (Err httpError) ->
+            case httpError of
+                BadStatus httpResponse ->
+                    model
+                        => Cmd.none
+                        => Logout
+
+                _ ->
+                    model
+                        => Cmd.none
+                        => NoOp
 
         UpdateSearchWord searchWord ->
             { model | searchWord = searchWord }
@@ -173,7 +195,14 @@ update session msg model =
                 => Cmd.none
                 => NoOp
 
-        HomeSearchWordFinished (Err _) ->
-            model
-                => Cmd.none
-                => NoOp
+        HomeSearchWordFinished (Err httpError) ->
+            case httpError of
+                BadStatus httpResponse ->
+                    model
+                        => Cmd.none
+                        => Logout
+
+                _ ->
+                    model
+                        => Cmd.none
+                        => NoOp

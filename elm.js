@@ -21010,6 +21010,14 @@ var _user$project$API$postWords = F2(
 			});
 	});
 
+var _user$project$Data_Message$Error = {ctor: 'Error'};
+var _user$project$Data_Message$Warning = {ctor: 'Warning'};
+var _user$project$Data_Message$Debug = {ctor: 'Debug'};
+var _user$project$Data_Message$Message = F2(
+	function (a, b) {
+		return {ctor: 'Message', _0: a, _1: b};
+	});
+
 var _user$project$Ports$storeSession = _elm_lang$core$Native_Platform.outgoingPort(
 	'storeSession',
 	function (v) {
@@ -22598,6 +22606,7 @@ var _user$project$Page_Home$view = function (model) {
 		});
 };
 var _user$project$Page_Home$TestMsg = {ctor: 'TestMsg'};
+var _user$project$Page_Home$Logout = {ctor: 'Logout'};
 var _user$project$Page_Home$ReloadPage = {ctor: 'ReloadPage'};
 var _user$project$Page_Home$NoOp = {ctor: 'NoOp'};
 var _user$project$Page_Home$update = F3(
@@ -22647,10 +22656,18 @@ var _user$project$Page_Home$update = F3(
 						A2(_user$project$Util_ops['=>'], model, _elm_lang$core$Platform_Cmd$none),
 						_user$project$Page_Home$ReloadPage);
 				} else {
-					return A2(
-						_user$project$Util_ops['=>'],
-						A2(_user$project$Util_ops['=>'], model, _elm_lang$core$Platform_Cmd$none),
-						_user$project$Page_Home$NoOp);
+					var _p1 = _p0._0._0;
+					if (_p1.ctor === 'BadStatus') {
+						return A2(
+							_user$project$Util_ops['=>'],
+							A2(_user$project$Util_ops['=>'], model, _elm_lang$core$Platform_Cmd$none),
+							_user$project$Page_Home$Logout);
+					} else {
+						return A2(
+							_user$project$Util_ops['=>'],
+							A2(_user$project$Util_ops['=>'], model, _elm_lang$core$Platform_Cmd$none),
+							_user$project$Page_Home$NoOp);
+					}
 				}
 			case 'TypeHomeLanguage':
 				return A2(
@@ -22694,10 +22711,18 @@ var _user$project$Page_Home$update = F3(
 							_elm_lang$core$Platform_Cmd$none),
 						_user$project$Page_Home$NoOp);
 				} else {
-					return A2(
-						_user$project$Util_ops['=>'],
-						A2(_user$project$Util_ops['=>'], model, _elm_lang$core$Platform_Cmd$none),
-						_user$project$Page_Home$NoOp);
+					var _p2 = _p0._0._0;
+					if (_p2.ctor === 'BadStatus') {
+						return A2(
+							_user$project$Util_ops['=>'],
+							A2(_user$project$Util_ops['=>'], model, _elm_lang$core$Platform_Cmd$none),
+							_user$project$Page_Home$Logout);
+					} else {
+						return A2(
+							_user$project$Util_ops['=>'],
+							A2(_user$project$Util_ops['=>'], model, _elm_lang$core$Platform_Cmd$none),
+							_user$project$Page_Home$NoOp);
+					}
 				}
 			case 'InitFinished':
 				if (_p0._0.ctor === 'Ok') {
@@ -22711,10 +22736,18 @@ var _user$project$Page_Home$update = F3(
 							_elm_lang$core$Platform_Cmd$none),
 						_user$project$Page_Home$NoOp);
 				} else {
-					return A2(
-						_user$project$Util_ops['=>'],
-						A2(_user$project$Util_ops['=>'], model, _elm_lang$core$Platform_Cmd$none),
-						_user$project$Page_Home$NoOp);
+					var _p3 = _p0._0._0;
+					if (_p3.ctor === 'BadStatus') {
+						return A2(
+							_user$project$Util_ops['=>'],
+							A2(_user$project$Util_ops['=>'], model, _elm_lang$core$Platform_Cmd$none),
+							_user$project$Page_Home$Logout);
+					} else {
+						return A2(
+							_user$project$Util_ops['=>'],
+							A2(_user$project$Util_ops['=>'], model, _elm_lang$core$Platform_Cmd$none),
+							_user$project$Page_Home$NoOp);
+					}
 				}
 			case 'UpdateSearchWord':
 				return A2(
@@ -22752,10 +22785,18 @@ var _user$project$Page_Home$update = F3(
 							_elm_lang$core$Platform_Cmd$none),
 						_user$project$Page_Home$NoOp);
 				} else {
-					return A2(
-						_user$project$Util_ops['=>'],
-						A2(_user$project$Util_ops['=>'], model, _elm_lang$core$Platform_Cmd$none),
-						_user$project$Page_Home$NoOp);
+					var _p4 = _p0._0._0;
+					if (_p4.ctor === 'BadStatus') {
+						return A2(
+							_user$project$Util_ops['=>'],
+							A2(_user$project$Util_ops['=>'], model, _elm_lang$core$Platform_Cmd$none),
+							_user$project$Page_Home$Logout);
+					} else {
+						return A2(
+							_user$project$Util_ops['=>'],
+							A2(_user$project$Util_ops['=>'], model, _elm_lang$core$Platform_Cmd$none),
+							_user$project$Page_Home$NoOp);
+					}
 				}
 		}
 	});
@@ -23104,6 +23145,7 @@ var _user$project$Page_WordDelete$Model = function (a) {
 var _user$project$Page_WordDelete$WordDeleteInitFinished = function (a) {
 	return {ctor: 'WordDeleteInitFinished', _0: a};
 };
+var _user$project$Page_WordDelete$Logout = {ctor: 'Logout'};
 var _user$project$Page_WordDelete$GoHome = {ctor: 'GoHome'};
 var _user$project$Page_WordDelete$NoOp = {ctor: 'NoOp'};
 var _user$project$Page_WordDelete$update = F3(
@@ -23115,10 +23157,18 @@ var _user$project$Page_WordDelete$update = F3(
 				A2(_user$project$Util_ops['=>'], model, _elm_lang$core$Platform_Cmd$none),
 				_user$project$Page_WordDelete$GoHome);
 		} else {
-			return A2(
-				_user$project$Util_ops['=>'],
-				A2(_user$project$Util_ops['=>'], model, _elm_lang$core$Platform_Cmd$none),
-				_user$project$Page_WordDelete$NoOp);
+			var _p1 = _p0._0._0;
+			if (_p1.ctor === 'BadStatus') {
+				return A2(
+					_user$project$Util_ops['=>'],
+					A2(_user$project$Util_ops['=>'], model, _elm_lang$core$Platform_Cmd$none),
+					_user$project$Page_WordDelete$Logout);
+			} else {
+				return A2(
+					_user$project$Util_ops['=>'],
+					A2(_user$project$Util_ops['=>'], model, _elm_lang$core$Platform_Cmd$none),
+					_user$project$Page_WordDelete$NoOp);
+			}
 		}
 	});
 
@@ -23190,6 +23240,7 @@ var _user$project$Page_WordEdit$WordEditInitFinished = function (a) {
 	return {ctor: 'WordEditInitFinished', _0: a};
 };
 var _user$project$Page_WordEdit$TestMsg = {ctor: 'TestMsg'};
+var _user$project$Page_WordEdit$Logout = {ctor: 'Logout'};
 var _user$project$Page_WordEdit$GoHome = {ctor: 'GoHome'};
 var _user$project$Page_WordEdit$NoOp = {ctor: 'NoOp'};
 var _user$project$Page_WordEdit$update = F3(
@@ -23215,10 +23266,18 @@ var _user$project$Page_WordEdit$update = F3(
 					_user$project$Page_WordEdit$NoOp);
 			case 'WordEditInitFinished':
 				if (_p2._0.ctor === 'Err') {
-					return A2(
-						_user$project$Util_ops['=>'],
-						A2(_user$project$Util_ops['=>'], model, _elm_lang$core$Platform_Cmd$none),
-						_user$project$Page_WordEdit$NoOp);
+					var _p3 = _p2._0._0;
+					if (_p3.ctor === 'BadStatus') {
+						return A2(
+							_user$project$Util_ops['=>'],
+							A2(_user$project$Util_ops['=>'], model, _elm_lang$core$Platform_Cmd$none),
+							_user$project$Page_WordEdit$Logout);
+					} else {
+						return A2(
+							_user$project$Util_ops['=>'],
+							A2(_user$project$Util_ops['=>'], model, _elm_lang$core$Platform_Cmd$none),
+							_user$project$Page_WordEdit$NoOp);
+					}
 				} else {
 					return A2(
 						_user$project$Util_ops['=>'],
@@ -23233,8 +23292,8 @@ var _user$project$Page_WordEdit$update = F3(
 						_user$project$Page_WordEdit$NoOp);
 				}
 			case 'UpdateWordRequest':
-				var _p3 = model.word;
-				if (_p3.ctor === 'Nothing') {
+				var _p4 = model.word;
+				if (_p4.ctor === 'Nothing') {
 					return A2(
 						_user$project$Util_ops['=>'],
 						A2(_user$project$Util_ops['=>'], model, _elm_lang$core$Platform_Cmd$none),
@@ -23245,7 +23304,7 @@ var _user$project$Page_WordEdit$update = F3(
 						A2(
 							_user$project$Util_ops['=>'],
 							model,
-							A3(_user$project$Request$putWordsIdByWordIdCmd, _user$project$Page_WordEdit$UpdateWordRequestFinished, session, _p3._0)),
+							A3(_user$project$Request$putWordsIdByWordIdCmd, _user$project$Page_WordEdit$UpdateWordRequestFinished, session, _p4._0)),
 						_user$project$Page_WordEdit$NoOp);
 				}
 			default:
@@ -23262,13 +23321,34 @@ var _user$project$Page_WordEdit$update = F3(
 							_elm_lang$core$Platform_Cmd$none),
 						_user$project$Page_WordEdit$GoHome);
 				} else {
-					return A2(
-						_user$project$Util_ops['=>'],
-						A2(_user$project$Util_ops['=>'], model, _elm_lang$core$Platform_Cmd$none),
-						_user$project$Page_WordEdit$NoOp);
+					var _p5 = _p2._0._0;
+					if (_p5.ctor === 'BadStatus') {
+						return A2(
+							_user$project$Util_ops['=>'],
+							A2(_user$project$Util_ops['=>'], model, _elm_lang$core$Platform_Cmd$none),
+							_user$project$Page_WordEdit$Logout);
+					} else {
+						return A2(
+							_user$project$Util_ops['=>'],
+							A2(_user$project$Util_ops['=>'], model, _elm_lang$core$Platform_Cmd$none),
+							_user$project$Page_WordEdit$NoOp);
+					}
 				}
 		}
 	});
+
+var _user$project$Views_Messages$viewMessageLi = function (message) {
+	var _p0 = message;
+	return A2(
+		_rtfeldman$elm_css$Html_Styled$li,
+		{ctor: '[]'},
+		{
+			ctor: '::',
+			_0: _rtfeldman$elm_css$Html_Styled$text(
+				A2(_elm_lang$core$Basics_ops['++'], 'message: ', _p0._1)),
+			_1: {ctor: '[]'}
+		});
+};
 
 var _user$project$Views_Page$viewNav = function (session) {
 	var _p0 = session.user;
@@ -23326,7 +23406,11 @@ var _user$project$Views_Page$viewNav = function (session) {
 					{
 						ctor: '::',
 						_0: _user$project$Route$href(_user$project$Route$Register),
-						_1: {ctor: '[]'}
+						_1: {
+							ctor: '::',
+							_0: _user$project$IziCss$whiteLink,
+							_1: {ctor: '[]'}
+						}
 					},
 					{
 						ctor: '::',
@@ -23356,6 +23440,19 @@ var _user$project$Views_Page$viewFooter = A2(
 			}),
 		_1: {ctor: '[]'}
 	});
+var _user$project$Views_Page$viewMessages = function (listMessages) {
+	return A2(
+		_rtfeldman$elm_css$Html_Styled$div,
+		{ctor: '[]'},
+		{
+			ctor: '::',
+			_0: A2(
+				_rtfeldman$elm_css$Html_Styled$ul,
+				{ctor: '[]'},
+				A2(_elm_lang$core$List$map, _user$project$Views_Messages$viewMessageLi, listMessages)),
+			_1: {ctor: '[]'}
+		});
+};
 var _user$project$Views_Page$viewHeader = function (session) {
 	return A2(
 		_rtfeldman$elm_css$Html_Styled$div,
@@ -23433,8 +23530,8 @@ var _user$project$Views_Page$viewHeader = function (session) {
 			}
 		});
 };
-var _user$project$Views_Page$frame = F2(
-	function (session, content) {
+var _user$project$Views_Page$frame = F3(
+	function (session, listMessages, content) {
 		return A2(
 			_rtfeldman$elm_css$Html_Styled$div,
 			{
@@ -23456,8 +23553,12 @@ var _user$project$Views_Page$frame = F2(
 						},
 						{
 							ctor: '::',
-							_0: content,
-							_1: {ctor: '[]'}
+							_0: _user$project$Views_Page$viewMessages(listMessages),
+							_1: {
+								ctor: '::',
+								_0: content,
+								_1: {ctor: '[]'}
+							}
 						}),
 					_1: {
 						ctor: '::',
@@ -23471,9 +23572,9 @@ var _user$project$Views_Page$frame = F2(
 var _user$project$WordApp$subscriptions = function (model) {
 	return _elm_lang$core$Platform_Sub$none;
 };
-var _user$project$WordApp$Model = F2(
-	function (a, b) {
-		return {session: a, page: b};
+var _user$project$WordApp$Model = F3(
+	function (a, b, c) {
+		return {messages: a, session: b, page: c};
 	});
 var _user$project$WordApp$Quizz = {ctor: 'Quizz'};
 var _user$project$WordApp$WordDelete = function (a) {
@@ -23649,6 +23750,7 @@ var _user$project$WordApp$init = F2(
 			_user$project$WordApp$setRoute,
 			_user$project$Route$fromLocation(location),
 			{
+				messages: {ctor: '[]'},
 				session: _user$project$Data_Session$retrieveSessionFromJson(val),
 				page: _user$project$WordApp$NotFound
 			});
@@ -23660,7 +23762,7 @@ var _user$project$WordApp$LoginMsg = function (a) {
 	return {ctor: 'LoginMsg', _0: a};
 };
 var _user$project$WordApp$view = function (model) {
-	var frame = _user$project$Views_Page$frame(model.session);
+	var frame = A2(_user$project$Views_Page$frame, model.session, model.messages);
 	var _p5 = model.page;
 	switch (_p5.ctor) {
 		case 'Login':
@@ -23804,32 +23906,76 @@ var _user$project$WordApp$updatePage = F3(
 								var pageModel = _p12._0._0;
 								var pageMsg = _p12._0._1;
 								var externalMsg = _p12._1;
-								return A2(
-									_user$project$Util_ops['=>'],
-									_elm_lang$core$Native_Utils.update(
-										model,
-										{
-											page: _user$project$WordApp$Home(pageModel)
-										}),
-									A2(_elm_lang$core$Platform_Cmd$map, _user$project$WordApp$HomeMsg, pageMsg));
+								var _p13 = externalMsg;
+								switch (_p13.ctor) {
+									case 'NoOp':
+										return A2(
+											_user$project$Util_ops['=>'],
+											_elm_lang$core$Native_Utils.update(
+												model,
+												{
+													page: _user$project$WordApp$Home(pageModel)
+												}),
+											A2(_elm_lang$core$Platform_Cmd$map, _user$project$WordApp$HomeMsg, pageMsg));
+									case 'Logout':
+										return A2(
+											_user$project$Util_ops['=>'],
+											_elm_lang$core$Native_Utils.update(
+												model,
+												{
+													session: A2(_user$project$Data_Session$Session, _elm_lang$core$Maybe$Nothing, _elm_lang$core$Maybe$Nothing),
+													messages: {
+														ctor: '::',
+														_0: A2(_user$project$Data_Message$Message, _user$project$Data_Message$Warning, 'You got logged out'),
+														_1: model.messages
+													}
+												}),
+											_elm_lang$core$Platform_Cmd$batch(
+												{
+													ctor: '::',
+													_0: _user$project$Data_Session$deleteSession,
+													_1: {
+														ctor: '::',
+														_0: _user$project$Route$modifyUrl(_user$project$Route$Login),
+														_1: {ctor: '[]'}
+													}
+												}));
+									default:
+										var _p14 = model.session.user;
+										if (_p14.ctor === 'Nothing') {
+											return A2(
+												_user$project$Util_ops['=>'],
+												_elm_lang$core$Native_Utils.update(
+													model,
+													{
+														page: _user$project$WordApp$Home(pageModel)
+													}),
+												_elm_lang$core$Platform_Cmd$none);
+										} else {
+											return A2(
+												_user$project$Util_ops['=>'],
+												_elm_lang$core$Native_Utils.update(
+													model,
+													{
+														page: _user$project$WordApp$Home(pageModel)
+													}),
+												A2(
+													_elm_lang$core$Task$attempt,
+													_user$project$WordApp$HomeInit,
+													_user$project$Page_Home$init(
+														function (_) {
+															return _.session;
+														}(model))));
+										}
+								}
 							case 'HomeMsg':
-								var _p13 = A3(_user$project$Page_Home$update, model.session, _p6._1._0, _p6._0._0);
-								var pageModel = _p13._0._0;
-								var pageMsg = _p13._0._1;
-								var externalMsg = _p13._1;
-								var _p14 = externalMsg;
-								if (_p14.ctor === 'NoOp') {
-									return A2(
-										_user$project$Util_ops['=>'],
-										_elm_lang$core$Native_Utils.update(
-											model,
-											{
-												page: _user$project$WordApp$Home(pageModel)
-											}),
-										A2(_elm_lang$core$Platform_Cmd$map, _user$project$WordApp$HomeMsg, pageMsg));
-								} else {
-									var _p15 = model.session.user;
-									if (_p15.ctor === 'Nothing') {
+								var _p15 = A3(_user$project$Page_Home$update, model.session, _p6._1._0, _p6._0._0);
+								var pageModel = _p15._0._0;
+								var pageMsg = _p15._0._1;
+								var externalMsg = _p15._1;
+								var _p16 = externalMsg;
+								switch (_p16.ctor) {
+									case 'NoOp':
 										return A2(
 											_user$project$Util_ops['=>'],
 											_elm_lang$core$Native_Utils.update(
@@ -23837,23 +23983,57 @@ var _user$project$WordApp$updatePage = F3(
 												{
 													page: _user$project$WordApp$Home(pageModel)
 												}),
-											_elm_lang$core$Platform_Cmd$none);
-									} else {
+											A2(_elm_lang$core$Platform_Cmd$map, _user$project$WordApp$HomeMsg, pageMsg));
+									case 'Logout':
 										return A2(
 											_user$project$Util_ops['=>'],
 											_elm_lang$core$Native_Utils.update(
 												model,
 												{
-													page: _user$project$WordApp$Home(pageModel)
+													session: A2(_user$project$Data_Session$Session, _elm_lang$core$Maybe$Nothing, _elm_lang$core$Maybe$Nothing),
+													messages: {
+														ctor: '::',
+														_0: A2(_user$project$Data_Message$Message, _user$project$Data_Message$Warning, 'You got logged out'),
+														_1: model.messages
+													}
 												}),
-											A2(
-												_elm_lang$core$Task$attempt,
-												_user$project$WordApp$HomeInit,
-												_user$project$Page_Home$init(
-													function (_) {
-														return _.session;
-													}(model))));
-									}
+											_elm_lang$core$Platform_Cmd$batch(
+												{
+													ctor: '::',
+													_0: _user$project$Data_Session$deleteSession,
+													_1: {
+														ctor: '::',
+														_0: _user$project$Route$modifyUrl(_user$project$Route$Login),
+														_1: {ctor: '[]'}
+													}
+												}));
+									default:
+										var _p17 = model.session.user;
+										if (_p17.ctor === 'Nothing') {
+											return A2(
+												_user$project$Util_ops['=>'],
+												_elm_lang$core$Native_Utils.update(
+													model,
+													{
+														page: _user$project$WordApp$Home(pageModel)
+													}),
+												_elm_lang$core$Platform_Cmd$none);
+										} else {
+											return A2(
+												_user$project$Util_ops['=>'],
+												_elm_lang$core$Native_Utils.update(
+													model,
+													{
+														page: _user$project$WordApp$Home(pageModel)
+													}),
+												A2(
+													_elm_lang$core$Task$attempt,
+													_user$project$WordApp$HomeInit,
+													_user$project$Page_Home$init(
+														function (_) {
+															return _.session;
+														}(model))));
+										}
 								}
 							default:
 								break _v5_10;
@@ -23863,42 +24043,98 @@ var _user$project$WordApp$updatePage = F3(
 							case 'SetRoute':
 								break _v5_0;
 							case 'WordEditInitMsg':
-								var _p16 = A3(
+								var _p18 = A3(
 									_user$project$Page_WordEdit$update,
 									model.session,
 									_user$project$Page_WordEdit$WordEditInitFinished(_p6._1._0),
 									_p6._0._0);
-								var pageModel = _p16._0._0;
-								var pageMsg = _p16._0._1;
-								var externalMsg = _p16._1;
-								return A2(
-									_user$project$Util_ops['=>'],
-									_elm_lang$core$Native_Utils.update(
-										model,
-										{
-											page: _user$project$WordApp$WordEdit(pageModel)
-										}),
-									A2(_elm_lang$core$Platform_Cmd$map, _user$project$WordApp$WordEditMsg, pageMsg));
-							case 'WordEditMsg':
-								var _p17 = A3(_user$project$Page_WordEdit$update, model.session, _p6._1._0, _p6._0._0);
-								var pageModel = _p17._0._0;
-								var pageMsg = _p17._0._1;
-								var externalMsg = _p17._1;
-								var _p18 = externalMsg;
-								if (_p18.ctor === 'NoOp') {
-									return A2(
-										_user$project$Util_ops['=>'],
-										_elm_lang$core$Native_Utils.update(
+								var pageModel = _p18._0._0;
+								var pageMsg = _p18._0._1;
+								var externalMsg = _p18._1;
+								var _p19 = externalMsg;
+								switch (_p19.ctor) {
+									case 'NoOp':
+										return A2(
+											_user$project$Util_ops['=>'],
+											_elm_lang$core$Native_Utils.update(
+												model,
+												{
+													page: _user$project$WordApp$WordEdit(pageModel)
+												}),
+											A2(_elm_lang$core$Platform_Cmd$map, _user$project$WordApp$WordEditMsg, pageMsg));
+									case 'Logout':
+										return A2(
+											_user$project$Util_ops['=>'],
+											_elm_lang$core$Native_Utils.update(
+												model,
+												{
+													session: A2(_user$project$Data_Session$Session, _elm_lang$core$Maybe$Nothing, _elm_lang$core$Maybe$Nothing),
+													messages: {
+														ctor: '::',
+														_0: A2(_user$project$Data_Message$Message, _user$project$Data_Message$Warning, 'You got logged out'),
+														_1: model.messages
+													}
+												}),
+											_elm_lang$core$Platform_Cmd$batch(
+												{
+													ctor: '::',
+													_0: _user$project$Data_Session$deleteSession,
+													_1: {
+														ctor: '::',
+														_0: _user$project$Route$modifyUrl(_user$project$Route$Login),
+														_1: {ctor: '[]'}
+													}
+												}));
+									default:
+										return A2(
+											_user$project$Util_ops['=>'],
 											model,
-											{
-												page: _user$project$WordApp$WordEdit(pageModel)
-											}),
-										A2(_elm_lang$core$Platform_Cmd$map, _user$project$WordApp$WordEditMsg, pageMsg));
-								} else {
-									return A2(
-										_user$project$Util_ops['=>'],
-										model,
-										_user$project$Route$modifyUrl(_user$project$Route$Home));
+											_user$project$Route$modifyUrl(_user$project$Route$Home));
+								}
+							case 'WordEditMsg':
+								var _p20 = A3(_user$project$Page_WordEdit$update, model.session, _p6._1._0, _p6._0._0);
+								var pageModel = _p20._0._0;
+								var pageMsg = _p20._0._1;
+								var externalMsg = _p20._1;
+								var _p21 = externalMsg;
+								switch (_p21.ctor) {
+									case 'NoOp':
+										return A2(
+											_user$project$Util_ops['=>'],
+											_elm_lang$core$Native_Utils.update(
+												model,
+												{
+													page: _user$project$WordApp$WordEdit(pageModel)
+												}),
+											A2(_elm_lang$core$Platform_Cmd$map, _user$project$WordApp$WordEditMsg, pageMsg));
+									case 'Logout':
+										return A2(
+											_user$project$Util_ops['=>'],
+											_elm_lang$core$Native_Utils.update(
+												model,
+												{
+													session: A2(_user$project$Data_Session$Session, _elm_lang$core$Maybe$Nothing, _elm_lang$core$Maybe$Nothing),
+													messages: {
+														ctor: '::',
+														_0: A2(_user$project$Data_Message$Message, _user$project$Data_Message$Warning, 'You got logged out'),
+														_1: model.messages
+													}
+												}),
+											_elm_lang$core$Platform_Cmd$batch(
+												{
+													ctor: '::',
+													_0: _user$project$Data_Session$deleteSession,
+													_1: {
+														ctor: '::',
+														_0: _user$project$Route$modifyUrl(_user$project$Route$Login),
+														_1: {ctor: '[]'}
+													}
+												}));
+									default:
+										return A2(
+											_user$project$Util_ops['=>'],
+											model,
+											_user$project$Route$modifyUrl(_user$project$Route$Home));
 								}
 							default:
 								break _v5_10;
@@ -23908,29 +24144,53 @@ var _user$project$WordApp$updatePage = F3(
 							case 'SetRoute':
 								break _v5_0;
 							case 'WordDeleteInitMsg':
-								var _p19 = A3(
+								var _p22 = A3(
 									_user$project$Page_WordDelete$update,
 									model.session,
 									_user$project$Page_WordDelete$WordDeleteInitFinished(_p6._1._0),
 									_p6._0._0);
-								var pageModel = _p19._0._0;
-								var pageMsg = _p19._0._1;
-								var externalMsg = _p19._1;
-								var _p20 = externalMsg;
-								if (_p20.ctor === 'NoOp') {
-									return A2(
-										_user$project$Util_ops['=>'],
-										_elm_lang$core$Native_Utils.update(
+								var pageModel = _p22._0._0;
+								var pageMsg = _p22._0._1;
+								var externalMsg = _p22._1;
+								var _p23 = externalMsg;
+								switch (_p23.ctor) {
+									case 'NoOp':
+										return A2(
+											_user$project$Util_ops['=>'],
+											_elm_lang$core$Native_Utils.update(
+												model,
+												{
+													page: _user$project$WordApp$WordDelete(pageModel)
+												}),
+											A2(_elm_lang$core$Platform_Cmd$map, _user$project$WordApp$WordDeleteMsg, pageMsg));
+									case 'Logout':
+										return A2(
+											_user$project$Util_ops['=>'],
+											_elm_lang$core$Native_Utils.update(
+												model,
+												{
+													session: A2(_user$project$Data_Session$Session, _elm_lang$core$Maybe$Nothing, _elm_lang$core$Maybe$Nothing),
+													messages: {
+														ctor: '::',
+														_0: A2(_user$project$Data_Message$Message, _user$project$Data_Message$Warning, 'You got logged out'),
+														_1: model.messages
+													}
+												}),
+											_elm_lang$core$Platform_Cmd$batch(
+												{
+													ctor: '::',
+													_0: _user$project$Data_Session$deleteSession,
+													_1: {
+														ctor: '::',
+														_0: _user$project$Route$modifyUrl(_user$project$Route$Login),
+														_1: {ctor: '[]'}
+													}
+												}));
+									default:
+										return A2(
+											_user$project$Util_ops['=>'],
 											model,
-											{
-												page: _user$project$WordApp$WordDelete(pageModel)
-											}),
-										A2(_elm_lang$core$Platform_Cmd$map, _user$project$WordApp$WordDeleteMsg, pageMsg));
-								} else {
-									return A2(
-										_user$project$Util_ops['=>'],
-										model,
-										_user$project$Route$modifyUrl(_user$project$Route$Home));
+											_user$project$Route$modifyUrl(_user$project$Route$Home));
 								}
 							default:
 								break _v5_10;
@@ -23968,9 +24228,9 @@ var _user$project$WordApp$SetRoute = function (a) {
 };
 var _user$project$WordApp$main = A2(
 	_elm_lang$navigation$Navigation$programWithFlags,
-	function (_p21) {
+	function (_p24) {
 		return _user$project$WordApp$SetRoute(
-			_user$project$Route$fromLocation(_p21));
+			_user$project$Route$fromLocation(_p24));
 	},
 	{init: _user$project$WordApp$init, view: _user$project$WordApp$view, update: _user$project$WordApp$update, subscriptions: _user$project$WordApp$subscriptions})(_elm_lang$core$Json_Decode$value);
 

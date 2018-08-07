@@ -31,7 +31,7 @@ import Servant.Server.Experimental.Auth()
 import Network.Wai                      (Request, requestHeaders)
 
 import Database.HDBC.PostgreSQL (withPostgreSQL, begin)
-import Database.HDBC (commit)
+import Database.HDBC (commit, SqlError, handleSql)
 import Database.YeshQL.HDBC (yeshFile)
 import Data.ByteString.UTF8 (toString)
 import User (User(..))
@@ -52,17 +52,43 @@ authHandler = mkAuthHandler handler
   where
     maybeToEither e = maybe (Left e) Right
     throw401 msg = throwError $ err401 { errBody = msg }
-    handler req = either throw401 lookupUserFromJWT $ do
+    handler req = either throw401 handlerLookupUserFromJWT $ do
       maybeToEither "Missing authentication header" $ lookup "authorization" $ requestHeaders req
-    --  maybeToEither "Missing token in cookie" $ lookup "servant-auth-cookie" $ parseCookies cookie
+
+handlerLookupUserFromJWT :: ByteString -> Handler User
+handlerLookupUserFromJWT jwtHeaderByteString = do
+  eitherSqlErrorOrUser <- lookupUserFromJWTE jwtHeaderByteString
+  either handlerSqlError returnUser $ eitherSqlErrorOrUser
+  where
+    throw401 msg = throwError $ err401 { errBody = msg }
+    handlerSqlError sqlErrorValue = 
+      throw401 "Error of authentication"
+    returnUser user = do
+      return user
 
 lookupUserFromJWT :: ByteString -> Handler User
-lookupUserFromJWT jwtHeaderByteString = do
+lookupUserFromJWT jwtHeaderString = do
   liftIO $
     withPostgreSQL "service=words" $ \conn -> do
       begin conn
-      (maybeUser) <- verifyJWT (toString jwtHeaderByteString) conn
+      (maybeUser) <- verifyJWT (toString jwtHeaderString) conn
       commit conn
       case maybeUser of
         Just (userId, userName) -> return $ User userId userName
+        Nothing -> fail "impossible to find the user"
+
+handleSqlError :: SqlError -> IO (Either SqlError User)
+handleSqlError sqlError = do
+  return $ Left sqlError
+
+lookupUserFromJWTE :: ByteString -> Handler (Either SqlError User)
+lookupUserFromJWTE jwtHeaderString = do
+  liftIO $ handleSql handleSqlError pgExec
+  where
+    pgExec = withPostgreSQL "service=words" $ \conn -> do
+      begin conn
+      (maybeUser) <- verifyJWT (toString jwtHeaderString) conn
+      commit conn
+      case maybeUser of
+        Just (userId, userName) -> return $ Right ( User userId userName )
         Nothing -> fail "impossible to find the user"
