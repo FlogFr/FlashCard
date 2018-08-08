@@ -39,6 +39,15 @@ viewFormLogin loginTryMsg typeLoginMsg typePasswordMsg =
         ]
 
 
+viewFormUpdateUser : NewUser -> (NewUser -> msg) -> msg -> Html msg
+viewFormUpdateUser newUser toUpdateNewUser toUpdateMsg =
+    Html.form [ niceBoxed, onSubmit toUpdateMsg, action "javascript:void(0);" ]
+        [ input [ inputCss, onInput (\v -> toUpdateNewUser { newUser | password = v }), placeholder "new password", attribute "type" "password" ] []
+        , input [ inputCss, onInput (\v -> toUpdateNewUser { newUser | email = v }), placeholder "new email" ] []
+        , btn [ type_ "submit" ] [ text "update password" ]
+        ]
+
+
 viewFormRegister : NewUser -> (NewUser -> msg) -> msg -> Html msg
 viewFormRegister newUser toUpdateRegisterModel toRegisterMsg =
     Html.form [ niceBoxed, onSubmit toRegisterMsg, action "javascript:void(0);" ]

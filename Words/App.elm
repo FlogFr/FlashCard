@@ -13,6 +13,7 @@ import Views.Page as Page
 import Page.Errored as Errored
 import Page.Login as Login
 import Page.Register as Register
+import Page.ProfileEdit as ProfileEdit
 import Page.Home as Home
 import Page.WordEdit as WordEdit
 import Page.WordDelete as WordDelete
@@ -30,6 +31,7 @@ type Page
     = NotFound
     | Login Login.Model
     | Register Register.Model
+    | ProfileEdit ProfileEdit.Model
     | Home Home.Model
     | WordEdit WordEdit.Model
     | WordDelete WordDelete.Model
@@ -77,6 +79,12 @@ view model =
                 Register.view subModel
                     |> frame
                     |> Html.Styled.map RegisterMsg
+                    |> Html.Styled.toUnstyled
+
+            ProfileEdit subModel ->
+                ProfileEdit.view subModel
+                    |> frame
+                    |> Html.Styled.map ProfileEditMsg
                     |> Html.Styled.toUnstyled
 
             Home subModel ->
@@ -127,6 +135,7 @@ type Msg
     | LoginMsg Login.Msg
     | RegisterMsg Register.Msg
     | RegisterInit (Result Http.Error String)
+    | ProfileEditMsg ProfileEdit.Msg
     | HomeInit (Result Errored.PageLoadError Home.InitModel)
     | HomeMsg Home.Msg
     | WordEditInitMsg (Result Http.Error Word)
@@ -183,6 +192,24 @@ updatePage page msg model =
 
                     Register.GoLogin ->
                         setRoute (Just Route.Login) model
+
+        ( ProfileEdit subModel, ProfileEditMsg subMsg ) ->
+            let
+                ( ( pageModel, pageMsg ), externalMsg ) =
+                    ProfileEdit.update model.session subMsg subModel
+            in
+                case externalMsg of
+                    ProfileEdit.NoOp ->
+                        { model | page = ProfileEdit pageModel }
+                            => Cmd.map ProfileEditMsg pageMsg
+
+                    ProfileEdit.Logout ->
+                        { model | session = (Session Nothing Nothing), messages = ((Message Warning "You got logged out") :: model.messages) }
+                            => Cmd.batch [ deleteSession, Route.modifyUrl Route.Login ]
+
+                    ProfileEdit.GoHome ->
+                        model
+                            => Route.modifyUrl Route.Home
 
         ( Home subModel, HomeInit subMsg ) ->
             let
@@ -308,6 +335,19 @@ setRoute maybeRoute model =
         Just (Route.Register) ->
             { model | page = Register Register.initialModel }
                 => Task.attempt RegisterInit Register.init
+
+        Just (Route.ProfileEdit) ->
+            let
+                username =
+                    case model.session.user of
+                        Just authUser ->
+                            (.username authUser)
+
+                        Nothing ->
+                            ""
+            in
+                { model | page = ProfileEdit { newUser = (NewUser username "" "---") } }
+                    => Cmd.none
 
         Just (Route.Logout) ->
             { model | session = (Session Nothing Nothing) }

@@ -11,7 +11,6 @@ import Data.Session exposing (..)
 import Route as Route exposing (Route(..), href)
 import Views.Words exposing (..)
 import Views.Forms exposing (..)
-import Debug
 
 
 -- MODEL --

@@ -44,7 +44,7 @@ import Servant.Swagger
 import Servant.Swagger.UI
 import PostgreSQL
 import Word (Word(..), WordId, wordConstructor)
-import User (User(..), GrantUser(..), NewUser(..))
+import User (User(..), GrantUser(..), NewUser(..), userConstructor)
 import Token (Token(..))
 import JWTToken (JWTToken(..))
 import Auth
@@ -144,8 +144,8 @@ userServer user conns = retrieveUser
           liftIO $ 
             withResource conns $ \conn -> do
               withTransaction conn $ \conn -> do
-                newUser <- updateUser user (grantPassword grantUser) conn
-                return $ User 1 "flog"
+                listNewUserRows <- updateUser user (grantPassword grantUser) conn
+                return $ (map userConstructor listNewUserRows)!!0
 
 -- Helpers for the word API
 pgRetrieveAllWords :: User -> Connection -> IO [Word]

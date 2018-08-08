@@ -219,6 +219,29 @@ getUser headers =
         }
 
 
+updateUser : List Http.Header -> GrantUser -> Http.Request User
+updateUser headers grantUser =
+    Http.request
+        { method =
+            "PUT"
+        , headers =
+            headers
+        , url =
+            String.join "/"
+                [ "http://127.1:8080"
+                , "user"
+                ]
+        , body =
+            Http.jsonBody (encodeGrantUser grantUser)
+        , expect =
+            Http.expectJson decodeUser
+        , timeout =
+            Nothing
+        , withCredentials =
+            False
+        }
+
+
 getWordsAll : List Http.Header -> Http.Request (List Word)
 getWordsAll headers =
     Http.request

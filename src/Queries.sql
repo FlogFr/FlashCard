@@ -45,14 +45,13 @@ RETURNING
     id
   , username
 ;;;
--- name:updateUser :: (Int, String)
+-- name:updateUser :: [(Int, String)]
 -- :user :: User
 -- :password :: String
 UPDATE
   users
-  (password)
-VALUES
-  (:password)
+SET
+  passpass = :password
 WHERE
   users.id = :user.userid
 RETURNING

@@ -34,6 +34,23 @@ getUserCmd msgType session =
     Http.send msgType (getUserRequest session)
 
 
+updateUserRequest : Session -> GrantUser -> Http.Request User
+updateUserRequest session grantUser =
+    let
+        jwtToken =
+            case session.authToken of
+                Just jwtToken ->
+                    (.token jwtToken)
+
+                Nothing ->
+                    ""
+
+        requestAuthHeader =
+            Http.header "Authorization" jwtToken
+    in
+        updateUser [ requestAuthHeader ] grantUser
+
+
 getWordsKeywordsRequest : Session -> Http.Request (List String)
 getWordsKeywordsRequest session =
     let

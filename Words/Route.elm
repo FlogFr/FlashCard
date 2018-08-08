@@ -23,6 +23,7 @@ type Route
     = Login
     | Logout
     | Register
+    | ProfileEdit
     | Home
     | WordEdit Int
     | WordDelete Int
@@ -35,6 +36,7 @@ route =
         [ Url.map Login (s "")
         , Url.map Logout (s "logout")
         , Url.map Register (s "register")
+        , Url.map ProfileEdit (s "profile")
         , Url.map Home (s "home")
         , Url.map WordEdit (s "wordEdit" </> int)
         , Url.map WordDelete (s "wordDelete" </> int)
@@ -59,6 +61,9 @@ routeToString page =
 
                 Register ->
                     [ "register" ]
+
+                ProfileEdit ->
+                    [ "profile" ]
 
                 Home ->
                     [ "home" ]

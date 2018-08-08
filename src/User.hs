@@ -8,6 +8,7 @@ module User
   ( User(..)
   , GrantUser(..)
   , NewUser(..)
+  , userConstructor
   )
   where
 
@@ -20,6 +21,10 @@ data User = User
   { userid :: Int
   , username :: String
   } deriving (Eq, Generic, Show)
+
+userConstructor :: (Int, String) -> User
+userConstructor (userId, userName) =
+  User userId userName
 
 instance ToSchema User
 instance ToJSON User

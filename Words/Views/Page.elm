@@ -53,7 +53,8 @@ viewNav session =
         Just user ->
             nav []
                 [ a [ Route.href Route.Home, whiteLink ] [ text "Go home" ]
-                , a [ Route.href Route.Logout, whiteLink ] [ text "- Logout -" ]
+                , a [ Route.href Route.ProfileEdit, whiteLink ] [ text "- Edit My Profile" ]
+                , a [ Route.href Route.Logout, whiteLink ] [ text "- Logout" ]
                 ]
 
         Nothing ->
