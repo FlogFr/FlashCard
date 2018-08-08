@@ -10,7 +10,7 @@ import Html.Styled.Events exposing (..)
 import Html.Styled.Attributes exposing (attribute, placeholder, type_, action)
 import Data.Session exposing (..)
 import Views.Forms exposing (..)
-import Debug
+import Views.Errors exposing (..)
 
 
 -- MODEL --
@@ -50,7 +50,9 @@ type ExternalMsg
 view : Model -> Html Msg
 view model =
     div []
-        [ viewFormLogin LoginTryMsg TypeLoginMsg TypePasswordMsg ]
+        [ viewErrorsList (.errors model)
+        , viewFormLogin LoginTryMsg TypeLoginMsg TypePasswordMsg
+        ]
 
 
 
@@ -92,7 +94,19 @@ update msg model =
                     => Cmd.batch [ storeSession session, Route.modifyUrl Route.Home ]
                     => SetSession session
 
-        LoginGrantCompletedMsg (Err _) ->
-            model
-                => Cmd.none
-                => NoOp
+        LoginGrantCompletedMsg (Err httpError) ->
+            case httpError of
+                Http.BadStatus httpResponse ->
+                    { model | errors = "Wrong credentials" :: (.errors model) }
+                        => Cmd.none
+                        => NoOp
+
+                Http.NetworkError ->
+                    { model | errors = "Wrong credentials" :: (.errors model) }
+                        => Cmd.none
+                        => NoOp
+
+                _ ->
+                    model
+                        => Cmd.none
+                        => NoOp

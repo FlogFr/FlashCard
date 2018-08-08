@@ -97,6 +97,8 @@ FROM
 WHERE
   userid = :user.userid AND
   :keyword = ANY (keywords)
+ORDER BY
+  RANDOM ()
 LIMIT
   5
 ;;;

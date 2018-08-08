@@ -1,4 +1,4 @@
-module Views.Errors exposing (viewErrorsDiv)
+module Views.Errors exposing (..)
 
 import IziCss exposing (..)
 import Html.Styled as Html exposing (..)
@@ -17,3 +17,8 @@ viewErrorsDiv : List String -> Html msg
 viewErrorsDiv errors =
     div []
         (List.map viewErrorParagraph errors)
+
+
+viewErrorsList : List String -> Html msg
+viewErrorsList errors =
+    ul [] (List.map (\e -> li [] [ text e ]) errors)

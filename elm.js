@@ -23045,6 +23045,45 @@ var _user$project$Page_Home$update = F3(
 		}
 	});
 
+var _user$project$Views_Errors$viewErrorsList = function (errors) {
+	return A2(
+		_rtfeldman$elm_css$Html_Styled$ul,
+		{ctor: '[]'},
+		A2(
+			_elm_lang$core$List$map,
+			function (e) {
+				return A2(
+					_rtfeldman$elm_css$Html_Styled$li,
+					{ctor: '[]'},
+					{
+						ctor: '::',
+						_0: _rtfeldman$elm_css$Html_Styled$text(e),
+						_1: {ctor: '[]'}
+					});
+			},
+			errors));
+};
+var _user$project$Views_Errors$viewErrorParagraph = function (error) {
+	return A2(
+		_rtfeldman$elm_css$Html_Styled$p,
+		{
+			ctor: '::',
+			_0: _user$project$IziCss$errorStyle,
+			_1: {ctor: '[]'}
+		},
+		{
+			ctor: '::',
+			_0: _rtfeldman$elm_css$Html_Styled$text(error),
+			_1: {ctor: '[]'}
+		});
+};
+var _user$project$Views_Errors$viewErrorsDiv = function (errors) {
+	return A2(
+		_rtfeldman$elm_css$Html_Styled$div,
+		{ctor: '[]'},
+		A2(_elm_lang$core$List$map, _user$project$Views_Errors$viewErrorParagraph, errors));
+};
+
 var _user$project$Page_Login$initialModel = {
 	errors: {ctor: '[]'},
 	username: '',
@@ -23070,8 +23109,15 @@ var _user$project$Page_Login$view = function (model) {
 		{ctor: '[]'},
 		{
 			ctor: '::',
-			_0: A3(_user$project$Views_Forms$viewFormLogin, _user$project$Page_Login$LoginTryMsg, _user$project$Page_Login$TypeLoginMsg, _user$project$Page_Login$TypePasswordMsg),
-			_1: {ctor: '[]'}
+			_0: _user$project$Views_Errors$viewErrorsList(
+				function (_) {
+					return _.errors;
+				}(model)),
+			_1: {
+				ctor: '::',
+				_0: A3(_user$project$Views_Forms$viewFormLogin, _user$project$Page_Login$LoginTryMsg, _user$project$Page_Login$TypeLoginMsg, _user$project$Page_Login$TypePasswordMsg),
+				_1: {ctor: '[]'}
+			}
 		});
 };
 var _user$project$Page_Login$SetSession = function (a) {
@@ -23158,10 +23204,50 @@ var _user$project$Page_Login$update = F2(
 								})),
 						_user$project$Page_Login$SetSession(session));
 				} else {
-					return A2(
-						_user$project$Util_ops['=>'],
-						A2(_user$project$Util_ops['=>'], model, _elm_lang$core$Platform_Cmd$none),
-						_user$project$Page_Login$NoOp);
+					var _p1 = A2(_elm_lang$core$Debug$log, 'http error: ', _p0._0._0);
+					switch (_p1.ctor) {
+						case 'BadStatus':
+							return A2(
+								_user$project$Util_ops['=>'],
+								A2(
+									_user$project$Util_ops['=>'],
+									_elm_lang$core$Native_Utils.update(
+										model,
+										{
+											errors: {
+												ctor: '::',
+												_0: 'Wrong credentials',
+												_1: function (_) {
+													return _.errors;
+												}(model)
+											}
+										}),
+									_elm_lang$core$Platform_Cmd$none),
+								_user$project$Page_Login$NoOp);
+						case 'NetworkError':
+							return A2(
+								_user$project$Util_ops['=>'],
+								A2(
+									_user$project$Util_ops['=>'],
+									_elm_lang$core$Native_Utils.update(
+										model,
+										{
+											errors: {
+												ctor: '::',
+												_0: 'Wrong credentials',
+												_1: function (_) {
+													return _.errors;
+												}(model)
+											}
+										}),
+									_elm_lang$core$Platform_Cmd$none),
+								_user$project$Page_Login$NoOp);
+						default:
+							return A2(
+								_user$project$Util_ops['=>'],
+								A2(_user$project$Util_ops['=>'], model, _elm_lang$core$Platform_Cmd$none),
+								_user$project$Page_Login$NoOp);
+					}
 				}
 		}
 	});
@@ -23280,27 +23366,6 @@ var _user$project$Page_Quizz$Model = function (a) {
 	return {errors: a};
 };
 var _user$project$Page_Quizz$TestMsg = {ctor: 'TestMsg'};
-
-var _user$project$Views_Errors$viewErrorParagraph = function (error) {
-	return A2(
-		_rtfeldman$elm_css$Html_Styled$p,
-		{
-			ctor: '::',
-			_0: _user$project$IziCss$errorStyle,
-			_1: {ctor: '[]'}
-		},
-		{
-			ctor: '::',
-			_0: _rtfeldman$elm_css$Html_Styled$text(error),
-			_1: {ctor: '[]'}
-		});
-};
-var _user$project$Views_Errors$viewErrorsDiv = function (errors) {
-	return A2(
-		_rtfeldman$elm_css$Html_Styled$div,
-		{ctor: '[]'},
-		A2(_elm_lang$core$List$map, _user$project$Views_Errors$viewErrorParagraph, errors));
-};
 
 var _user$project$Page_Register$init = _elm_lang$http$Http$toTask(_user$project$API$getToken);
 var _user$project$Page_Register$initialModel = {
