@@ -20,6 +20,7 @@ module PostgreSQL
   , insertWord
   , getWordsByKeyword
   , getAllKeywords
+  , getQuizzWordsKeyword
   )
   where
 

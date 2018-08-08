@@ -174,6 +174,7 @@ pgUpdateWordById user wordId word conn = updateWordById user wordId word conn
 -- | API for the words
 type WordAPI = "all" :> Get '[JSON] [Word]
           :<|> "last" :> Get '[JSON] [Word]
+          :<|> "quizz" :> "keyword" :> Capture "searchKeyword" String :> Get '[JSON] [Word]
           :<|> "search" :> Capture "searchWord" String :> Get '[JSON] [Word]
           :<|> "id" :> Capture "wordId" WordId :> Get '[JSON] Word
           :<|> "id" :> Capture "wordId" WordId :> Delete '[JSON] NoContent
@@ -184,6 +185,7 @@ type WordAPI = "all" :> Get '[JSON] [Word]
 wordServer :: User -> Pool Connection -> Server WordAPI
 wordServer user conns = retrieveAllWords
                    :<|> retrieveLastWords
+                   :<|> quizzWordsByKeyword
                    :<|> retrieveSearchWords
                    :<|> retrieveWordById
                    :<|> deleteWordByIdHandler
@@ -206,6 +208,14 @@ wordServer user conns = retrieveAllWords
               withTransaction conn $ \conn -> do
                 words <- pgRetrieveLastWords user conn
                 return words
+
+        quizzWordsByKeyword :: String -> Handler [Word]
+        quizzWordsByKeyword keyword = do
+          liftIO $ 
+            withResource conns $ \conn -> do
+              withTransaction conn $ \conn -> do
+                listWords <- getQuizzWordsKeyword user keyword conn
+                return $ map wordConstructor listWords
 
         retrieveSearchWords :: String -> Handler [Word]
         retrieveSearchWords searchWord = do

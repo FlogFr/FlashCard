@@ -87,6 +87,19 @@ FROM
 WHERE
   userid = :user.userid
 ;;;
+-- name:getQuizzWordsKeyword :: [(Int, String, String, String, StringArray, MaybeInt)]
+-- :user :: User
+-- :keyword :: String
+SELECT
+  id, COALESCE(language, 'EN'), word, COALESCE(definition, 'def'), keywords, difficulty
+FROM
+  words
+WHERE
+  userid = :user.userid AND
+  :keyword = ANY (keywords)
+LIMIT
+  5
+;;;
 -- name:getLastWords :: [(Int, String, String, String, StringArray, MaybeInt)]
 -- :user :: User
 SELECT
