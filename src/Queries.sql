@@ -148,6 +148,47 @@ WHERE
 LIMIT
   20
 ;;;
+-- name:getSearchWordsUser :: [(Int, String, String, String, StringArray, MaybeInt)]
+-- :user :: User
+SELECT
+  id, COALESCE(language, 'EN'), word, COALESCE(definition, 'def'), keywords, difficulty
+FROM
+  words
+WHERE
+  userid = :user.userid
+ORDER BY
+  id DESC
+LIMIT
+  20
+;;;
+-- name:getSearchKeyword :: [(Int, String, String, String, StringArray, MaybeInt)]
+-- :user :: User
+-- :keyword :: String
+SELECT
+  id, COALESCE(language, 'EN'), word, COALESCE(definition, 'def'), keywords, difficulty
+FROM
+  words
+WHERE
+  userid = :user.userid AND
+  :keyword = ANY (keywords)
+LIMIT
+  20
+;;;
+-- name:getSearchWordsKeyword :: [(Int, String, String, String, StringArray, MaybeInt)]
+-- :user :: User
+-- :searchWord :: String
+-- :keyword :: String
+SELECT
+  id, COALESCE(language, 'EN'), word, COALESCE(definition, 'def'), keywords, difficulty
+FROM
+  words
+WHERE
+  userid = :user.userid AND
+  word LIKE '%' || :searchWord || '%' AND
+  :keyword = ANY (keywords)
+LIMIT
+  20
+;;;
 -- name:getWordById :: [(Int, String, String, String, StringArray, MaybeInt)]
 -- :user :: User
 -- :wordId :: WordId

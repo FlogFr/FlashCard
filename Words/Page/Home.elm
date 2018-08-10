@@ -29,6 +29,7 @@ type alias Model =
     , addWordWord : String
     , addWordDefinition : String
     , searchWord : String
+    , searchKeyword : String
     , searchWords : List Word
     }
 
@@ -41,6 +42,7 @@ initialModel =
     , addWordWord = ""
     , addWordDefinition = ""
     , searchWord = ""
+    , searchKeyword = "--"
     , searchWords = []
     }
 
@@ -77,6 +79,7 @@ type Msg
     | TypeHomeWord String
     | TypeHomeDefinition String
     | UpdateSearchWord String
+    | UpdateSearchKeyword String
     | HomeSearchWord
     | HomeSearchWordFinished (Result Http.Error (List Word))
     | HomeAddNewWordFinished (Result Http.Error NoContent)
@@ -93,15 +96,13 @@ type ExternalMsg
 view : Model -> Html Msg
 view model =
     div []
-        [ a [ Route.href Route.Quizz ]
-            [ text "take a super quizz" ]
-        , div []
+        [ div []
             [ h1 [] [ text "You want to add a word?" ]
             , viewFormAddWord HomeAddNewWord TypeHomeLanguage TypeHomeWord TypeHomeDefinition
             ]
         , div []
             [ h1 [] [ text "Search a particular word in your dict?" ]
-            , viewFormSearchWord HomeSearchWord UpdateSearchWord
+            , viewFormSearchWord (.keywords model) HomeSearchWord UpdateSearchWord UpdateSearchKeyword
             , viewWordsTable model.searchWords
             ]
         , div []
@@ -110,7 +111,7 @@ view model =
             ]
         , div []
             [ h1 [] [ text "Your last words of the week:" ]
-            , viewWordsTable model.myLastWords
+            , viewWordsCards model.myLastWords
             ]
         ]
 
@@ -195,14 +196,19 @@ update session msg model =
                 => Cmd.none
                 => Logout
 
-        UpdateSearchWord searchWord ->
-            { model | searchWord = searchWord }
+        UpdateSearchWord newSearchWord ->
+            { model | searchWord = newSearchWord }
+                => Cmd.none
+                => NoOp
+
+        UpdateSearchKeyword newSearchKeyword ->
+            { model | searchKeyword = newSearchKeyword }
                 => Cmd.none
                 => NoOp
 
         HomeSearchWord ->
             model
-                => getWordsSearchCmd HomeSearchWordFinished session (.searchWord model)
+                => getWordsSearchCmd HomeSearchWordFinished session (.searchWord model) (.searchKeyword model)
                 => NoOp
 
         HomeSearchWordFinished (Ok listSearchWords) ->

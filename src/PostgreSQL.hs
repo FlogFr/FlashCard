@@ -21,6 +21,9 @@ module PostgreSQL
   , getWordsByKeyword
   , getAllKeywords
   , getQuizzWordsKeyword
+  , getSearchWordsKeyword
+  , getSearchKeyword
+  , getSearchWordsUser
   )
   where
 

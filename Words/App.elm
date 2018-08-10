@@ -35,7 +35,7 @@ type Page
     | Home Home.Model
     | WordEdit WordEdit.Model
     | WordDelete WordDelete.Model
-    | Quizz
+    | Quizz Quizz.Model
 
 
 
@@ -105,8 +105,8 @@ view model =
                     |> Html.Styled.map WordDeleteMsg
                     |> Html.Styled.toUnstyled
 
-            Quizz ->
-                Quizz.view
+            Quizz subModel ->
+                Quizz.view subModel
                     |> frame
                     |> Html.Styled.map QuizzMsg
                     |> Html.Styled.toUnstyled
@@ -142,6 +142,7 @@ type Msg
     | WordEditMsg WordEdit.Msg
     | WordDeleteInitMsg (Result Http.Error NoContent)
     | WordDeleteMsg WordDelete.Msg
+    | QuizzInit (Result Http.Error (List Word))
     | QuizzMsg Quizz.Msg
 
 
@@ -313,7 +314,15 @@ updatePage page msg model =
                         model
                             => Route.modifyUrl Route.Home
 
-        ( Quizz, _ ) ->
+        ( Quizz subModel, QuizzInit subMsg ) ->
+            let
+                ( ( pageModel, pageMsg ), externalMsg ) =
+                    Quizz.update model.session (Quizz.QuizzInitFinished subMsg) subModel
+            in
+                { model | page = Quizz pageModel }
+                    => Cmd.none
+
+        ( Quizz subModel, QuizzMsg subMsg ) ->
             ( model, Cmd.none )
 
         ( _, _ ) ->
@@ -395,8 +404,9 @@ setRoute maybeRoute model =
                         newModel
                             => Task.attempt WordDeleteInitMsg (WordDelete.init (.session model) wordId)
 
-        Just (Route.Quizz) ->
-            { model | page = Quizz } => Cmd.none
+        Just (Route.Quizz keywordQuizz) ->
+            { model | page = (Quizz (Quizz.initialModel keywordQuizz)) }
+                => Task.attempt QuizzInit (Quizz.init (.session model) keywordQuizz)
 
 
 

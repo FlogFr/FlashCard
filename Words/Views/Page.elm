@@ -17,6 +17,7 @@ frame session listMessages content =
         [ viewHeader session
         , div [ mainFrame ] [ viewMessages listMessages, content ]
         , viewFooter
+        , viewRightFooter
         ]
 
 
@@ -44,6 +45,18 @@ viewMessages listMessages =
 viewFooter : Html msg
 viewFooter =
     div [ bottomFrame ]
+        [ p [] [ text "Proudly powered by " ]
+        , img [ bottomLogo, src "/ressources/haskell-logo.png" ] []
+        , img [ bottomLogo, src "/ressources/servant-logo.png" ] []
+        , img [ bottomLogo, src "/ressources/postgresql-logo.png" ] []
+        , img [ bottomLogo, src "/ressources/elm-logo.png" ] []
+        , img [ bottomLogo, src "/ressources/debian-logo.png" ] []
+        ]
+
+
+viewRightFooter : Html msg
+viewRightFooter =
+    div [ rightBottomFrame ]
         [ p [] [ text "made with ❤ from ❤ WAW ❤" ] ]
 
 

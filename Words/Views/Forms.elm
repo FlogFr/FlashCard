@@ -22,10 +22,16 @@ viewFormAddWord homeAddNewWord typeHomeLanguage typeHomeWord typeHomeDefinition 
         ]
 
 
-viewFormSearchWord : msg -> (String -> msg) -> Html msg
-viewFormSearchWord toSearchMsg toUpdateSearchWord =
+viewFormSearchWord : List String -> msg -> (String -> msg) -> (String -> msg) -> Html msg
+viewFormSearchWord keywords toSearchMsg toUpdateSearchWord toUpdateSearchKeyword =
     Html.form [ onSubmit toSearchMsg, action "javascript:void(0);" ]
         [ input [ onInput toUpdateSearchWord, placeholder "original word" ] []
+        , select [ onInput toUpdateSearchKeyword, name "keyword" ]
+            (List.concat
+                [ [ option [] [ text "--" ] ]
+                , (List.map (\k -> option [] [ text k ]) keywords)
+                ]
+            )
         , button [ type_ "submit" ] [ text "update search word" ]
         ]
 

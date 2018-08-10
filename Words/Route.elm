@@ -27,7 +27,7 @@ type Route
     | Home
     | WordEdit Int
     | WordDelete Int
-    | Quizz
+    | Quizz String
 
 
 route : Parser (Route -> a) a
@@ -40,7 +40,7 @@ route =
         , Url.map Home (s "home")
         , Url.map WordEdit (s "wordEdit" </> int)
         , Url.map WordDelete (s "wordDelete" </> int)
-        , Url.map Quizz (s "quizz")
+        , Url.map Quizz (s "quizz" </> string)
         ]
 
 
@@ -74,8 +74,8 @@ routeToString page =
                 WordDelete wordId ->
                     [ "wordDelete", toString wordId ]
 
-                Quizz ->
-                    [ "quizz" ]
+                Quizz keywordQuizz ->
+                    [ "quizz", keywordQuizz ]
     in
         "#/" ++ String.join "/" pieces
 

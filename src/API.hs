@@ -158,10 +158,21 @@ pgRetrieveLastWords user conn = do
   listWords <- getLastWords user conn
   return $ map wordConstructor listWords
 
-pgRetrieveSearchWords :: User -> String -> Connection -> IO [Word]
-pgRetrieveSearchWords user searchWord conn = do
-  listWords <- getSearchWords user searchWord conn
-  return $ map wordConstructor listWords
+pgRetrieveSearchWords :: User -> Maybe String -> Maybe String -> Connection -> IO [Word]
+pgRetrieveSearchWords user maybeSearchWord maybeSearchKeyword conn = do
+  case (maybeSearchWord, maybeSearchKeyword) of
+    (Just searchWord, Just searchKeyword) -> do
+      listWords <- getSearchWordsKeyword user searchWord searchKeyword conn
+      return $ map wordConstructor listWords
+    (Just searchWord, Nothing) -> do
+      listWords <- getSearchWords user searchWord conn
+      return $ map wordConstructor listWords
+    (Nothing, Just searchKeyword) -> do
+      listWords <- getSearchKeyword user searchKeyword conn
+      return $ map wordConstructor listWords
+    (Nothing, Nothing) -> do
+      listWords <- getSearchWordsUser user conn
+      return $ map wordConstructor listWords
 
 pgRetrieveWordById :: User -> WordId -> Connection -> IO Word
 pgRetrieveWordById user wordId conn = do
@@ -175,7 +186,7 @@ pgUpdateWordById user wordId word conn = updateWordById user wordId word conn
 type WordAPI = "all" :> Get '[JSON] [Word]
           :<|> "last" :> Get '[JSON] [Word]
           :<|> "quizz" :> "keyword" :> Capture "searchKeyword" String :> Get '[JSON] [Word]
-          :<|> "search" :> Capture "searchWord" String :> Get '[JSON] [Word]
+          :<|> "search" :> QueryParam "word" String :> QueryParam "keyword" String :> Get '[JSON] [Word]
           :<|> "id" :> Capture "wordId" WordId :> Get '[JSON] Word
           :<|> "id" :> Capture "wordId" WordId :> Delete '[JSON] NoContent
           :<|> ReqBody '[JSON] Word :> "id" :> Capture "wordId" WordId :> Put '[JSON] Word
@@ -217,12 +228,12 @@ wordServer user conns = retrieveAllWords
                 listWords <- getQuizzWordsKeyword user keyword conn
                 return $ map wordConstructor listWords
 
-        retrieveSearchWords :: String -> Handler [Word]
-        retrieveSearchWords searchWord = do
+        retrieveSearchWords :: Maybe String -> Maybe String -> Handler [Word]
+        retrieveSearchWords maybeSearchWord maybeSearchKeyword = do
           liftIO $ 
             withResource conns $ \conn -> do
               withTransaction conn $ \conn -> do
-                words <- pgRetrieveSearchWords user searchWord conn
+                words <- pgRetrieveSearchWords user maybeSearchWord maybeSearchKeyword conn
                 return words
 
         retrieveWordById :: WordId -> Handler Word

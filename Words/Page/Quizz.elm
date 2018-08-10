@@ -1,9 +1,14 @@
-module Page.Quizz exposing (Model, Msg(..), initialModel, view)
+module Page.Quizz exposing (Model, Msg(..), initialModel, view, init, update)
 
 import Http
+import Task exposing (..)
 import Html.Styled as Html exposing (..)
 import Html.Styled.Attributes exposing (..)
 import Route exposing (Route(..), href)
+import Data.Session exposing (..)
+import Views.Words exposing (..)
+import Request exposing (..)
+import Util exposing ((=>))
 import API exposing (..)
 
 
@@ -11,14 +16,23 @@ import API exposing (..)
 
 
 type alias Model =
-    { errors : String
+    { errors : List String
+    , keyword : String
+    , words : List Word
     }
 
 
-initialModel : Model
-initialModel =
-    { errors = "No Error"
+initialModel : String -> Model
+initialModel keyWord =
+    { errors = []
+    , words = []
+    , keyword = keyWord
     }
+
+
+init : Session -> String -> Task Http.Error (List Word)
+init session keyword =
+    Http.toTask (getWordsQuizzRequest session keyword)
 
 
 
@@ -27,10 +41,35 @@ initialModel =
 
 type Msg
     = TestMsg
+    | QuizzInitFinished (Result Http.Error (List Word))
 
 
-view : Html Msg
-view =
+type ExternalMsg
+    = NoOp
+
+
+view : Model -> Html Msg
+view model =
     div []
-        [ p [] [ text "super quizz" ]
+        [ h2 [] [ text "My words for the quizz:" ]
+        , viewWordsCards (.words model)
         ]
+
+
+update : Session -> Msg -> Model -> ( ( Model, Cmd Msg ), ExternalMsg )
+update session msg model =
+    case msg of
+        QuizzInitFinished (Ok listWords) ->
+            { model | words = listWords }
+                => Cmd.none
+                => NoOp
+
+        QuizzInitFinished (Err _) ->
+            model
+                => Cmd.none
+                => NoOp
+
+        TestMsg ->
+            model
+                => Cmd.none
+                => NoOp

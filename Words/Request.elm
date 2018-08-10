@@ -85,8 +85,8 @@ getWordsLastRequest session =
         getWordsLast [ requestAuthHeader ]
 
 
-getWordsSearchRequest : Session -> String -> Http.Request (List Word)
-getWordsSearchRequest session searchWord =
+getWordsSearchRequest : Session -> String -> String -> Http.Request (List Word)
+getWordsSearchRequest session searchWord searchKeyword =
     let
         jwtToken =
             case session.authToken of
@@ -99,12 +99,12 @@ getWordsSearchRequest session searchWord =
         requestAuthHeader =
             Http.header "Authorization" jwtToken
     in
-        getWordsSearchBySearchWord [ requestAuthHeader ] searchWord
+        getWordsSearchBySearchWord [ requestAuthHeader ] searchWord searchKeyword
 
 
-getWordsSearchCmd : (Result Error (List Word) -> msg) -> Session -> String -> Cmd msg
-getWordsSearchCmd msgType session searchWord =
-    Http.send msgType (getWordsSearchRequest session searchWord)
+getWordsSearchCmd : (Result Error (List Word) -> msg) -> Session -> String -> String -> Cmd msg
+getWordsSearchCmd msgType session searchWord searchKeyword =
+    Http.send msgType (getWordsSearchRequest session searchWord searchKeyword)
 
 
 getWordByIdRequest : Session -> Int -> Http.Request Word
@@ -122,6 +122,23 @@ getWordByIdRequest session wordId =
             Http.header "Authorization" jwtToken
     in
         getWordsIdByWordId [ requestAuthHeader ] wordId
+
+
+getWordsQuizzRequest : Session -> String -> Http.Request (List Word)
+getWordsQuizzRequest session keyword =
+    let
+        jwtToken =
+            case session.authToken of
+                Just jwtToken ->
+                    (.token jwtToken)
+
+                Nothing ->
+                    ""
+
+        requestAuthHeader =
+            Http.header "Authorization" jwtToken
+    in
+        getWordsQuizz [ requestAuthHeader ] keyword
 
 
 deleteWordByIdRequest : Session -> Int -> Http.Request NoContent

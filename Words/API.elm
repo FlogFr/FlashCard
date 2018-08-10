@@ -266,6 +266,32 @@ getWordsAll headers =
         }
 
 
+getWordsQuizz : List Http.Header -> String -> Http.Request (List Word)
+getWordsQuizz headers keyword =
+    Http.request
+        { method =
+            "GET"
+        , headers =
+            headers
+        , url =
+            String.join "/"
+                [ "http://127.1:8080"
+                , "words"
+                , "quizz"
+                , "keyword"
+                , keyword |> Http.encodeUri
+                ]
+        , body =
+            Http.emptyBody
+        , expect =
+            Http.expectJson (list decodeWord)
+        , timeout =
+            Nothing
+        , withCredentials =
+            False
+        }
+
+
 getWordsKeywords : List Http.Header -> Http.Request (List String)
 getWordsKeywords headers =
     Http.request
@@ -314,29 +340,41 @@ getWordsLast headers =
         }
 
 
-getWordsSearchBySearchWord : List Http.Header -> String -> Http.Request (List Word)
-getWordsSearchBySearchWord headers capture_searchWord =
-    Http.request
-        { method =
-            "GET"
-        , headers =
-            headers
-        , url =
-            String.join "/"
-                [ "http://127.1:8080"
-                , "words"
-                , "search"
-                , capture_searchWord |> Http.encodeUri
-                ]
-        , body =
-            Http.emptyBody
-        , expect =
-            Http.expectJson (list decodeWord)
-        , timeout =
-            Nothing
-        , withCredentials =
-            False
-        }
+getWordsSearchBySearchWord : List Http.Header -> String -> String -> Http.Request (List Word)
+getWordsSearchBySearchWord headers searchWord searchKeyword =
+    let
+        queryParamsStr =
+            case searchKeyword of
+                "--" ->
+                    "word=" ++ searchWord
+
+                keyword ->
+                    "word=" ++ searchWord ++ "&keyword=" ++ keyword
+
+        queryParams =
+            ("?" ++ queryParamsStr)
+    in
+        Http.request
+            { method =
+                "GET"
+            , headers =
+                headers
+            , url =
+                String.join "/"
+                    [ "http://127.1:8080"
+                    , "words"
+                    , "search"
+                    , queryParams
+                    ]
+            , body =
+                Http.emptyBody
+            , expect =
+                Http.expectJson (list decodeWord)
+            , timeout =
+                Nothing
+            , withCredentials =
+                False
+            }
 
 
 getWordsIdByWordId : List Http.Header -> Int -> Http.Request Word
