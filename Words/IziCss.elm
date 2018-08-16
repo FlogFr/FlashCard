@@ -32,7 +32,7 @@ bodyFrame =
         , property "grid-template-columns" "2fr 10fr 2fr"
         , property "grid-template-rows" "1fr auto 100px"
         , property "grid-template-areas" "\"header     header header\"\"leftvoid   main   rightvoid\"\"leftbottom   bottom   rightbottom\""
-        , property "grid-gap" "20px"
+        , property "grid-gap" "0px"
         , backgroundImage (url "/ressources/waterfalls.jpg")
         , property "background-size" "cover"
         ]
@@ -46,6 +46,7 @@ headerFrame =
         , property "grid-template-columns" "2fr 10fr 2fr"
         , property "grid-template-areas" "\"leftheader   centerheader rightheader\""
         , backgroundColor (rgba 0 0 0 0.7)
+        , marginBottom (px 200)
         ]
 
 
@@ -70,6 +71,22 @@ rightHeaderFrame =
         ]
 
 
+leftFrame : Attribute msg
+leftFrame =
+    css
+        [ property "grid-area" "leftvoid"
+        , backgroundColor (rgba 255 255 255 0.9)
+        ]
+
+
+rightFrame : Attribute msg
+rightFrame =
+    css
+        [ property "grid-area" "rightvoid"
+        , backgroundColor (rgba 255 255 255 0.9)
+        ]
+
+
 mainFrame : Attribute msg
 mainFrame =
     css
@@ -78,14 +95,28 @@ mainFrame =
         ]
 
 
+leftBottomFrame : Attribute msg
+leftBottomFrame =
+    css
+        [ property "grid-area" "leftbottom"
+        , backgroundColor Css.Colors.black
+        ]
+
+
 bottomFrame : Attribute msg
 bottomFrame =
-    css [ property "grid-area" "bottom" ]
+    css
+        [ property "grid-area" "bottom"
+        , backgroundColor Css.Colors.black
+        ]
 
 
 rightBottomFrame : Attribute msg
 rightBottomFrame =
-    css [ property "grid-area" "rightbottom" ]
+    css
+        [ property "grid-area" "rightbottom"
+        , backgroundColor Css.Colors.black
+        ]
 
 
 
@@ -791,6 +822,11 @@ iconEdit =
 -- .icon-facebook-squared:before { content: '\f308'; } /* '' */
 -- .icon-linkedin-squared:before { content: '\f30c'; } /* '' */
 {- Design of the components -}
+
+
+whiteColor : Attribute msg
+whiteColor =
+    css [ color Css.Colors.white ]
 
 
 errorStyle : Attribute msg

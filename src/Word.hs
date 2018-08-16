@@ -10,18 +10,33 @@
 module Word
   ( Word(..)
   , WordId
-  , wordConstructor
+  , getAllWords
+  , getQuizzWordsKeyword
+  , getLastWords
+  , getWordsByKeyword
+  , getAllKeywords
+  , getSearchWords
+  , getSearchWordsUser
+  , getSearchKeyword
+  , getSearchWordsKeyword
+  , getWordById
+  , deleteWordById
+  , updateWordById
+  , insertWord
   )
   where
 
-import Prelude hiding (Word)
+import Prelude hiding (Word, id)
 import Database.HDBC
+import Database.YeshQL.HDBC.SqlRow.TH
+import Database.YeshQL.HDBC (yeshFile)
 import Data.ByteString.UTF8 as BUTF8 (toString, fromString)
 import Data.ByteString
 import Data.Convertible.Base
 import Data.Aeson
 import Data.Swagger
 import Data.List
+import User (User(..))
 import GHC.Generics
 import Servant.Elm (ElmType)
 
@@ -31,23 +46,20 @@ type MaybeInt = Maybe Int
 type StringArray = [String]
 
 data Word = Word
-  { wordId          :: WordId
-  , wordLanguage    :: String
-  , wordWord        :: String
-  , wordKeywords    :: StringArray
-  , wordDefinition  :: String
-  , wordDifficulty  :: MaybeInt
+  { id          :: WordId
+  , language    :: String
+  , word        :: String
+  , definition  :: String
+  , keywords    :: StringArray
+  , difficulty  :: MaybeInt
   } deriving (Eq, Generic, Show)
+makeSqlRow ''Word
 
 
 instance ToSchema Word
 instance ToJSON Word
 instance FromJSON Word
 instance ElmType Word
-
-wordConstructor :: (Int, String, String, String, StringArray, Maybe Int) -> Word
-wordConstructor (pWordId, pWordLanguage, pWordWord, pWordDefinition, pWordKeywords, pWordDifficulty) =
-  Word pWordId pWordLanguage pWordWord pWordKeywords pWordDefinition pWordDifficulty
 
 -- Convert From SQL / To SQL
 wordsWhen     :: (Char -> Bool) -> String -> [String]
@@ -80,3 +92,5 @@ instance Convertible SqlValue StringArray where
   safeConvert = Right . byteStringToStringArray . fromSql 
 instance Convertible StringArray SqlValue where
   safeConvert = Right . toSql . stringArrayToByteString
+
+[yeshFile|src/sql/Word.sql|]

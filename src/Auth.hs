@@ -14,6 +14,7 @@
 module Auth where
 
 import Data.ByteString                  (ByteString)
+import Data.Convertible.Base
 import Control.Monad.IO.Class (liftIO)
 import Servant        (throwError)
 import Servant.Server (Context((:.),
@@ -34,9 +35,8 @@ import Database.HDBC.PostgreSQL (withPostgreSQL, begin)
 import Database.HDBC (commit, SqlError, handleSql)
 import Database.YeshQL.HDBC (yeshFile)
 import Data.ByteString.UTF8 (toString)
-import User (User(..))
+import User
 import Word (Word)
-import PostgreSQL
 
 -- | We need to specify the data returned after authentication
 type instance AuthServerData (AuthProtect "jwt-auth") = User
@@ -74,7 +74,7 @@ lookupUserFromJWT jwtHeaderString = do
       (maybeUser) <- verifyJWT (toString jwtHeaderString) conn
       commit conn
       case maybeUser of
-        Just (userId, userName) -> return $ User userId userName
+        Just user -> return $ user
         Nothing -> fail "impossible to find the user"
 
 handleSqlError :: SqlError -> IO (Either SqlError User)
@@ -90,5 +90,5 @@ lookupUserFromJWTE jwtHeaderString = do
       (maybeUser) <- verifyJWT (toString jwtHeaderString) conn
       commit conn
       case maybeUser of
-        Just (userId, userName) -> return $ Right ( User userId userName )
+        Just user -> return $ Right ( user )
         Nothing -> fail "impossible to find the user"

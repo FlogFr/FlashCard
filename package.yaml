@@ -47,7 +47,7 @@ executables:
     main: generateElmAPI.hs
     source-dirs: app
   test-sql:
-    main: testSQLError.hs
+    main: testSQL.hs
     source-dirs: app
 
 tests:

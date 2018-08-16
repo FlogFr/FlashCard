@@ -50,6 +50,7 @@ viewFormUpdateUser newUser toUpdateNewUser toUpdateMsg =
     Html.form [ niceBoxed, onSubmit toUpdateMsg, action "javascript:void(0);" ]
         [ input [ inputCss, onInput (\v -> toUpdateNewUser { newUser | password = v }), placeholder "new password", attribute "type" "password" ] []
         , input [ inputCss, onInput (\v -> toUpdateNewUser { newUser | email = v }), placeholder "new email" ] []
+        , input [ inputCss, onInput (\v -> toUpdateNewUser { newUser | language = v }), placeholder "language to learn (2chars)" ] []
         , btn [ type_ "submit" ] [ text "update password" ]
         ]
 

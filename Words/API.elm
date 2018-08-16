@@ -54,6 +54,8 @@ decodeWord =
 type alias User =
     { userid : Int
     , username : String
+    , email : String
+    , lang : String
     }
 
 
@@ -67,6 +69,7 @@ type alias NewUser =
     { username : String
     , password : String
     , email : String
+    , language : String
     }
 
 
@@ -75,6 +78,8 @@ encodeUser x =
     Json.Encode.object
         [ ( "userid", Json.Encode.int x.userid )
         , ( "username", Json.Encode.string x.username )
+        , ( "email", Json.Encode.string x.email )
+        , ( "lang", Json.Encode.string x.lang )
         ]
 
 
@@ -92,6 +97,8 @@ encodeGrantUser grantUser =
     Json.Encode.object
         [ ( "grantUsername", Json.Encode.string (.username grantUser) )
         , ( "grantPassword", Json.Encode.string (.password grantUser) )
+        , ( "grantEmail", Json.Encode.string (.email grantUser) )
+        , ( "grantLang", Json.Encode.string (.lang grantUser) )
         ]
 
 
@@ -100,6 +107,8 @@ decodeUser =
     decode User
         |> required "userid" int
         |> required "username" string
+        |> required "email" string
+        |> required "lang" string
 
 
 decodeToken : Decoder String

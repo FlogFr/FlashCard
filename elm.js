@@ -21356,9 +21356,9 @@ var _user$project$API$GrantUser = F2(
 	function (a, b) {
 		return {username: a, password: b};
 	});
-var _user$project$API$NewUser = F3(
-	function (a, b, c) {
-		return {username: a, password: b, email: c};
+var _user$project$API$NewUser = F4(
+	function (a, b, c, d) {
+		return {username: a, password: b, email: c, language: d};
 	});
 var _user$project$API$NoContent = {ctor: 'NoContent'};
 var _user$project$API$postNewUser = F2(
@@ -21732,6 +21732,12 @@ var _user$project$IziCss$errorStyle = _rtfeldman$elm_css$Html_Styled_Attributes$
 		_0: _rtfeldman$elm_css$Css$color(_rtfeldman$elm_css$Css_Colors$red),
 		_1: {ctor: '[]'}
 	});
+var _user$project$IziCss$whiteColor = _rtfeldman$elm_css$Html_Styled_Attributes$css(
+	{
+		ctor: '::',
+		_0: _rtfeldman$elm_css$Css$color(_rtfeldman$elm_css$Css_Colors$white),
+		_1: {ctor: '[]'}
+	});
 var _user$project$IziCss$iconEdit = _rtfeldman$elm_css$Html_Styled_Attributes$css(
 	{
 		ctor: '::',
@@ -21784,18 +21790,58 @@ var _user$project$IziCss$rightBottomFrame = _rtfeldman$elm_css$Html_Styled_Attri
 	{
 		ctor: '::',
 		_0: A2(_rtfeldman$elm_css$Css$property, 'grid-area', 'rightbottom'),
-		_1: {ctor: '[]'}
+		_1: {
+			ctor: '::',
+			_0: _rtfeldman$elm_css$Css$backgroundColor(_rtfeldman$elm_css$Css_Colors$black),
+			_1: {ctor: '[]'}
+		}
 	});
 var _user$project$IziCss$bottomFrame = _rtfeldman$elm_css$Html_Styled_Attributes$css(
 	{
 		ctor: '::',
 		_0: A2(_rtfeldman$elm_css$Css$property, 'grid-area', 'bottom'),
-		_1: {ctor: '[]'}
+		_1: {
+			ctor: '::',
+			_0: _rtfeldman$elm_css$Css$backgroundColor(_rtfeldman$elm_css$Css_Colors$black),
+			_1: {ctor: '[]'}
+		}
+	});
+var _user$project$IziCss$leftBottomFrame = _rtfeldman$elm_css$Html_Styled_Attributes$css(
+	{
+		ctor: '::',
+		_0: A2(_rtfeldman$elm_css$Css$property, 'grid-area', 'leftbottom'),
+		_1: {
+			ctor: '::',
+			_0: _rtfeldman$elm_css$Css$backgroundColor(_rtfeldman$elm_css$Css_Colors$black),
+			_1: {ctor: '[]'}
+		}
 	});
 var _user$project$IziCss$mainFrame = _rtfeldman$elm_css$Html_Styled_Attributes$css(
 	{
 		ctor: '::',
 		_0: A2(_rtfeldman$elm_css$Css$property, 'grid-area', 'main'),
+		_1: {
+			ctor: '::',
+			_0: _rtfeldman$elm_css$Css$backgroundColor(
+				A4(_rtfeldman$elm_css$Css$rgba, 255, 255, 255, 0.9)),
+			_1: {ctor: '[]'}
+		}
+	});
+var _user$project$IziCss$rightFrame = _rtfeldman$elm_css$Html_Styled_Attributes$css(
+	{
+		ctor: '::',
+		_0: A2(_rtfeldman$elm_css$Css$property, 'grid-area', 'rightvoid'),
+		_1: {
+			ctor: '::',
+			_0: _rtfeldman$elm_css$Css$backgroundColor(
+				A4(_rtfeldman$elm_css$Css$rgba, 255, 255, 255, 0.9)),
+			_1: {ctor: '[]'}
+		}
+	});
+var _user$project$IziCss$leftFrame = _rtfeldman$elm_css$Html_Styled_Attributes$css(
+	{
+		ctor: '::',
+		_0: A2(_rtfeldman$elm_css$Css$property, 'grid-area', 'leftvoid'),
 		_1: {
 			ctor: '::',
 			_0: _rtfeldman$elm_css$Css$backgroundColor(
@@ -21838,7 +21884,12 @@ var _user$project$IziCss$headerFrame = _rtfeldman$elm_css$Html_Styled_Attributes
 						ctor: '::',
 						_0: _rtfeldman$elm_css$Css$backgroundColor(
 							A4(_rtfeldman$elm_css$Css$rgba, 0, 0, 0, 0.7)),
-						_1: {ctor: '[]'}
+						_1: {
+							ctor: '::',
+							_0: _rtfeldman$elm_css$Css$marginBottom(
+								_rtfeldman$elm_css$Css$px(200)),
+							_1: {ctor: '[]'}
+						}
 					}
 				}
 			}
@@ -21859,7 +21910,7 @@ var _user$project$IziCss$bodyFrame = _rtfeldman$elm_css$Html_Styled_Attributes$c
 					_0: A2(_rtfeldman$elm_css$Css$property, 'grid-template-areas', '\"header     header header\"\"leftvoid   main   rightvoid\"\"leftbottom   bottom   rightbottom\"'),
 					_1: {
 						ctor: '::',
-						_0: A2(_rtfeldman$elm_css$Css$property, 'grid-gap', '20px'),
+						_0: A2(_rtfeldman$elm_css$Css$property, 'grid-gap', '0px'),
 						_1: {
 							ctor: '::',
 							_0: _rtfeldman$elm_css$Css$backgroundImage(
@@ -23125,18 +23176,43 @@ var _user$project$Views_Forms$viewFormUpdateUser = F3(
 					_1: {
 						ctor: '::',
 						_0: A2(
-							_user$project$IziCss$btn,
+							_rtfeldman$elm_css$Html_Styled$input,
 							{
 								ctor: '::',
-								_0: _rtfeldman$elm_css$Html_Styled_Attributes$type_('submit'),
-								_1: {ctor: '[]'}
+								_0: _user$project$IziCss$inputCss,
+								_1: {
+									ctor: '::',
+									_0: _rtfeldman$elm_css$Html_Styled_Events$onInput(
+										function (v) {
+											return toUpdateNewUser(
+												_elm_lang$core$Native_Utils.update(
+													newUser,
+													{language: v}));
+										}),
+									_1: {
+										ctor: '::',
+										_0: _rtfeldman$elm_css$Html_Styled_Attributes$placeholder('language to learn (2chars)'),
+										_1: {ctor: '[]'}
+									}
+								}
 							},
-							{
-								ctor: '::',
-								_0: _rtfeldman$elm_css$Html_Styled$text('update password'),
-								_1: {ctor: '[]'}
-							}),
-						_1: {ctor: '[]'}
+							{ctor: '[]'}),
+						_1: {
+							ctor: '::',
+							_0: A2(
+								_user$project$IziCss$btn,
+								{
+									ctor: '::',
+									_0: _rtfeldman$elm_css$Html_Styled_Attributes$type_('submit'),
+									_1: {ctor: '[]'}
+								},
+								{
+									ctor: '::',
+									_0: _rtfeldman$elm_css$Html_Styled$text('update password'),
+									_1: {ctor: '[]'}
+								}),
+							_1: {ctor: '[]'}
+						}
 					}
 				}
 			});
@@ -24179,7 +24255,7 @@ var _user$project$Page_Register$init = _elm_lang$http$Http$toTask(_user$project$
 var _user$project$Page_Register$initialModel = {
 	errors: {ctor: '[]'},
 	token: '',
-	newUser: A3(_user$project$API$NewUser, '', '', '')
+	newUser: A4(_user$project$API$NewUser, '', '', '', '')
 };
 var _user$project$Page_Register$Model = F3(
 	function (a, b, c) {
@@ -24646,10 +24722,14 @@ var _user$project$Views_Page$viewRightFooter = A2(
 		ctor: '::',
 		_0: A2(
 			_rtfeldman$elm_css$Html_Styled$p,
-			{ctor: '[]'},
 			{
 				ctor: '::',
-				_0: _rtfeldman$elm_css$Html_Styled$text('made with ❤ from ❤ WAW ❤'),
+				_0: _user$project$IziCss$whiteColor,
+				_1: {ctor: '[]'}
+			},
+			{
+				ctor: '::',
+				_0: _rtfeldman$elm_css$Html_Styled$text('made with ❤ from ❤ aRkadeFR ❤'),
 				_1: {ctor: '[]'}
 			}),
 		_1: {ctor: '[]'}
@@ -24665,7 +24745,11 @@ var _user$project$Views_Page$viewFooter = A2(
 		ctor: '::',
 		_0: A2(
 			_rtfeldman$elm_css$Html_Styled$p,
-			{ctor: '[]'},
+			{
+				ctor: '::',
+				_0: _user$project$IziCss$whiteColor,
+				_1: {ctor: '[]'}
+			},
 			{
 				ctor: '::',
 				_0: _rtfeldman$elm_css$Html_Styled$text('Proudly powered by '),
@@ -24748,6 +24832,14 @@ var _user$project$Views_Page$viewFooter = A2(
 			}
 		}
 	});
+var _user$project$Views_Page$viewLeftFooter = A2(
+	_rtfeldman$elm_css$Html_Styled$div,
+	{
+		ctor: '::',
+		_0: _user$project$IziCss$leftBottomFrame,
+		_1: {ctor: '[]'}
+	},
+	{ctor: '[]'});
 var _user$project$Views_Page$viewMessages = function (listMessages) {
 	return A2(
 		_rtfeldman$elm_css$Html_Styled$div,
@@ -24856,25 +24948,51 @@ var _user$project$Views_Page$frame = F3(
 						_rtfeldman$elm_css$Html_Styled$div,
 						{
 							ctor: '::',
-							_0: _user$project$IziCss$mainFrame,
+							_0: _user$project$IziCss$leftFrame,
 							_1: {ctor: '[]'}
 						},
-						{
-							ctor: '::',
-							_0: _user$project$Views_Page$viewMessages(listMessages),
-							_1: {
-								ctor: '::',
-								_0: content,
-								_1: {ctor: '[]'}
-							}
-						}),
+						{ctor: '[]'}),
 					_1: {
 						ctor: '::',
-						_0: _user$project$Views_Page$viewFooter,
+						_0: A2(
+							_rtfeldman$elm_css$Html_Styled$div,
+							{
+								ctor: '::',
+								_0: _user$project$IziCss$mainFrame,
+								_1: {ctor: '[]'}
+							},
+							{
+								ctor: '::',
+								_0: _user$project$Views_Page$viewMessages(listMessages),
+								_1: {
+									ctor: '::',
+									_0: content,
+									_1: {ctor: '[]'}
+								}
+							}),
 						_1: {
 							ctor: '::',
-							_0: _user$project$Views_Page$viewRightFooter,
-							_1: {ctor: '[]'}
+							_0: A2(
+								_rtfeldman$elm_css$Html_Styled$div,
+								{
+									ctor: '::',
+									_0: _user$project$IziCss$rightFrame,
+									_1: {ctor: '[]'}
+								},
+								{ctor: '[]'}),
+							_1: {
+								ctor: '::',
+								_0: _user$project$Views_Page$viewLeftFooter,
+								_1: {
+									ctor: '::',
+									_0: _user$project$Views_Page$viewFooter,
+									_1: {
+										ctor: '::',
+										_0: _user$project$Views_Page$viewRightFooter,
+										_1: {ctor: '[]'}
+									}
+								}
+							}
 						}
 					}
 				}
@@ -24988,7 +25106,7 @@ var _user$project$WordApp$setRoute = F2(
 							{
 								page: _user$project$WordApp$ProfileEdit(
 									{
-										newUser: A3(_user$project$API$NewUser, username, '', '---')
+										newUser: A4(_user$project$API$NewUser, username, '', '---', '')
 									})
 							}),
 						_elm_lang$core$Platform_Cmd$none);
@@ -25663,7 +25781,7 @@ var _user$project$WordApp$main = A2(
 var Elm = {};
 Elm['WordApp'] = Elm['WordApp'] || {};
 if (typeof _user$project$WordApp$main !== 'undefined') {
-    _user$project$WordApp$main(Elm['WordApp'], 'WordApp', {"types":{"unions":{"Dict.LeafColor":{"args":[],"tags":{"LBBlack":[],"LBlack":[]}},"Page.WordDelete.Msg":{"args":[],"tags":{"WordDeleteInitFinished":["Result.Result Http.Error API.NoContent"]}},"Page.ProfileEdit.Msg":{"args":[],"tags":{"TestMsg":[],"UpdateUser":["API.NewUser"],"ToUpdateUser":[],"UpdateUserRequestFinished":["Result.Result Http.Error API.User"]}},"Dict.Dict":{"args":["k","v"],"tags":{"RBNode_elm_builtin":["Dict.NColor","k","v","Dict.Dict k v","Dict.Dict k v"],"RBEmpty_elm_builtin":["Dict.LeafColor"]}},"Route.Route":{"args":[],"tags":{"Home":[],"ProfileEdit":[],"WordEdit":["Int"],"Logout":[],"Register":[],"WordDelete":["Int"],"Quizz":["String"],"Login":[]}},"API.NoContent":{"args":[],"tags":{"NoContent":[]}},"Maybe.Maybe":{"args":["a"],"tags":{"Just":["a"],"Nothing":[]}},"Page.Home.InitModel":{"args":[],"tags":{"InitModel":["List API.Word","List String"]}},"Page.Errored.PageLoadError":{"args":[],"tags":{"PageLoadError":[]}},"Page.Quizz.Msg":{"args":[],"tags":{"QuizzInitFinished":["Result.Result Http.Error (List API.Word)"],"TestMsg":[]}},"Dict.NColor":{"args":[],"tags":{"BBlack":[],"Red":[],"NBlack":[],"Black":[]}},"Page.Home.Msg":{"args":[],"tags":{"HomeAddNewWord":[],"HomeSearchWord":[],"TypeHomeLanguage":["String"],"LastWordsReqCompletedMsg":["Result.Result Http.Error (List API.Word)"],"HomeAddNewWordFinished":["Result.Result Http.Error API.NoContent"],"UpdateSearchKeyword":["String"],"TestMsg":[],"TypeHomeDefinition":["String"],"HomeSearchWordFinished":["Result.Result Http.Error (List API.Word)"],"InitFinished":["Result.Result Page.Errored.PageLoadError Page.Home.InitModel"],"TypeHomeWord":["String"],"UpdateSearchWord":["String"]}},"Page.WordEdit.Msg":{"args":[],"tags":{"UpdateWordRequestFinished":["Result.Result Http.Error API.Word"],"UpdateWordRequest":[],"TestMsg":[],"UpdateWord":["API.Word"],"WordEditInitFinished":["Result.Result Http.Error API.Word"]}},"WordApp.Msg":{"args":[],"tags":{"WordDeleteInitMsg":["Result.Result Http.Error API.NoContent"],"QuizzMsg":["Page.Quizz.Msg"],"LoginMsg":["Page.Login.Msg"],"HomeInit":["Result.Result Page.Errored.PageLoadError Page.Home.InitModel"],"SetRoute":["Maybe.Maybe Route.Route"],"WordEditMsg":["Page.WordEdit.Msg"],"RegisterInit":["Result.Result Http.Error String"],"HomeMsg":["Page.Home.Msg"],"ProfileEditMsg":["Page.ProfileEdit.Msg"],"WordEditInitMsg":["Result.Result Http.Error API.Word"],"QuizzInit":["Result.Result Http.Error (List API.Word)"],"RegisterMsg":["Page.Register.Msg"],"WordDeleteMsg":["Page.WordDelete.Msg"]}},"Page.Register.Msg":{"args":[],"tags":{"Register":[],"UpdateNewUser":["API.NewUser"],"InitFinished":["Result.Result Http.Error String"],"RegisterFinished":["Result.Result Http.Error API.NoContent"]}},"Http.Error":{"args":[],"tags":{"BadUrl":["String"],"NetworkError":[],"Timeout":[],"BadStatus":["Http.Response String"],"BadPayload":["String","Http.Response String"]}},"Result.Result":{"args":["error","value"],"tags":{"Ok":["value"],"Err":["error"]}},"Page.Login.Msg":{"args":[],"tags":{"TypePasswordMsg":["String"],"TypeLoginMsg":["String"],"LoginTryMsg":[],"LoginGrantCompletedMsg":["Result.Result Http.Error API.JWTToken"]}}},"aliases":{"API.User":{"args":[],"type":"{ userid : Int, username : String }"},"Http.Response":{"args":["body"],"type":"{ url : String , status : { code : Int, message : String } , headers : Dict.Dict String String , body : body }"},"API.Word":{"args":[],"type":"{ wordId : Int , wordLanguage : String , wordWord : String , wordKeywords : List String , wordDefinition : String , wordDifficulty : Maybe.Maybe Int }"},"API.JWTToken":{"args":[],"type":"{ token : String }"},"API.NewUser":{"args":[],"type":"{ username : String, password : String, email : String }"}},"message":"WordApp.Msg"},"versions":{"elm":"0.18.0"}});
+    _user$project$WordApp$main(Elm['WordApp'], 'WordApp', {"types":{"unions":{"Dict.LeafColor":{"args":[],"tags":{"LBBlack":[],"LBlack":[]}},"Page.WordDelete.Msg":{"args":[],"tags":{"WordDeleteInitFinished":["Result.Result Http.Error API.NoContent"]}},"Page.ProfileEdit.Msg":{"args":[],"tags":{"TestMsg":[],"UpdateUser":["API.NewUser"],"ToUpdateUser":[],"UpdateUserRequestFinished":["Result.Result Http.Error API.User"]}},"Dict.Dict":{"args":["k","v"],"tags":{"RBNode_elm_builtin":["Dict.NColor","k","v","Dict.Dict k v","Dict.Dict k v"],"RBEmpty_elm_builtin":["Dict.LeafColor"]}},"Route.Route":{"args":[],"tags":{"Home":[],"ProfileEdit":[],"WordEdit":["Int"],"Logout":[],"Register":[],"WordDelete":["Int"],"Quizz":["String"],"Login":[]}},"API.NoContent":{"args":[],"tags":{"NoContent":[]}},"Maybe.Maybe":{"args":["a"],"tags":{"Just":["a"],"Nothing":[]}},"Page.Home.InitModel":{"args":[],"tags":{"InitModel":["List API.Word","List String"]}},"Page.Errored.PageLoadError":{"args":[],"tags":{"PageLoadError":[]}},"Page.Quizz.Msg":{"args":[],"tags":{"QuizzInitFinished":["Result.Result Http.Error (List API.Word)"],"TestMsg":[]}},"Dict.NColor":{"args":[],"tags":{"BBlack":[],"Red":[],"NBlack":[],"Black":[]}},"Page.Home.Msg":{"args":[],"tags":{"HomeAddNewWord":[],"HomeSearchWord":[],"TypeHomeLanguage":["String"],"LastWordsReqCompletedMsg":["Result.Result Http.Error (List API.Word)"],"HomeAddNewWordFinished":["Result.Result Http.Error API.NoContent"],"UpdateSearchKeyword":["String"],"TestMsg":[],"TypeHomeDefinition":["String"],"HomeSearchWordFinished":["Result.Result Http.Error (List API.Word)"],"InitFinished":["Result.Result Page.Errored.PageLoadError Page.Home.InitModel"],"TypeHomeWord":["String"],"UpdateSearchWord":["String"]}},"Page.WordEdit.Msg":{"args":[],"tags":{"UpdateWordRequestFinished":["Result.Result Http.Error API.Word"],"UpdateWordRequest":[],"TestMsg":[],"UpdateWord":["API.Word"],"WordEditInitFinished":["Result.Result Http.Error API.Word"]}},"WordApp.Msg":{"args":[],"tags":{"WordDeleteInitMsg":["Result.Result Http.Error API.NoContent"],"QuizzMsg":["Page.Quizz.Msg"],"LoginMsg":["Page.Login.Msg"],"HomeInit":["Result.Result Page.Errored.PageLoadError Page.Home.InitModel"],"SetRoute":["Maybe.Maybe Route.Route"],"WordEditMsg":["Page.WordEdit.Msg"],"RegisterInit":["Result.Result Http.Error String"],"HomeMsg":["Page.Home.Msg"],"ProfileEditMsg":["Page.ProfileEdit.Msg"],"WordEditInitMsg":["Result.Result Http.Error API.Word"],"QuizzInit":["Result.Result Http.Error (List API.Word)"],"RegisterMsg":["Page.Register.Msg"],"WordDeleteMsg":["Page.WordDelete.Msg"]}},"Page.Register.Msg":{"args":[],"tags":{"Register":[],"UpdateNewUser":["API.NewUser"],"InitFinished":["Result.Result Http.Error String"],"RegisterFinished":["Result.Result Http.Error API.NoContent"]}},"Http.Error":{"args":[],"tags":{"BadUrl":["String"],"NetworkError":[],"Timeout":[],"BadStatus":["Http.Response String"],"BadPayload":["String","Http.Response String"]}},"Result.Result":{"args":["error","value"],"tags":{"Ok":["value"],"Err":["error"]}},"Page.Login.Msg":{"args":[],"tags":{"TypePasswordMsg":["String"],"TypeLoginMsg":["String"],"LoginTryMsg":[],"LoginGrantCompletedMsg":["Result.Result Http.Error API.JWTToken"]}}},"aliases":{"API.User":{"args":[],"type":"{ userid : Int, username : String }"},"Http.Response":{"args":["body"],"type":"{ url : String , status : { code : Int, message : String } , headers : Dict.Dict String String , body : body }"},"API.Word":{"args":[],"type":"{ wordId : Int , wordLanguage : String , wordWord : String , wordKeywords : List String , wordDefinition : String , wordDifficulty : Maybe.Maybe Int }"},"API.JWTToken":{"args":[],"type":"{ token : String }"},"API.NewUser":{"args":[],"type":"{ username : String , password : String , email : String , language : String }"}},"message":"WordApp.Msg"},"versions":{"elm":"0.18.0"}});
 }
 
 if (typeof define === "function" && define['amd'])

@@ -2,7 +2,7 @@
 --
 -- see: https://github.com/sol/hpack
 --
--- hash: 625f7ed19f296b1c10ce1080213c098c7eaa643e9659dac8e79b70062c7a377f
+-- hash: 522ec39336e83a3bb1515c31ac2073b0945c3a985856d3e8562490124384a89f
 
 name:           izidict
 version:        0.1.0.0
@@ -26,8 +26,10 @@ executable backend-exe
   other-modules:
       API
       Auth
+      FullUser
+      GrantUser
       JWTToken
-      PostgreSQL
+      NewUser
       Token
       User
       Word
@@ -69,8 +71,10 @@ executable generate-elm-api
   other-modules:
       API
       Auth
+      FullUser
+      GrantUser
       JWTToken
-      PostgreSQL
+      NewUser
       Token
       User
       Word
@@ -108,12 +112,14 @@ executable generate-elm-api
   default-language: Haskell2010
 
 executable test-sql
-  main-is: testSQLError.hs
+  main-is: testSQL.hs
   other-modules:
       API
       Auth
+      FullUser
+      GrantUser
       JWTToken
-      PostgreSQL
+      NewUser
       Token
       User
       Word
@@ -156,8 +162,10 @@ test-suite spec
   other-modules:
       API
       Auth
+      FullUser
+      GrantUser
       JWTToken
-      PostgreSQL
+      NewUser
       Token
       User
       Word

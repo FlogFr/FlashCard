@@ -30,7 +30,7 @@ initialModel : Model
 initialModel =
     { errors = []
     , token = ""
-    , newUser = NewUser "" "" ""
+    , newUser = NewUser "" "" "" ""
     }
 
 

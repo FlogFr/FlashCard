@@ -15,7 +15,10 @@ frame : Session -> List Message -> Html msg -> Html msg
 frame session listMessages content =
     div [ bodyFrame ]
         [ viewHeader session
+        , div [ leftFrame ] []
         , div [ mainFrame ] [ viewMessages listMessages, content ]
+        , div [ rightFrame ] []
+        , viewLeftFooter
         , viewFooter
         , viewRightFooter
         ]
@@ -42,10 +45,15 @@ viewMessages listMessages =
         ]
 
 
+viewLeftFooter : Html msg
+viewLeftFooter =
+    div [ leftBottomFrame ] []
+
+
 viewFooter : Html msg
 viewFooter =
     div [ bottomFrame ]
-        [ p [] [ text "Proudly powered by " ]
+        [ p [ whiteColor ] [ text "Proudly powered by " ]
         , img [ bottomLogo, src "/ressources/haskell-logo.png" ] []
         , img [ bottomLogo, src "/ressources/servant-logo.png" ] []
         , img [ bottomLogo, src "/ressources/postgresql-logo.png" ] []
@@ -57,7 +65,7 @@ viewFooter =
 viewRightFooter : Html msg
 viewRightFooter =
     div [ rightBottomFrame ]
-        [ p [] [ text "made with ❤ from ❤ WAW ❤" ] ]
+        [ p [ whiteColor ] [ text "made with ❤ from ❤ aRkadeFR ❤" ] ]
 
 
 viewNav : Session -> Html msg

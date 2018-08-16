@@ -1,18 +1,11 @@
 {-# LANGUAGE QuasiQuotes, DataKinds, DeriveGeneric, DeriveDataTypeable, FlexibleInstances, TypeOperators, TemplateHaskell, MultiParamTypeClasses #-}
 
-module User
-  ( User(..)
-  , getNewToken
-  , verifyToken
-  , getSessionJWT
-  , verifyJWT
-  , updatePassword
-  , getUser
-  , getUserById
+module GrantUser
+  ( GrantUser(..)
   )
   where
 
-import Data.Swagger (ToSchema)
+import Data.Swagger
 import Data.Aeson
 import Data.Typeable
 import Data.Convertible
@@ -23,17 +16,12 @@ import Database.YeshQL.HDBC (yeshFile)
 import GHC.Generics
 import Servant.Elm (ElmType)
 
-data User = User
-  { userid    :: Int
-  , username  :: String
-  , email     :: String
-  , lang      :: String
+data GrantUser = GrantUser
+  { username :: String
+  , password :: String
   } deriving (Eq, Generic, Show)
-makeSqlRow ''User
 
-instance ToSchema User
-instance ToJSON User
-instance FromJSON User
-instance ElmType User
-
-[yeshFile|src/sql/User.sql|]
+instance ToSchema GrantUser
+instance ToJSON GrantUser
+instance FromJSON GrantUser
+instance ElmType GrantUser

@@ -27,6 +27,7 @@ import Prelude hiding (Word, words)
 import Data.Pool
 import Data.Aeson
 import Data.Swagger
+import Data.Convertible.Base
 import GHC.Generics
 import Control.Lens
 import Control.Monad.IO.Class (liftIO)
@@ -42,11 +43,13 @@ import Servant
 import Servant.Server
 import Servant.Swagger
 import Servant.Swagger.UI
-import PostgreSQL
-import Word (Word(..), WordId, wordConstructor)
-import User (User(..), GrantUser(..), NewUser(..), userConstructor)
-import Token (Token(..))
-import JWTToken (JWTToken(..))
+import User
+import GrantUser
+import NewUser
+import FullUser
+import Word
+import Token
+import JWTToken
 import Auth
 
 
@@ -84,7 +87,7 @@ pgCreateUser uuid newUser conn = do
 
 pgGrantUserJWTToken :: GrantUser -> Connection -> IO JWTToken
 pgGrantUserJWTToken grantUser conn = do
-  maybeJWTToken <- getSessionJWT (grantUsername grantUser) (grantPassword grantUser) conn
+  maybeJWTToken <- getSessionJWT (GrantUser.username grantUser) (GrantUser.password grantUser) conn
   case maybeJWTToken of
     Just jwtToken ->
       return $ JWTToken jwtToken
@@ -130,7 +133,7 @@ authServer conns = newToken
 
 -- | API for the users
 type UserAPI = Get '[JSON] User
-          :<|> ReqBody '[JSON] GrantUser :> Put '[JSON] User
+          :<|> ReqBody '[JSON] FullUser :> Put '[JSON] User
 
 userServer :: User -> Pool Connection -> Server UserAPI
 userServer user conns = retrieveUser
@@ -139,48 +142,32 @@ userServer user conns = retrieveUser
   where retrieveUser :: Handler User
         retrieveUser = return user
 
-        putUser :: GrantUser -> Handler User
-        putUser grantUser = do
+        putUser :: FullUser -> Handler User
+        putUser fullUser = do
           liftIO $ 
             withResource conns $ \conn -> do
               withTransaction conn $ \conn -> do
-                listNewUserRows <- updateUser user (grantPassword grantUser) conn
-                return $ (map userConstructor listNewUserRows)!!0
+                maybeUser <- updateFullUser user fullUser conn
+                case maybeUser of
+                  Just user -> return $ user
+                  Nothing -> fail "cant find the user to update"
 
 -- Helpers for the word API
-pgRetrieveAllWords :: User -> Connection -> IO [Word]
-pgRetrieveAllWords user conn = do
-  listWords <- getAllWords user conn
-  return $ map wordConstructor listWords
-
-pgRetrieveLastWords :: User -> Connection -> IO [Word]
-pgRetrieveLastWords user conn = do
-  listWords <- getLastWords user conn
-  return $ map wordConstructor listWords
-
 pgRetrieveSearchWords :: User -> Maybe String -> Maybe String -> Connection -> IO [Word]
 pgRetrieveSearchWords user maybeSearchWord maybeSearchKeyword conn = do
   case (maybeSearchWord, maybeSearchKeyword) of
     (Just searchWord, Just searchKeyword) -> do
       listWords <- getSearchWordsKeyword user searchWord searchKeyword conn
-      return $ map wordConstructor listWords
+      return $ listWords
     (Just searchWord, Nothing) -> do
       listWords <- getSearchWords user searchWord conn
-      return $ map wordConstructor listWords
+      return $ listWords
     (Nothing, Just searchKeyword) -> do
       listWords <- getSearchKeyword user searchKeyword conn
-      return $ map wordConstructor listWords
+      return $ listWords
     (Nothing, Nothing) -> do
       listWords <- getSearchWordsUser user conn
-      return $ map wordConstructor listWords
-
-pgRetrieveWordById :: User -> WordId -> Connection -> IO Word
-pgRetrieveWordById user wordId conn = do
-  listWords <- getWordById user wordId conn
-  return $ (map wordConstructor listWords)!!0
-
-pgUpdateWordById :: User -> WordId -> Word -> Connection -> IO (Maybe Integer)
-pgUpdateWordById user wordId word conn = updateWordById user wordId word conn
+      return $ listWords
 
 -- | API for the words
 type WordAPI = "all" :> Get '[JSON] [Word]
@@ -209,7 +196,7 @@ wordServer user conns = retrieveAllWords
           liftIO $ 
             withResource conns $ \conn -> do
               withTransaction conn $ \conn -> do
-                words <- pgRetrieveAllWords user conn
+                words <- getAllWords user conn
                 return words
 
         retrieveLastWords :: Handler [Word]
@@ -217,7 +204,7 @@ wordServer user conns = retrieveAllWords
           liftIO $ 
             withResource conns $ \conn -> do
               withTransaction conn $ \conn -> do
-                words <- pgRetrieveLastWords user conn
+                words <- getLastWords user conn
                 return words
 
         quizzWordsByKeyword :: String -> Handler [Word]
@@ -226,7 +213,7 @@ wordServer user conns = retrieveAllWords
             withResource conns $ \conn -> do
               withTransaction conn $ \conn -> do
                 listWords <- getQuizzWordsKeyword user keyword conn
-                return $ map wordConstructor listWords
+                return $ listWords
 
         retrieveSearchWords :: Maybe String -> Maybe String -> Handler [Word]
         retrieveSearchWords maybeSearchWord maybeSearchKeyword = do
@@ -241,8 +228,10 @@ wordServer user conns = retrieveAllWords
           liftIO $ 
             withResource conns $ \conn -> do
               withTransaction conn $ \conn -> do
-                words <- pgRetrieveWordById user wordId conn
-                return words
+                maybeWord <- getWordById user wordId conn
+                case maybeWord of
+                  Just word -> return word
+                  Nothing -> fail "impossible to find the word"
 
         deleteWordByIdHandler :: WordId -> Handler NoContent
         deleteWordByIdHandler wordId = do
@@ -258,15 +247,17 @@ wordServer user conns = retrieveAllWords
           liftIO $ 
             withResource conns $ \conn -> do
               withTransaction conn $ \conn -> do
-                words <- pgUpdateWordById user wordId word conn
-                return word
+                maybeWord <- updateWordById user wordId word conn
+                case maybeWord of
+                  Just word -> return word
+                  Nothing -> fail "impossible to find the word"
 
         postWord :: Word -> Handler NoContent
-        postWord word = do
+        postWord newWord = do
           liftIO $
             withResource conns $ \conn -> do
               withTransaction conn $ \conn -> do
-                insertWord user (wordLanguage word) (wordWord word) (wordDefinition word) conn
+                insertWord user newWord conn
                 return ()
           return NoContent
 

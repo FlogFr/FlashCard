@@ -355,7 +355,7 @@ setRoute maybeRoute model =
                         Nothing ->
                             ""
             in
-                { model | page = ProfileEdit { newUser = (NewUser username "" "---") } }
+                { model | page = ProfileEdit { newUser = (NewUser username "" "---" "") } }
                     => Cmd.none
 
         Just (Route.Logout) ->
