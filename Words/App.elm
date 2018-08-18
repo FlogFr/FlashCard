@@ -192,7 +192,8 @@ updatePage page msg model =
                             => Cmd.map RegisterMsg pageMsg
 
                     Register.GoLogin ->
-                        setRoute (Just Route.Login) model
+                        { model | page = Login Login.initialModel }
+                            => Route.modifyUrl Route.Login
 
         ( ProfileEdit subModel, ProfileEditMsg subMsg ) ->
             let

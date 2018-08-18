@@ -19,41 +19,50 @@ encodeJWTToken x =
 
 
 type alias Word =
-    { wordId : Int
-    , wordLanguage : String
-    , wordWord : String
-    , wordKeywords : List String
-    , wordDefinition : String
-    , wordDifficulty : Maybe Int
+    { id : Int
+    , language : String
+    , word : String
+    , keywords : List String
+    , definition : String
+    , difficulty : Maybe Int
     }
 
 
 encodeWord : Word -> Json.Encode.Value
 encodeWord x =
     Json.Encode.object
-        [ ( "wordId", Json.Encode.int x.wordId )
-        , ( "wordLanguage", Json.Encode.string x.wordLanguage )
-        , ( "wordWord", Json.Encode.string x.wordWord )
-        , ( "wordKeywords", (Json.Encode.list << List.map Json.Encode.string) x.wordKeywords )
-        , ( "wordDefinition", Json.Encode.string x.wordDefinition )
-        , ( "wordDifficulty", (Maybe.withDefault Json.Encode.null << Maybe.map Json.Encode.int) x.wordDifficulty )
+        [ ( "id", Json.Encode.int x.id )
+        , ( "language", Json.Encode.string x.language )
+        , ( "word", Json.Encode.string x.word )
+        , ( "keywords", (Json.Encode.list << List.map Json.Encode.string) x.keywords )
+        , ( "definition", Json.Encode.string x.definition )
+        , ( "difficulty", (Maybe.withDefault Json.Encode.null << Maybe.map Json.Encode.int) x.difficulty )
         ]
 
 
 decodeWord : Decoder Word
 decodeWord =
     decode Word
-        |> required "wordId" int
-        |> required "wordLanguage" string
-        |> required "wordWord" string
-        |> required "wordKeywords" (list string)
-        |> required "wordDefinition" string
-        |> required "wordDifficulty" (maybe int)
+        |> required "id" int
+        |> required "language" string
+        |> required "word" string
+        |> required "keywords" (list string)
+        |> required "definition" string
+        |> required "difficulty" (maybe int)
 
 
 type alias User =
     { userid : Int
     , username : String
+    , email : String
+    , lang : String
+    }
+
+
+type alias FullUser =
+    { userid : Int
+    , username : String
+    , password : String
     , email : String
     , lang : String
     }
@@ -76,8 +85,19 @@ type alias NewUser =
 encodeUser : User -> Json.Encode.Value
 encodeUser x =
     Json.Encode.object
-        [ ( "userid", Json.Encode.int x.userid )
+        [ ( "id", Json.Encode.int x.userid )
         , ( "username", Json.Encode.string x.username )
+        , ( "email", Json.Encode.string x.email )
+        , ( "lang", Json.Encode.string x.lang )
+        ]
+
+
+encodeFullUser : FullUser -> Json.Encode.Value
+encodeFullUser x =
+    Json.Encode.object
+        [ ( "id", Json.Encode.int x.userid )
+        , ( "username", Json.Encode.string x.username )
+        , ( "passpass", Json.Encode.string x.password )
         , ( "email", Json.Encode.string x.email )
         , ( "lang", Json.Encode.string x.lang )
         ]
@@ -86,26 +106,25 @@ encodeUser x =
 encodeNewUser : NewUser -> Json.Encode.Value
 encodeNewUser newUser =
     Json.Encode.object
-        [ ( "newUsername", Json.Encode.string (.username newUser) )
-        , ( "newPassword", Json.Encode.string (.password newUser) )
-        , ( "newEmail", Json.Encode.string (.email newUser) )
+        [ ( "username", Json.Encode.string (.username newUser) )
+        , ( "password", Json.Encode.string (.password newUser) )
+        , ( "email", Json.Encode.string (.email newUser) )
+        , ( "lang", Json.Encode.string (.language newUser) )
         ]
 
 
 encodeGrantUser : GrantUser -> Json.Encode.Value
 encodeGrantUser grantUser =
     Json.Encode.object
-        [ ( "grantUsername", Json.Encode.string (.username grantUser) )
-        , ( "grantPassword", Json.Encode.string (.password grantUser) )
-        , ( "grantEmail", Json.Encode.string (.email grantUser) )
-        , ( "grantLang", Json.Encode.string (.lang grantUser) )
+        [ ( "username", Json.Encode.string (.username grantUser) )
+        , ( "password", Json.Encode.string (.password grantUser) )
         ]
 
 
 decodeUser : Decoder User
 decodeUser =
     decode User
-        |> required "userid" int
+        |> required "id" int
         |> required "username" string
         |> required "email" string
         |> required "lang" string
@@ -228,8 +247,8 @@ getUser headers =
         }
 
 
-updateUser : List Http.Header -> GrantUser -> Http.Request User
-updateUser headers grantUser =
+updateUser : List Http.Header -> FullUser -> Http.Request User
+updateUser headers fullUser =
     Http.request
         { method =
             "PUT"
@@ -241,7 +260,7 @@ updateUser headers grantUser =
                 , "user"
                 ]
         , body =
-            Http.jsonBody (encodeGrantUser grantUser)
+            Http.jsonBody (encodeFullUser fullUser)
         , expect =
             Http.expectJson decodeUser
         , timeout =

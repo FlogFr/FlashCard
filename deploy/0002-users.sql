@@ -7,7 +7,7 @@ BEGIN;
   
   CREATE TABLE IF NOT EXISTS users (
            "id" BIGINT NOT NULL PRIMARY KEY DEFAULT nextval('users_id_seq'),
-     "username" TEXT NOT NULL UNIQUE,
+     "username" TEXT NOT NULL,
         "email" TEXT NULL,
          "lang" CHAR(2) NOT NULL,
      "passpass" TEXT NOT NULL
@@ -15,9 +15,9 @@ BEGIN;
   
   ALTER SEQUENCE users_id_seq OWNED BY users.id;
 
-  ALTER TABLE users ADD CONSTRAINT users_unique UNIQUE (username);
+  CREATE UNIQUE INDEX users_username_index on users (lower(username));
 
-  ALTER TABLE users ADD CONSTRAINT users_unique UNIQUE (username);
+  ALTER TABLE users ADD CONSTRAINT users_username_check CHECK (username <> ''::text);
 
   ALTER TABLE words ADD COLUMN userid BIGINT NOT NULL;
 
@@ -27,7 +27,11 @@ BEGIN;
 	RETURNS trigger
 	AS $$
 	BEGIN
-		NEW.passpass := crypt(NEW.passpass, gen_salt('bf', 8));
+    IF TG_OP = 'INSERT' OR (OLD.passpass != NEW.passpass) THEN
+      -- Insert new user or Update password of the user, please encrypt it
+      NEW.passpass := crypt(NEW.passpass, gen_salt('bf', 8));
+    END IF;
+
 		RETURN NEW;
 	END
 	$$ LANGUAGE plpgsql;

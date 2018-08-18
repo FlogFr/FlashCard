@@ -11,13 +11,13 @@ import Maybe as Maybe
 viewWordTr : Word -> Html msg
 viewWordTr word =
     tr []
-        [ td [ tdBorder ] [ text (.wordLanguage word) ]
-        , td [ tdBorder ] [ text (.wordWord word) ]
-        , td [ tdBorder ] [ text (.wordDefinition word) ]
-        , td [ tdBorder ] [ text (String.concat (List.intersperse ", " (.wordKeywords word))) ]
+        [ td [ tdBorder ] [ text (.language word) ]
+        , td [ tdBorder ] [ text (.word word) ]
+        , td [ tdBorder ] [ text (.definition word) ]
+        , td [ tdBorder ] [ text (String.concat (List.intersperse ", " (.keywords word))) ]
         , td [ tdBorder ]
-            [ a [ href (WordEdit (.wordId word)) ] [ text "edit" ]
-            , a [ href (WordDelete (.wordId word)) ] [ text "delete" ]
+            [ a [ href (WordEdit (.id word)) ] [ text "edit" ]
+            , a [ href (WordDelete (.id word)) ] [ text "delete" ]
             ]
         ]
 
@@ -43,15 +43,15 @@ viewWordCard : Word -> Html msg
 viewWordCard word =
     div [ wordCardCss ]
         [ div [ captionWordCss ]
-            [ h1 [ captionWordH1Css ] [ text (.wordWord word) ]
+            [ h1 [ captionWordH1Css ] [ text (.word word) ]
             , p [ captionWordLanguageCss ]
-                [ a [ iconWindowClose, href (WordDelete (.wordId word)) ] [ text " " ]
-                , a [ iconEdit, href (WordEdit (.wordId word)) ] [ text " " ]
-                , text (.wordLanguage word)
+                [ a [ iconWindowClose, href (WordDelete (.id word)) ] [ text " " ]
+                , a [ iconEdit, href (WordEdit (.id word)) ] [ text " " ]
+                , text (.language word)
                 ]
             ]
         , div []
-            [ p [] [ text (.wordDefinition word) ]
+            [ p [] [ text (.definition word) ]
             ]
         ]
 

@@ -12,7 +12,6 @@ import Data.Convertible
 import Database.HDBC
 import Database.YeshQL.HDBC.SqlRow.Class
 import Database.YeshQL.HDBC.SqlRow.TH
-import Database.YeshQL.HDBC (yeshFile)
 import GHC.Generics
 import Servant.Elm (ElmType)
 

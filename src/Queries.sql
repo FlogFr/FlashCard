@@ -1,3 +1,103 @@
+-- name:updateFullUser :: User
+-- :user      :: User
+-- :fullUser  :: FullUser
+UPDATE
+  users
+SET
+    email    = :fullUser.fullUserEmail
+  , lang     = :fullUser.fullUserLang
+WHERE
+    users.id = :user.userId
+RETURNING
+    id
+  , username
+  , email
+  , lang
+;;;
+-- name:insertUser :: (String, String)
+-- :user :: NewUser
+INSERT INTO
+  users
+  (username, passpass, email, lang)
+VALUES
+  (:user.newuserUsername, :user.newuserPassword, :user.newuserEmail, :user.newuserLang)
+RETURNING
+    id
+  , username
+;;;
+-- name:getNewToken :: (String)
+INSERT INTO
+  token
+  (token)
+VALUES
+  (uuid_generate_v4())
+RETURNING
+  token
+;;;
+-- name:verifyToken :: (Bool)
+-- :uuid :: String
+SELECT
+  created_at > (now() - INTERVAL '5 minutes')
+FROM
+  token
+WHERE
+  token = :uuid
+;;;
+-- name:getSessionJWT :: (String)
+-- :username :: String
+-- :pass :: String
+SELECT auth_login(:username, :pass)
+;;;
+-- name:verifyJWT :: User
+-- :jwt :: String
+WITH user_id AS (
+  SELECT auth_jwt_decode(:jwt) AS user_id
+)
+SELECT 
+    id
+  , username
+  , email
+  , lang
+FROM
+  users
+  JOIN user_id
+  ON users.id = user_id.user_id
+;;;
+-- name:updatePassword :: User
+-- :user      :: User
+-- :password  :: String
+UPDATE
+  users
+SET
+    passpass = :password
+WHERE
+    users.id = :user.userId
+RETURNING
+    id
+  , username
+  , email
+  , lang
+;;;
+-- name:getUser :: (Int, String)
+-- :userName :: String
+-- :userPassword :: String
+SELECT
+  id, username
+FROM
+  users
+WHERE
+      username = :userName
+  AND passpass = crypt(:userPassword, passpass)
+;;;
+-- name:getUserById :: (Int, String)
+-- :userName :: String
+SELECT
+  id, username
+FROM
+  users
+WHERE
+  username = :userName
+;;;
 -- name:getAllWords :: [Word]
 -- :user :: User
 SELECT
@@ -5,7 +105,7 @@ SELECT
 FROM
   words
 WHERE
-  userid = :user.userid
+  userid = :user.userId
 ;;;
 -- name:getQuizzWordsKeyword :: [Word]
 -- :user :: User
@@ -15,7 +115,7 @@ SELECT
 FROM
   words
 WHERE
-  userid = :user.userid AND
+  userid = :user.userId AND
   :keyword = ANY (keywords)
 ORDER BY
   RANDOM ()
@@ -29,7 +129,7 @@ SELECT
 FROM
   words
 WHERE
-  userid = :user.userid
+  userid = :user.userId
 ORDER BY
   inserted_at DESC
 LIMIT 20
@@ -42,7 +142,7 @@ SELECT
 FROM
   words
 WHERE
-  userid = :user.userid AND
+  userid = :user.userId AND
   :keyword = ANY ( keywords )
 LIMIT 20
 ;;;
@@ -53,7 +153,7 @@ SELECT
 FROM
   words
 WHERE
-  userid = :user.userid
+  userid = :user.userId
 ;;;
 -- name:getSearchWords :: [Word]
 -- :user :: User
@@ -63,7 +163,7 @@ SELECT
 FROM
   words
 WHERE
-  userid = :user.userid AND
+  userid = :user.userId AND
   word LIKE '%' || :searchWord || '%'
 LIMIT
   20
@@ -75,7 +175,7 @@ SELECT
 FROM
   words
 WHERE
-  userid = :user.userid
+  userid = :user.userId
 ORDER BY
   id DESC
 LIMIT
@@ -89,7 +189,7 @@ SELECT
 FROM
   words
 WHERE
-  userid = :user.userid AND
+  userid = :user.userId AND
   :keyword = ANY (keywords)
 LIMIT
   20
@@ -103,7 +203,7 @@ SELECT
 FROM
   words
 WHERE
-  userid = :user.userid AND
+  userid = :user.userId AND
   word LIKE '%' || :searchWord || '%' AND
   :keyword = ANY (keywords)
 LIMIT
@@ -118,7 +218,7 @@ FROM
   words
 WHERE
           id = :wordId
-  AND userid = :user.userid
+  AND userid = :user.userId
 ;;;
 -- name:updateWordById :: Word
 -- :user :: User
@@ -134,7 +234,7 @@ SET
   , "difficulty" = :newWord.difficulty
 WHERE
       "id"     = :wordId
-  AND "userid" = :user.userid
+  AND "userid" = :user.userId
 RETURNING
     "id"
   , "language"
@@ -150,7 +250,7 @@ INSERT INTO
   words
   (userid, language, word, keywords, definition)
 VALUES
-  (:user.userid, :newWord.language, :newWord.word, :newWord.keywords, :newWord.definition)
+  (:user.userId, :newWord.language, :newWord.word, :newWord.keywords, :newWord.definition)
 ;;;
 -- name:deleteWordById :: (Integer)
 -- :user :: User
@@ -160,5 +260,5 @@ FROM
   words
 WHERE
           id = :wordId
-  AND userid = :user.(Word.userid)
+  AND userid = :user.userId
 ;;;;

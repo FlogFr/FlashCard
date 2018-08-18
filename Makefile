@@ -1,7 +1,11 @@
 POSIXCUBE_BIN ?= ~/Projects/posixcube/posixcube.sh
 
+.PHONY: clean
+clean:
+	stack clean
+
 .PHONY: deb
-deb:
+deb: build-elm
 	dpkg-buildpackage -us -uc
 
 .PHONY: build

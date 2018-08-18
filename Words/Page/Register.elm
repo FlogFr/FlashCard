@@ -59,6 +59,7 @@ view : Model -> Html Msg
 view model =
     div []
         [ viewErrorsDiv model.errors
+        , h1 [] [ text "Register:" ]
         , viewFormRegister model.newUser UpdateNewUser Register
         ]
 

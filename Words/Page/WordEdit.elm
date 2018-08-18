@@ -59,7 +59,7 @@ view model =
 
         Just word ->
             div []
-                [ p [] [ text ("Word #" ++ toString (.wordId word)) ]
+                [ p [] [ text ("Word #" ++ toString (.id word)) ]
                 , viewWordForm word UpdateWord UpdateWordRequest
                 ]
 

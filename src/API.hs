@@ -51,6 +51,7 @@ import Word
 import Token
 import JWTToken
 import Auth
+import SQL
 
 
 mkError :: ServantErr -> String -> ServantErr

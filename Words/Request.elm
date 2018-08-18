@@ -34,8 +34,8 @@ getUserCmd msgType session =
     Http.send msgType (getUserRequest session)
 
 
-updateUserRequest : Session -> GrantUser -> Http.Request User
-updateUserRequest session grantUser =
+updateUserRequest : Session -> FullUser -> Http.Request User
+updateUserRequest session user =
     let
         jwtToken =
             case session.authToken of
@@ -48,7 +48,7 @@ updateUserRequest session grantUser =
         requestAuthHeader =
             Http.header "Authorization" jwtToken
     in
-        updateUser [ requestAuthHeader ] grantUser
+        updateUser [ requestAuthHeader ] user
 
 
 getWordsKeywordsRequest : Session -> Http.Request (List String)
@@ -177,7 +177,7 @@ putWordsIdByWordIdRequest session word =
         requestAuthHeader =
             Http.header "Authorization" jwtToken
     in
-        putWordsIdByWordId [ requestAuthHeader ] (.wordId word) word
+        putWordsIdByWordId [ requestAuthHeader ] (.id word) word
 
 
 putWordsIdByWordIdCmd : (Result Error Word -> msg) -> Session -> Word -> Cmd msg

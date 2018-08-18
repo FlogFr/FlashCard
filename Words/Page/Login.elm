@@ -51,6 +51,8 @@ view : Model -> Html Msg
 view model =
     div []
         [ viewErrorsList (.errors model)
+        , h1 [] [ text "Please login" ]
+        , p [] [ a [ Route.href Route.Register ] [ text "or register" ] ]
         , viewFormLogin LoginTryMsg TypeLoginMsg TypePasswordMsg
         ]
 

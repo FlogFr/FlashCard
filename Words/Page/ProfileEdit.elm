@@ -77,7 +77,7 @@ update session msg model =
                     (.language model.newUser)
             in
                 model
-                    => Http.send UpdateUserRequestFinished (updateUserRequest session (GrantUser username password email lang))
+                    => Http.send UpdateUserRequestFinished (updateUserRequest session (FullUser 0 username password email lang))
                     => NoOp
 
         UpdateUserRequestFinished (Ok user) ->

@@ -1,8 +1,10 @@
-{-# LANGUAGE QuasiQuotes, DataKinds, DeriveGeneric, DeriveDataTypeable, FlexibleInstances, TypeOperators, TemplateHaskell, MultiParamTypeClasses #-}
+{-# LANGUAGE QuasiQuotes, DataKinds, DeriveGeneric, DeriveDataTypeable, FlexibleInstances, TypeOperators, TemplateHaskell, MultiParamTypeClasses, NoImplicitPrelude #-}
 
 module FullUser
   ( FullUser(..)
-  , updateFullUser
+  , fullUserId
+  , fullUserEmail
+  , fullUserLang
   )
   where
 
@@ -10,16 +12,19 @@ import Data.Swagger (ToSchema)
 import Data.Aeson
 import Data.Typeable
 import Data.Convertible
+import Data.Int
+import Data.Eq
+import Data.String
+import Text.Show
 import Database.HDBC
-import Database.YeshQL.HDBC (yeshFile)
 import Database.YeshQL.HDBC.SqlRow.Class
 import Database.YeshQL.HDBC.SqlRow.TH
 import GHC.Generics
+import Prelude (Integer, Bool)
 import Servant.Elm (ElmType)
-import User
 
 data FullUser = FullUser
-  { userid    :: Int
+  { id        :: Int
   , username  :: String
   , passpass  :: String
   , email     :: String
@@ -27,9 +32,16 @@ data FullUser = FullUser
   } deriving (Eq, Generic, Show)
 makeSqlRow ''FullUser
 
+fullUserId :: FullUser -> Int
+fullUserId = id
+
+fullUserEmail :: FullUser -> String
+fullUserEmail = email
+
+fullUserLang :: FullUser -> String
+fullUserLang = lang
+
 instance ToSchema FullUser
 instance ToJSON FullUser
 instance FromJSON FullUser
 instance ElmType FullUser
-
-[yeshFile|src/sql/FullUser.sql|]

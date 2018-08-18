@@ -2,7 +2,7 @@
 --
 -- see: https://github.com/sol/hpack
 --
--- hash: 522ec39336e83a3bb1515c31ac2073b0945c3a985856d3e8562490124384a89f
+-- hash: dc6dea9997e09c488ae92eabd85b58afe72d4a4480581825f9699e3f6104e491
 
 name:           izidict
 version:        0.1.0.0
@@ -30,6 +30,7 @@ executable backend-exe
       GrantUser
       JWTToken
       NewUser
+      SQL
       Token
       User
       Word
@@ -75,6 +76,7 @@ executable generate-elm-api
       GrantUser
       JWTToken
       NewUser
+      SQL
       Token
       User
       Word
@@ -120,6 +122,7 @@ executable test-sql
       GrantUser
       JWTToken
       NewUser
+      SQL
       Token
       User
       Word
@@ -166,6 +169,7 @@ test-suite spec
       GrantUser
       JWTToken
       NewUser
+      SQL
       Token
       User
       Word

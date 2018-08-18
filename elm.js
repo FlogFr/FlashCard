@@ -20869,7 +20869,7 @@ var _user$project$API$encodeGrantUser = function (grantUser) {
 			ctor: '::',
 			_0: {
 				ctor: '_Tuple2',
-				_0: 'grantUsername',
+				_0: 'username',
 				_1: _elm_lang$core$Json_Encode$string(
 					function (_) {
 						return _.username;
@@ -20879,7 +20879,7 @@ var _user$project$API$encodeGrantUser = function (grantUser) {
 				ctor: '::',
 				_0: {
 					ctor: '_Tuple2',
-					_0: 'grantPassword',
+					_0: 'password',
 					_1: _elm_lang$core$Json_Encode$string(
 						function (_) {
 							return _.password;
@@ -20895,7 +20895,7 @@ var _user$project$API$encodeNewUser = function (newUser) {
 			ctor: '::',
 			_0: {
 				ctor: '_Tuple2',
-				_0: 'newUsername',
+				_0: 'username',
 				_1: _elm_lang$core$Json_Encode$string(
 					function (_) {
 						return _.username;
@@ -20905,7 +20905,7 @@ var _user$project$API$encodeNewUser = function (newUser) {
 				ctor: '::',
 				_0: {
 					ctor: '_Tuple2',
-					_0: 'newPassword',
+					_0: 'password',
 					_1: _elm_lang$core$Json_Encode$string(
 						function (_) {
 							return _.password;
@@ -20915,13 +20915,68 @@ var _user$project$API$encodeNewUser = function (newUser) {
 					ctor: '::',
 					_0: {
 						ctor: '_Tuple2',
-						_0: 'newEmail',
+						_0: 'email',
 						_1: _elm_lang$core$Json_Encode$string(
 							function (_) {
 								return _.email;
 							}(newUser))
 					},
-					_1: {ctor: '[]'}
+					_1: {
+						ctor: '::',
+						_0: {
+							ctor: '_Tuple2',
+							_0: 'lang',
+							_1: _elm_lang$core$Json_Encode$string(
+								function (_) {
+									return _.language;
+								}(newUser))
+						},
+						_1: {ctor: '[]'}
+					}
+				}
+			}
+		});
+};
+var _user$project$API$encodeFullUser = function (x) {
+	return _elm_lang$core$Json_Encode$object(
+		{
+			ctor: '::',
+			_0: {
+				ctor: '_Tuple2',
+				_0: 'id',
+				_1: _elm_lang$core$Json_Encode$int(x.userid)
+			},
+			_1: {
+				ctor: '::',
+				_0: {
+					ctor: '_Tuple2',
+					_0: 'username',
+					_1: _elm_lang$core$Json_Encode$string(x.username)
+				},
+				_1: {
+					ctor: '::',
+					_0: {
+						ctor: '_Tuple2',
+						_0: 'passpass',
+						_1: _elm_lang$core$Json_Encode$string(x.password)
+					},
+					_1: {
+						ctor: '::',
+						_0: {
+							ctor: '_Tuple2',
+							_0: 'email',
+							_1: _elm_lang$core$Json_Encode$string(x.email)
+						},
+						_1: {
+							ctor: '::',
+							_0: {
+								ctor: '_Tuple2',
+								_0: 'lang',
+								_1: _elm_lang$core$Json_Encode$string(x.lang)
+							},
+							_1: {ctor: '[]'}
+						}
+					}
 				}
 			}
 		});
@@ -20932,7 +20987,7 @@ var _user$project$API$encodeUser = function (x) {
 			ctor: '::',
 			_0: {
 				ctor: '_Tuple2',
-				_0: 'userid',
+				_0: 'id',
 				_1: _elm_lang$core$Json_Encode$int(x.userid)
 			},
 			_1: {
@@ -20942,7 +20997,23 @@ var _user$project$API$encodeUser = function (x) {
 					_0: 'username',
 					_1: _elm_lang$core$Json_Encode$string(x.username)
 				},
-				_1: {ctor: '[]'}
+				_1: {
+					ctor: '::',
+					_0: {
+						ctor: '_Tuple2',
+						_0: 'email',
+						_1: _elm_lang$core$Json_Encode$string(x.email)
+					},
+					_1: {
+						ctor: '::',
+						_0: {
+							ctor: '_Tuple2',
+							_0: 'lang',
+							_1: _elm_lang$core$Json_Encode$string(x.lang)
+						},
+						_1: {ctor: '[]'}
+					}
+				}
 			}
 		});
 };
@@ -20952,51 +21023,51 @@ var _user$project$API$encodeWord = function (x) {
 			ctor: '::',
 			_0: {
 				ctor: '_Tuple2',
-				_0: 'wordId',
-				_1: _elm_lang$core$Json_Encode$int(x.wordId)
+				_0: 'id',
+				_1: _elm_lang$core$Json_Encode$int(x.id)
 			},
 			_1: {
 				ctor: '::',
 				_0: {
 					ctor: '_Tuple2',
-					_0: 'wordLanguage',
-					_1: _elm_lang$core$Json_Encode$string(x.wordLanguage)
+					_0: 'language',
+					_1: _elm_lang$core$Json_Encode$string(x.language)
 				},
 				_1: {
 					ctor: '::',
 					_0: {
 						ctor: '_Tuple2',
-						_0: 'wordWord',
-						_1: _elm_lang$core$Json_Encode$string(x.wordWord)
+						_0: 'word',
+						_1: _elm_lang$core$Json_Encode$string(x.word)
 					},
 					_1: {
 						ctor: '::',
 						_0: {
 							ctor: '_Tuple2',
-							_0: 'wordKeywords',
+							_0: 'keywords',
 							_1: function (_p0) {
 								return _elm_lang$core$Json_Encode$list(
 									A2(_elm_lang$core$List$map, _elm_lang$core$Json_Encode$string, _p0));
-							}(x.wordKeywords)
+							}(x.keywords)
 						},
 						_1: {
 							ctor: '::',
 							_0: {
 								ctor: '_Tuple2',
-								_0: 'wordDefinition',
-								_1: _elm_lang$core$Json_Encode$string(x.wordDefinition)
+								_0: 'definition',
+								_1: _elm_lang$core$Json_Encode$string(x.definition)
 							},
 							_1: {
 								ctor: '::',
 								_0: {
 									ctor: '_Tuple2',
-									_0: 'wordDifficulty',
+									_0: 'difficulty',
 									_1: function (_p1) {
 										return A2(
 											_elm_lang$core$Maybe$withDefault,
 											_elm_lang$core$Json_Encode$null,
 											A2(_elm_lang$core$Maybe$map, _elm_lang$core$Json_Encode$int, _p1));
-									}(x.wordDifficulty)
+									}(x.difficulty)
 								},
 								_1: {ctor: '[]'}
 							}
@@ -21056,31 +21127,31 @@ var _user$project$API$getJWTToken = function (grantUser) {
 };
 var _user$project$API$Word = F6(
 	function (a, b, c, d, e, f) {
-		return {wordId: a, wordLanguage: b, wordWord: c, wordKeywords: d, wordDefinition: e, wordDifficulty: f};
+		return {id: a, language: b, word: c, keywords: d, definition: e, difficulty: f};
 	});
 var _user$project$API$decodeWord = A3(
 	_NoRedInk$elm_decode_pipeline$Json_Decode_Pipeline$required,
-	'wordDifficulty',
+	'difficulty',
 	_elm_lang$core$Json_Decode$maybe(_elm_lang$core$Json_Decode$int),
 	A3(
 		_NoRedInk$elm_decode_pipeline$Json_Decode_Pipeline$required,
-		'wordDefinition',
+		'definition',
 		_elm_lang$core$Json_Decode$string,
 		A3(
 			_NoRedInk$elm_decode_pipeline$Json_Decode_Pipeline$required,
-			'wordKeywords',
+			'keywords',
 			_elm_lang$core$Json_Decode$list(_elm_lang$core$Json_Decode$string),
 			A3(
 				_NoRedInk$elm_decode_pipeline$Json_Decode_Pipeline$required,
-				'wordWord',
+				'word',
 				_elm_lang$core$Json_Decode$string,
 				A3(
 					_NoRedInk$elm_decode_pipeline$Json_Decode_Pipeline$required,
-					'wordLanguage',
+					'language',
 					_elm_lang$core$Json_Decode$string,
 					A3(
 						_NoRedInk$elm_decode_pipeline$Json_Decode_Pipeline$required,
-						'wordId',
+						'id',
 						_elm_lang$core$Json_Decode$int,
 						_NoRedInk$elm_decode_pipeline$Json_Decode_Pipeline$decode(_user$project$API$Word)))))));
 var _user$project$API$getWordsAll = function (headers) {
@@ -21291,19 +21362,27 @@ var _user$project$API$putWordsIdByWordId = F3(
 				withCredentials: false
 			});
 	});
-var _user$project$API$User = F2(
-	function (a, b) {
-		return {userid: a, username: b};
+var _user$project$API$User = F4(
+	function (a, b, c, d) {
+		return {userid: a, username: b, email: c, lang: d};
 	});
 var _user$project$API$decodeUser = A3(
 	_NoRedInk$elm_decode_pipeline$Json_Decode_Pipeline$required,
-	'username',
+	'lang',
 	_elm_lang$core$Json_Decode$string,
 	A3(
 		_NoRedInk$elm_decode_pipeline$Json_Decode_Pipeline$required,
-		'userid',
-		_elm_lang$core$Json_Decode$int,
-		_NoRedInk$elm_decode_pipeline$Json_Decode_Pipeline$decode(_user$project$API$User)));
+		'email',
+		_elm_lang$core$Json_Decode$string,
+		A3(
+			_NoRedInk$elm_decode_pipeline$Json_Decode_Pipeline$required,
+			'username',
+			_elm_lang$core$Json_Decode$string,
+			A3(
+				_NoRedInk$elm_decode_pipeline$Json_Decode_Pipeline$required,
+				'id',
+				_elm_lang$core$Json_Decode$int,
+				_NoRedInk$elm_decode_pipeline$Json_Decode_Pipeline$decode(_user$project$API$User)))));
 var _user$project$API$getUser = function (headers) {
 	return _elm_lang$http$Http$request(
 		{
@@ -21328,7 +21407,7 @@ var _user$project$API$getUser = function (headers) {
 		});
 };
 var _user$project$API$updateUser = F2(
-	function (headers, grantUser) {
+	function (headers, fullUser) {
 		return _elm_lang$http$Http$request(
 			{
 				method: 'PUT',
@@ -21346,11 +21425,15 @@ var _user$project$API$updateUser = F2(
 						}
 					}),
 				body: _elm_lang$http$Http$jsonBody(
-					_user$project$API$encodeGrantUser(grantUser)),
+					_user$project$API$encodeFullUser(fullUser)),
 				expect: _elm_lang$http$Http$expectJson(_user$project$API$decodeUser),
 				timeout: _elm_lang$core$Maybe$Nothing,
 				withCredentials: false
 			});
+	});
+var _user$project$API$FullUser = F5(
+	function (a, b, c, d, e) {
+		return {userid: a, username: b, password: c, email: d, lang: e};
 	});
 var _user$project$API$GrantUser = F2(
 	function (a, b) {
@@ -22089,7 +22172,7 @@ var _user$project$Request$putWordsIdByWordIdRequest = F2(
 				_1: {ctor: '[]'}
 			},
 			function (_) {
-				return _.wordId;
+				return _.id;
 			}(word),
 			word);
 	});
@@ -22242,7 +22325,7 @@ var _user$project$Request$getWordsKeywordsRequest = function (session) {
 		});
 };
 var _user$project$Request$updateUserRequest = F2(
-	function (session, grantUser) {
+	function (session, user) {
 		var jwtToken = function () {
 			var _p8 = session.authToken;
 			if (_p8.ctor === 'Just') {
@@ -22261,7 +22344,7 @@ var _user$project$Request$updateUserRequest = F2(
 				_0: requestAuthHeader,
 				_1: {ctor: '[]'}
 			},
-			grantUser);
+			user);
 	});
 var _user$project$Request$getUserRequest = function (session) {
 	var jwtToken = function () {
@@ -22517,7 +22600,7 @@ var _user$project$Views_Words$viewWordCard = function (word) {
 							ctor: '::',
 							_0: _rtfeldman$elm_css$Html_Styled$text(
 								function (_) {
-									return _.wordWord;
+									return _.word;
 								}(word)),
 							_1: {ctor: '[]'}
 						}),
@@ -22542,7 +22625,7 @@ var _user$project$Views_Words$viewWordCard = function (word) {
 											_0: _user$project$Route$href(
 												_user$project$Route$WordDelete(
 													function (_) {
-														return _.wordId;
+														return _.id;
 													}(word))),
 											_1: {ctor: '[]'}
 										}
@@ -22564,7 +22647,7 @@ var _user$project$Views_Words$viewWordCard = function (word) {
 												_0: _user$project$Route$href(
 													_user$project$Route$WordEdit(
 														function (_) {
-															return _.wordId;
+															return _.id;
 														}(word))),
 												_1: {ctor: '[]'}
 											}
@@ -22578,7 +22661,7 @@ var _user$project$Views_Words$viewWordCard = function (word) {
 										ctor: '::',
 										_0: _rtfeldman$elm_css$Html_Styled$text(
 											function (_) {
-												return _.wordLanguage;
+												return _.language;
 											}(word)),
 										_1: {ctor: '[]'}
 									}
@@ -22601,7 +22684,7 @@ var _user$project$Views_Words$viewWordCard = function (word) {
 								ctor: '::',
 								_0: _rtfeldman$elm_css$Html_Styled$text(
 									function (_) {
-										return _.wordDefinition;
+										return _.definition;
 									}(word)),
 								_1: {ctor: '[]'}
 							}),
@@ -22634,7 +22717,7 @@ var _user$project$Views_Words$viewWordTr = function (word) {
 					ctor: '::',
 					_0: _rtfeldman$elm_css$Html_Styled$text(
 						function (_) {
-							return _.wordLanguage;
+							return _.language;
 						}(word)),
 					_1: {ctor: '[]'}
 				}),
@@ -22651,7 +22734,7 @@ var _user$project$Views_Words$viewWordTr = function (word) {
 						ctor: '::',
 						_0: _rtfeldman$elm_css$Html_Styled$text(
 							function (_) {
-								return _.wordWord;
+								return _.word;
 							}(word)),
 						_1: {ctor: '[]'}
 					}),
@@ -22668,7 +22751,7 @@ var _user$project$Views_Words$viewWordTr = function (word) {
 							ctor: '::',
 							_0: _rtfeldman$elm_css$Html_Styled$text(
 								function (_) {
-									return _.wordDefinition;
+									return _.definition;
 								}(word)),
 							_1: {ctor: '[]'}
 						}),
@@ -22689,7 +22772,7 @@ var _user$project$Views_Words$viewWordTr = function (word) {
 											_elm_lang$core$List$intersperse,
 											', ',
 											function (_) {
-												return _.wordKeywords;
+												return _.keywords;
 											}(word)))),
 								_1: {ctor: '[]'}
 							}),
@@ -22711,7 +22794,7 @@ var _user$project$Views_Words$viewWordTr = function (word) {
 											_0: _user$project$Route$href(
 												_user$project$Route$WordEdit(
 													function (_) {
-														return _.wordId;
+														return _.id;
 													}(word))),
 											_1: {ctor: '[]'}
 										},
@@ -22729,7 +22812,7 @@ var _user$project$Views_Words$viewWordTr = function (word) {
 												_0: _user$project$Route$href(
 													_user$project$Route$WordDelete(
 														function (_) {
-															return _.wordId;
+															return _.id;
 														}(word))),
 												_1: {ctor: '[]'}
 											},
@@ -22851,7 +22934,7 @@ var _user$project$Views_Forms$viewWordForm = F3(
 								return toUpdateWord(
 									_elm_lang$core$Native_Utils.update(
 										word,
-										{wordLanguage: v}));
+										{language: v}));
 							}),
 						_1: {
 							ctor: '::',
@@ -22860,7 +22943,7 @@ var _user$project$Views_Forms$viewWordForm = F3(
 								ctor: '::',
 								_0: _rtfeldman$elm_css$Html_Styled_Attributes$value(
 									function (_) {
-										return _.wordLanguage;
+										return _.language;
 									}(word)),
 								_1: {ctor: '[]'}
 							}
@@ -22878,7 +22961,7 @@ var _user$project$Views_Forms$viewWordForm = F3(
 									return toUpdateWord(
 										_elm_lang$core$Native_Utils.update(
 											word,
-											{wordWord: v}));
+											{word: v}));
 								}),
 							_1: {
 								ctor: '::',
@@ -22887,7 +22970,7 @@ var _user$project$Views_Forms$viewWordForm = F3(
 									ctor: '::',
 									_0: _rtfeldman$elm_css$Html_Styled_Attributes$value(
 										function (_) {
-											return _.wordWord;
+											return _.word;
 										}(word)),
 									_1: {ctor: '[]'}
 								}
@@ -22906,7 +22989,7 @@ var _user$project$Views_Forms$viewWordForm = F3(
 											_elm_lang$core$Native_Utils.update(
 												word,
 												{
-													wordKeywords: A2(_elm_lang$core$String$split, ',', v)
+													keywords: A2(_elm_lang$core$String$split, ',', v)
 												}));
 									}),
 								_1: {
@@ -22926,7 +23009,7 @@ var _user$project$Views_Forms$viewWordForm = F3(
 													_elm_lang$core$List$intersperse,
 													',',
 													function (_) {
-														return _.wordKeywords;
+														return _.keywords;
 													}(word)))),
 										_1: {ctor: '[]'}
 									}
@@ -22944,7 +23027,7 @@ var _user$project$Views_Forms$viewWordForm = F3(
 											return toUpdateWord(
 												_elm_lang$core$Native_Utils.update(
 													word,
-													{wordDefinition: v}));
+													{definition: v}));
 										}),
 									_1: {
 										ctor: '::',
@@ -22953,7 +23036,7 @@ var _user$project$Views_Forms$viewWordForm = F3(
 											ctor: '::',
 											_0: _rtfeldman$elm_css$Html_Styled_Attributes$value(
 												function (_) {
-													return _.wordDefinition;
+													return _.definition;
 												}(word)),
 											_1: {ctor: '[]'}
 										}
@@ -22975,7 +23058,7 @@ var _user$project$Views_Forms$viewWordForm = F3(
 														_elm_lang$core$Maybe$withDefault,
 														0,
 														function (_) {
-															return _.wordDifficulty;
+															return _.difficulty;
 														}(word)))),
 											_1: {ctor: '[]'}
 										}
@@ -23087,18 +23170,39 @@ var _user$project$Views_Forms$viewFormRegister = F3(
 						_1: {
 							ctor: '::',
 							_0: A2(
-								_user$project$IziCss$btn,
+								_rtfeldman$elm_css$Html_Styled$input,
 								{
 									ctor: '::',
-									_0: _rtfeldman$elm_css$Html_Styled_Attributes$type_('submit'),
-									_1: {ctor: '[]'}
+									_0: _rtfeldman$elm_css$Html_Styled_Events$onInput(
+										function (v) {
+											return toUpdateRegisterModel(
+												_elm_lang$core$Native_Utils.update(
+													newUser,
+													{language: v}));
+										}),
+									_1: {
+										ctor: '::',
+										_0: _rtfeldman$elm_css$Html_Styled_Attributes$placeholder('language to learn'),
+										_1: {ctor: '[]'}
+									}
 								},
-								{
-									ctor: '::',
-									_0: _rtfeldman$elm_css$Html_Styled$text('please, register me'),
-									_1: {ctor: '[]'}
-								}),
-							_1: {ctor: '[]'}
+								{ctor: '[]'}),
+							_1: {
+								ctor: '::',
+								_0: A2(
+									_user$project$IziCss$btn,
+									{
+										ctor: '::',
+										_0: _rtfeldman$elm_css$Html_Styled_Attributes$type_('submit'),
+										_1: {ctor: '[]'}
+									},
+									{
+										ctor: '::',
+										_0: _rtfeldman$elm_css$Html_Styled$text('please, register me'),
+										_1: {ctor: '[]'}
+									}),
+								_1: {ctor: '[]'}
+							}
 						}
 					}
 				}
@@ -23947,8 +24051,41 @@ var _user$project$Page_Login$view = function (model) {
 				}(model)),
 			_1: {
 				ctor: '::',
-				_0: A3(_user$project$Views_Forms$viewFormLogin, _user$project$Page_Login$LoginTryMsg, _user$project$Page_Login$TypeLoginMsg, _user$project$Page_Login$TypePasswordMsg),
-				_1: {ctor: '[]'}
+				_0: A2(
+					_rtfeldman$elm_css$Html_Styled$h1,
+					{ctor: '[]'},
+					{
+						ctor: '::',
+						_0: _rtfeldman$elm_css$Html_Styled$text('Please login'),
+						_1: {ctor: '[]'}
+					}),
+				_1: {
+					ctor: '::',
+					_0: A2(
+						_rtfeldman$elm_css$Html_Styled$p,
+						{ctor: '[]'},
+						{
+							ctor: '::',
+							_0: A2(
+								_rtfeldman$elm_css$Html_Styled$a,
+								{
+									ctor: '::',
+									_0: _user$project$Route$href(_user$project$Route$Register),
+									_1: {ctor: '[]'}
+								},
+								{
+									ctor: '::',
+									_0: _rtfeldman$elm_css$Html_Styled$text('or register'),
+									_1: {ctor: '[]'}
+								}),
+							_1: {ctor: '[]'}
+						}),
+					_1: {
+						ctor: '::',
+						_0: A3(_user$project$Views_Forms$viewFormLogin, _user$project$Page_Login$LoginTryMsg, _user$project$Page_Login$TypeLoginMsg, _user$project$Page_Login$TypePasswordMsg),
+						_1: {ctor: '[]'}
+					}
+				}
 			}
 		});
 };
@@ -24144,6 +24281,12 @@ var _user$project$Page_ProfileEdit$update = F3(
 						_elm_lang$core$Platform_Cmd$none),
 					_user$project$Page_ProfileEdit$NoOp);
 			case 'ToUpdateUser':
+				var lang = function (_) {
+					return _.language;
+				}(model.newUser);
+				var email = function (_) {
+					return _.email;
+				}(model.newUser);
 				var password = function (_) {
 					return _.password;
 				}(model.newUser);
@@ -24161,7 +24304,7 @@ var _user$project$Page_ProfileEdit$update = F3(
 							A2(
 								_user$project$Request$updateUserRequest,
 								session,
-								A2(_user$project$API$GrantUser, username, password)))),
+								A5(_user$project$API$FullUser, 0, username, password, email, lang)))),
 					_user$project$Page_ProfileEdit$NoOp);
 			default:
 				if (_p0._0.ctor === 'Ok') {
@@ -24277,8 +24420,19 @@ var _user$project$Page_Register$view = function (model) {
 			_0: _user$project$Views_Errors$viewErrorsDiv(model.errors),
 			_1: {
 				ctor: '::',
-				_0: A3(_user$project$Views_Forms$viewFormRegister, model.newUser, _user$project$Page_Register$UpdateNewUser, _user$project$Page_Register$Register),
-				_1: {ctor: '[]'}
+				_0: A2(
+					_rtfeldman$elm_css$Html_Styled$h1,
+					{ctor: '[]'},
+					{
+						ctor: '::',
+						_0: _rtfeldman$elm_css$Html_Styled$text('Register:'),
+						_1: {ctor: '[]'}
+					}),
+				_1: {
+					ctor: '::',
+					_0: A3(_user$project$Views_Forms$viewFormRegister, model.newUser, _user$project$Page_Register$UpdateNewUser, _user$project$Page_Register$Register),
+					_1: {ctor: '[]'}
+				}
 			}
 		});
 };
@@ -24495,7 +24649,7 @@ var _user$project$Page_WordEdit$view = function (model) {
 								'Word #',
 								_elm_lang$core$Basics$toString(
 									function (_) {
-										return _.wordId;
+										return _.id;
 									}(_p1)))),
 						_1: {ctor: '[]'}
 					}),
@@ -25367,9 +25521,13 @@ var _user$project$WordApp$updatePage = F3(
 								A2(_elm_lang$core$Platform_Cmd$map, _user$project$WordApp$RegisterMsg, pageMsg));
 						} else {
 							return A2(
-								_user$project$WordApp$setRoute,
-								_elm_lang$core$Maybe$Just(_user$project$Route$Login),
-								model);
+								_user$project$Util_ops['=>'],
+								_elm_lang$core$Native_Utils.update(
+									model,
+									{
+										page: _user$project$WordApp$Login(_user$project$Page_Login$initialModel)
+									}),
+								_user$project$Route$modifyUrl(_user$project$Route$Login));
 						}
 					} else {
 						break _v6_12;
@@ -25781,7 +25939,7 @@ var _user$project$WordApp$main = A2(
 var Elm = {};
 Elm['WordApp'] = Elm['WordApp'] || {};
 if (typeof _user$project$WordApp$main !== 'undefined') {
-    _user$project$WordApp$main(Elm['WordApp'], 'WordApp', {"types":{"unions":{"Dict.LeafColor":{"args":[],"tags":{"LBBlack":[],"LBlack":[]}},"Page.WordDelete.Msg":{"args":[],"tags":{"WordDeleteInitFinished":["Result.Result Http.Error API.NoContent"]}},"Page.ProfileEdit.Msg":{"args":[],"tags":{"TestMsg":[],"UpdateUser":["API.NewUser"],"ToUpdateUser":[],"UpdateUserRequestFinished":["Result.Result Http.Error API.User"]}},"Dict.Dict":{"args":["k","v"],"tags":{"RBNode_elm_builtin":["Dict.NColor","k","v","Dict.Dict k v","Dict.Dict k v"],"RBEmpty_elm_builtin":["Dict.LeafColor"]}},"Route.Route":{"args":[],"tags":{"Home":[],"ProfileEdit":[],"WordEdit":["Int"],"Logout":[],"Register":[],"WordDelete":["Int"],"Quizz":["String"],"Login":[]}},"API.NoContent":{"args":[],"tags":{"NoContent":[]}},"Maybe.Maybe":{"args":["a"],"tags":{"Just":["a"],"Nothing":[]}},"Page.Home.InitModel":{"args":[],"tags":{"InitModel":["List API.Word","List String"]}},"Page.Errored.PageLoadError":{"args":[],"tags":{"PageLoadError":[]}},"Page.Quizz.Msg":{"args":[],"tags":{"QuizzInitFinished":["Result.Result Http.Error (List API.Word)"],"TestMsg":[]}},"Dict.NColor":{"args":[],"tags":{"BBlack":[],"Red":[],"NBlack":[],"Black":[]}},"Page.Home.Msg":{"args":[],"tags":{"HomeAddNewWord":[],"HomeSearchWord":[],"TypeHomeLanguage":["String"],"LastWordsReqCompletedMsg":["Result.Result Http.Error (List API.Word)"],"HomeAddNewWordFinished":["Result.Result Http.Error API.NoContent"],"UpdateSearchKeyword":["String"],"TestMsg":[],"TypeHomeDefinition":["String"],"HomeSearchWordFinished":["Result.Result Http.Error (List API.Word)"],"InitFinished":["Result.Result Page.Errored.PageLoadError Page.Home.InitModel"],"TypeHomeWord":["String"],"UpdateSearchWord":["String"]}},"Page.WordEdit.Msg":{"args":[],"tags":{"UpdateWordRequestFinished":["Result.Result Http.Error API.Word"],"UpdateWordRequest":[],"TestMsg":[],"UpdateWord":["API.Word"],"WordEditInitFinished":["Result.Result Http.Error API.Word"]}},"WordApp.Msg":{"args":[],"tags":{"WordDeleteInitMsg":["Result.Result Http.Error API.NoContent"],"QuizzMsg":["Page.Quizz.Msg"],"LoginMsg":["Page.Login.Msg"],"HomeInit":["Result.Result Page.Errored.PageLoadError Page.Home.InitModel"],"SetRoute":["Maybe.Maybe Route.Route"],"WordEditMsg":["Page.WordEdit.Msg"],"RegisterInit":["Result.Result Http.Error String"],"HomeMsg":["Page.Home.Msg"],"ProfileEditMsg":["Page.ProfileEdit.Msg"],"WordEditInitMsg":["Result.Result Http.Error API.Word"],"QuizzInit":["Result.Result Http.Error (List API.Word)"],"RegisterMsg":["Page.Register.Msg"],"WordDeleteMsg":["Page.WordDelete.Msg"]}},"Page.Register.Msg":{"args":[],"tags":{"Register":[],"UpdateNewUser":["API.NewUser"],"InitFinished":["Result.Result Http.Error String"],"RegisterFinished":["Result.Result Http.Error API.NoContent"]}},"Http.Error":{"args":[],"tags":{"BadUrl":["String"],"NetworkError":[],"Timeout":[],"BadStatus":["Http.Response String"],"BadPayload":["String","Http.Response String"]}},"Result.Result":{"args":["error","value"],"tags":{"Ok":["value"],"Err":["error"]}},"Page.Login.Msg":{"args":[],"tags":{"TypePasswordMsg":["String"],"TypeLoginMsg":["String"],"LoginTryMsg":[],"LoginGrantCompletedMsg":["Result.Result Http.Error API.JWTToken"]}}},"aliases":{"API.User":{"args":[],"type":"{ userid : Int, username : String }"},"Http.Response":{"args":["body"],"type":"{ url : String , status : { code : Int, message : String } , headers : Dict.Dict String String , body : body }"},"API.Word":{"args":[],"type":"{ wordId : Int , wordLanguage : String , wordWord : String , wordKeywords : List String , wordDefinition : String , wordDifficulty : Maybe.Maybe Int }"},"API.JWTToken":{"args":[],"type":"{ token : String }"},"API.NewUser":{"args":[],"type":"{ username : String , password : String , email : String , language : String }"}},"message":"WordApp.Msg"},"versions":{"elm":"0.18.0"}});
+    _user$project$WordApp$main(Elm['WordApp'], 'WordApp', {"types":{"unions":{"Dict.LeafColor":{"args":[],"tags":{"LBBlack":[],"LBlack":[]}},"Page.WordDelete.Msg":{"args":[],"tags":{"WordDeleteInitFinished":["Result.Result Http.Error API.NoContent"]}},"Page.ProfileEdit.Msg":{"args":[],"tags":{"TestMsg":[],"UpdateUser":["API.NewUser"],"ToUpdateUser":[],"UpdateUserRequestFinished":["Result.Result Http.Error API.User"]}},"Dict.Dict":{"args":["k","v"],"tags":{"RBNode_elm_builtin":["Dict.NColor","k","v","Dict.Dict k v","Dict.Dict k v"],"RBEmpty_elm_builtin":["Dict.LeafColor"]}},"Route.Route":{"args":[],"tags":{"Home":[],"ProfileEdit":[],"WordEdit":["Int"],"Logout":[],"Register":[],"WordDelete":["Int"],"Quizz":["String"],"Login":[]}},"API.NoContent":{"args":[],"tags":{"NoContent":[]}},"Maybe.Maybe":{"args":["a"],"tags":{"Just":["a"],"Nothing":[]}},"Page.Home.InitModel":{"args":[],"tags":{"InitModel":["List API.Word","List String"]}},"Page.Errored.PageLoadError":{"args":[],"tags":{"PageLoadError":[]}},"Page.Quizz.Msg":{"args":[],"tags":{"QuizzInitFinished":["Result.Result Http.Error (List API.Word)"],"TestMsg":[]}},"Dict.NColor":{"args":[],"tags":{"BBlack":[],"Red":[],"NBlack":[],"Black":[]}},"Page.Home.Msg":{"args":[],"tags":{"HomeAddNewWord":[],"HomeSearchWord":[],"TypeHomeLanguage":["String"],"LastWordsReqCompletedMsg":["Result.Result Http.Error (List API.Word)"],"HomeAddNewWordFinished":["Result.Result Http.Error API.NoContent"],"UpdateSearchKeyword":["String"],"TestMsg":[],"TypeHomeDefinition":["String"],"HomeSearchWordFinished":["Result.Result Http.Error (List API.Word)"],"InitFinished":["Result.Result Page.Errored.PageLoadError Page.Home.InitModel"],"TypeHomeWord":["String"],"UpdateSearchWord":["String"]}},"Page.WordEdit.Msg":{"args":[],"tags":{"UpdateWordRequestFinished":["Result.Result Http.Error API.Word"],"UpdateWordRequest":[],"TestMsg":[],"UpdateWord":["API.Word"],"WordEditInitFinished":["Result.Result Http.Error API.Word"]}},"WordApp.Msg":{"args":[],"tags":{"WordDeleteInitMsg":["Result.Result Http.Error API.NoContent"],"QuizzMsg":["Page.Quizz.Msg"],"LoginMsg":["Page.Login.Msg"],"HomeInit":["Result.Result Page.Errored.PageLoadError Page.Home.InitModel"],"SetRoute":["Maybe.Maybe Route.Route"],"WordEditMsg":["Page.WordEdit.Msg"],"RegisterInit":["Result.Result Http.Error String"],"HomeMsg":["Page.Home.Msg"],"ProfileEditMsg":["Page.ProfileEdit.Msg"],"WordEditInitMsg":["Result.Result Http.Error API.Word"],"QuizzInit":["Result.Result Http.Error (List API.Word)"],"RegisterMsg":["Page.Register.Msg"],"WordDeleteMsg":["Page.WordDelete.Msg"]}},"Page.Register.Msg":{"args":[],"tags":{"Register":[],"UpdateNewUser":["API.NewUser"],"InitFinished":["Result.Result Http.Error String"],"RegisterFinished":["Result.Result Http.Error API.NoContent"]}},"Http.Error":{"args":[],"tags":{"BadUrl":["String"],"NetworkError":[],"Timeout":[],"BadStatus":["Http.Response String"],"BadPayload":["String","Http.Response String"]}},"Result.Result":{"args":["error","value"],"tags":{"Ok":["value"],"Err":["error"]}},"Page.Login.Msg":{"args":[],"tags":{"TypePasswordMsg":["String"],"TypeLoginMsg":["String"],"LoginTryMsg":[],"LoginGrantCompletedMsg":["Result.Result Http.Error API.JWTToken"]}}},"aliases":{"API.User":{"args":[],"type":"{ userid : Int, username : String, email : String, lang : String }"},"Http.Response":{"args":["body"],"type":"{ url : String , status : { code : Int, message : String } , headers : Dict.Dict String String , body : body }"},"API.Word":{"args":[],"type":"{ id : Int , language : String , word : String , keywords : List String , definition : String , difficulty : Maybe.Maybe Int }"},"API.JWTToken":{"args":[],"type":"{ token : String }"},"API.NewUser":{"args":[],"type":"{ username : String , password : String , email : String , language : String }"}},"message":"WordApp.Msg"},"versions":{"elm":"0.18.0"}});
 }
 
 if (typeof define === "function" && define['amd'])

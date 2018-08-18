@@ -10,26 +10,12 @@
 module Word
   ( Word(..)
   , WordId
-  , getAllWords
-  , getQuizzWordsKeyword
-  , getLastWords
-  , getWordsByKeyword
-  , getAllKeywords
-  , getSearchWords
-  , getSearchWordsUser
-  , getSearchKeyword
-  , getSearchWordsKeyword
-  , getWordById
-  , deleteWordById
-  , updateWordById
-  , insertWord
   )
   where
 
 import Prelude hiding (Word, id)
 import Database.HDBC
 import Database.YeshQL.HDBC.SqlRow.TH
-import Database.YeshQL.HDBC (yeshFile)
 import Data.ByteString.UTF8 as BUTF8 (toString, fromString)
 import Data.ByteString
 import Data.Convertible.Base
@@ -38,6 +24,7 @@ import Data.Swagger
 import Data.List
 import User (User(..))
 import GHC.Generics
+import Prelude (Integer, Bool)
 import Servant.Elm (ElmType)
 
 
@@ -92,5 +79,3 @@ instance Convertible SqlValue StringArray where
   safeConvert = Right . byteStringToStringArray . fromSql 
 instance Convertible StringArray SqlValue where
   safeConvert = Right . toSql . stringArrayToByteString
-
-[yeshFile|src/sql/Word.sql|]

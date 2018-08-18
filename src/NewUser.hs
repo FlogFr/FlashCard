@@ -2,7 +2,10 @@
 
 module NewUser
   ( NewUser(..)
-  , insertUser
+  , newuserUsername
+  , newuserPassword
+  , newuserEmail
+  , newuserLang
   )
   where
 
@@ -11,7 +14,6 @@ import Data.Aeson
 import Data.Typeable
 import Data.Convertible
 import Database.HDBC
-import Database.YeshQL.HDBC (yeshFile)
 import Database.YeshQL.HDBC.SqlRow.Class
 import Database.YeshQL.HDBC.SqlRow.TH
 import GHC.Generics
@@ -23,12 +25,24 @@ type MaybeString = Maybe String
 data NewUser = NewUser
   { username :: String
   , password :: String
-  , email :: MaybeString
+  , email    :: MaybeString
+  , lang     :: String
   } deriving (Eq, Generic, Show)
+
+
+newuserUsername :: NewUser -> String
+newuserUsername = username
+
+newuserPassword :: NewUser -> String
+newuserPassword = password
+
+newuserEmail :: NewUser -> MaybeString
+newuserEmail = email
+
+newuserLang :: NewUser -> String
+newuserLang = lang
 
 instance ToSchema NewUser
 instance ToJSON NewUser
 instance FromJSON NewUser
 instance ElmType NewUser
-
-[yeshFile|src/sql/NewUser.sql|]

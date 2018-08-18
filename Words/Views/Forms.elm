@@ -61,6 +61,7 @@ viewFormRegister newUser toUpdateRegisterModel toRegisterMsg =
         [ input [ onInput (\v -> toUpdateRegisterModel { newUser | username = v }), placeholder "username" ] []
         , input [ onInput (\v -> toUpdateRegisterModel { newUser | password = v }), placeholder "password", attribute "type" "password" ] []
         , input [ onInput (\v -> toUpdateRegisterModel { newUser | email = v }), placeholder "email" ] []
+        , input [ onInput (\v -> toUpdateRegisterModel { newUser | language = v }), placeholder "language to learn" ] []
         , btn [ type_ "submit" ] [ text "please, register me" ]
         ]
 
@@ -68,10 +69,10 @@ viewFormRegister newUser toUpdateRegisterModel toRegisterMsg =
 viewWordForm : Word -> (Word -> msg) -> msg -> Html msg
 viewWordForm word toUpdateWord toUpdateMsg =
     Html.form [ onSubmit toUpdateMsg ]
-        [ input [ onInput (\v -> toUpdateWord { word | wordLanguage = v }), placeholder "language", value (.wordLanguage word) ] []
-        , input [ onInput (\v -> toUpdateWord { word | wordWord = v }), placeholder "definition", value (.wordWord word) ] []
-        , input [ onInput (\v -> toUpdateWord { word | wordKeywords = (String.split "," v) }), placeholder "keywords (comma separated)", value (List.foldr (++) "" (List.intersperse "," (.wordKeywords word))) ] []
-        , input [ onInput (\v -> toUpdateWord { word | wordDefinition = v }), placeholder "definition", value (.wordDefinition word) ] []
-        , input [ placeholder "difficulty (0 to 10)", value (toString (Maybe.withDefault 0 (.wordDifficulty word))) ] []
+        [ input [ onInput (\v -> toUpdateWord { word | language = v }), placeholder "language", value (.language word) ] []
+        , input [ onInput (\v -> toUpdateWord { word | word = v }), placeholder "definition", value (.word word) ] []
+        , input [ onInput (\v -> toUpdateWord { word | keywords = (String.split "," v) }), placeholder "keywords (comma separated)", value (List.foldr (++) "" (List.intersperse "," (.keywords word))) ] []
+        , input [ onInput (\v -> toUpdateWord { word | definition = v }), placeholder "definition", value (.definition word) ] []
+        , input [ placeholder "difficulty (0 to 10)", value (toString (Maybe.withDefault 0 (.difficulty word))) ] []
         , btn [ type_ "submit" ] [ text "Update word" ]
         ]

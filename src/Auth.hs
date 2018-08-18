@@ -35,6 +35,7 @@ import Database.HDBC.PostgreSQL (withPostgreSQL, begin)
 import Database.HDBC (commit, SqlError, handleSql)
 import Database.YeshQL.HDBC (yeshFile)
 import Data.ByteString.UTF8 (toString)
+import SQL
 import User
 import Word (Word)
 
