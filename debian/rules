@@ -9,7 +9,7 @@ override_dh_auto_build:
 override_dh_auto_install:
 	rm -rf debian/izidict
 	# stack test
-	stack install
+	stack install --ghc-options -O2
 	# binary
 	mkdir -p debian/izidict/usr/bin
 	cp -v ~/.local/bin/backend-exe debian/izidict/usr/bin/backend-izidict
