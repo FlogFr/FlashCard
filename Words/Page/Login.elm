@@ -11,6 +11,7 @@ import Html.Styled.Attributes exposing (attribute, placeholder, type_, action)
 import Data.Session exposing (..)
 import Views.Forms exposing (..)
 import Views.Errors exposing (..)
+import Debug
 
 
 -- MODEL --
@@ -20,6 +21,7 @@ type alias Model =
     { errors : List String
     , username : String
     , userpassword : String
+    , jwtToken : Maybe JWTToken
     }
 
 
@@ -28,6 +30,7 @@ initialModel =
     { errors = []
     , username = ""
     , userpassword = ""
+    , jwtToken = Nothing
     }
 
 
@@ -40,6 +43,7 @@ type Msg
     | TypePasswordMsg String
     | LoginTryMsg
     | LoginGrantCompletedMsg (Result Http.Error JWTToken)
+    | LoginRequestUserCompletedMsg (Result Http.Error User)
 
 
 type ExternalMsg
@@ -85,18 +89,37 @@ update msg model =
                     => NoOp
 
         LoginGrantCompletedMsg (Ok jwtToken) ->
-            let
-                authUser =
-                    (AuthUser (.username model) (.userpassword model))
+            { model | jwtToken = Just jwtToken }
+                => Cmd.batch [ getUserCmd LoginRequestUserCompletedMsg jwtToken ]
+                => NoOp
 
+        LoginGrantCompletedMsg (Err httpError) ->
+            case httpError of
+                Http.BadStatus httpResponse ->
+                    { model | errors = "Wrong credentials" :: (.errors model) }
+                        => Cmd.none
+                        => NoOp
+
+                Http.NetworkError ->
+                    { model | errors = "Wrong credentials" :: (.errors model) }
+                        => Cmd.none
+                        => NoOp
+
+                _ ->
+                    model
+                        => Cmd.none
+                        => NoOp
+
+        LoginRequestUserCompletedMsg (Ok user) ->
+            let
                 session =
-                    Session (Just jwtToken) (Just authUser)
+                    Session (model.jwtToken) (Just user)
             in
                 model
                     => Cmd.batch [ storeSession session, Route.modifyUrl Route.Home ]
                     => SetSession session
 
-        LoginGrantCompletedMsg (Err httpError) ->
+        LoginRequestUserCompletedMsg (Err httpError) ->
             case httpError of
                 Http.BadStatus httpResponse ->
                     { model | errors = "Wrong credentials" :: (.errors model) }

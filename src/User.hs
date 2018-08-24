@@ -7,26 +7,36 @@ module User
   )
   where
 
-import Data.Swagger (ToSchema)
-import Data.Aeson
-import Data.Typeable
-import Data.Convertible
-import Data.Int
-import Data.Eq
-import Data.String
-import Text.Show
-import Database.HDBC
-import Database.YeshQL.HDBC.SqlRow.Class
-import Database.YeshQL.HDBC.SqlRow.TH
-import GHC.Generics
-import Prelude (Integer, Bool)
-import Servant.Elm (ElmType)
+import           Data.Swagger                   ( ToSchema )
+import           Data.Aeson
+import           Data.Typeable
+import           Data.Convertible
+import           Data.Int
+import           Data.Eq
+import           Data.String
+import           Text.Show
+import           Data.ByteString.UTF8          as BUTF8
+                                                ( toString
+                                                , fromString
+                                                )
+import           Data.ByteString
+import           Database.HDBC
+import           Database.YeshQL.HDBC.SqlRow.Class
+import           Database.YeshQL.HDBC.SqlRow.TH
+import           GHC.Generics
+import           Prelude                        ( Integer
+                                                , Bool
+                                                )
+import           Servant.Elm                    ( ElmType )
+import           StringArray
+import           MaybeString
+
 
 data User = User
-  { id        :: Int
+  { id :: Int
   , username  :: String
-  , email     :: String
-  , lang      :: String
+  , email     :: MaybeString
+  , languages :: StringArray
   } deriving (Eq, Generic, Show)
 makeSqlRow ''User
 

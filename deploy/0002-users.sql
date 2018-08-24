@@ -9,8 +9,8 @@ BEGIN;
            "id" BIGINT NOT NULL PRIMARY KEY DEFAULT nextval('users_id_seq'),
      "username" TEXT NOT NULL,
         "email" TEXT NULL,
-         "lang" CHAR(2) NOT NULL,
-     "passpass" TEXT NOT NULL
+     "passpass" TEXT NOT NULL,
+    "languages" CHAR(2)[]
   );
   
   ALTER SEQUENCE users_id_seq OWNED BY users.id;

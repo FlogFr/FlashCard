@@ -1,20 +1,21 @@
-{-# LANGUAGE QuasiQuotes                #-}
-{-# LANGUAGE TemplateHaskell            #-}
 {-# LANGUAGE DataKinds                  #-}
+{-# LANGUAGE DeriveDataTypeable         #-}
 {-# LANGUAGE DeriveGeneric              #-}
 {-# LANGUAGE FlexibleContexts           #-}
 {-# LANGUAGE FlexibleInstances          #-}
+{-# LANGUAGE GeneralizedNewtypeDeriving #-}
 {-# LANGUAGE MultiParamTypeClasses      #-}
 {-# LANGUAGE OverloadedStrings          #-}
+{-# LANGUAGE QuasiQuotes                #-}
 {-# LANGUAGE ScopedTypeVariables        #-}
+{-# LANGUAGE TemplateHaskell            #-}
 {-# LANGUAGE TypeFamilies               #-}
 {-# LANGUAGE TypeOperators              #-}
 {-# LANGUAGE UndecidableInstances       #-}
-{-# LANGUAGE DeriveDataTypeable         #-}
-{-# LANGUAGE GeneralizedNewtypeDeriving #-}
 
 module API
   ( runApp
+  , app
   , CombinedAPI
   , userServer
   , UserAPI
@@ -23,41 +24,43 @@ module API
   )
   where
 
-import Prelude hiding (Word, words)
-import Data.Pool
-import Data.Aeson
-import Data.Swagger
-import Data.Convertible.Base
-import GHC.Generics
-import Control.Lens
-import Control.Monad.IO.Class (liftIO)
-import Servant.API ((:<|>) ((:<|>)), (:>), Get, Post, ReqBody, JSON, NoContent(..))
-import qualified Data.ByteString.Lazy.UTF8 as BU
-import Database.HDBC (commit, withTransaction, catchSql)
-import Database.HDBC.PostgreSQL (Connection, begin)
-import Network.Wai
-import Network.Wai.Handler.Warp
-import Network.Wai.Middleware.Cors
-import Network.Wai.Middleware.RequestLogger (logStdoutDev)
-import Servant
-import Servant.Server
-import Servant.Swagger
-import Servant.Swagger.UI
-import User
-import GrantUser
-import NewUser
-import FullUser
-import Word
-import Token
-import JWTToken
-import Auth
-import SQL
+import           Auth
+import           Control.Lens
+import           Control.Monad.IO.Class               (liftIO)
+import           Data.Aeson
+import qualified Data.ByteString.Lazy.UTF8            as BU
+import           Data.Convertible.Base
+import           Data.Pool
+import           Data.Swagger
+import           Database.HDBC                        (catchSql, commit,
+                                                       withTransaction)
+import           Database.HDBC.PostgreSQL             (Connection, begin)
+import           FullUser
+import           GHC.Generics
+import           GrantUser
+import           JWTToken
+import           Network.Wai
+import           Network.Wai.Handler.Warp
+import           Network.Wai.Middleware.Cors
+import           Network.Wai.Middleware.RequestLogger (logStdoutDev)
+import           NewUser
+import           Prelude                              hiding (Word, words)
+import           Servant
+import           Servant.API                          ((:<|>) ((:<|>)), (:>),
+                                                       Get, JSON,
+                                                       NoContent (..), Post,
+                                                       ReqBody)
+import           Servant.Server
+import           Servant.Swagger
+import           Servant.Swagger.UI
+import           SQL
+import           Token
+import           User
+import           Word
 
 
 mkError :: ServantErr -> String -> ServantErr
-mkError errorType message = errorType
-  { errBody = BU.fromString message
-  }
+mkError errorType message = errorType { errBody = BU.fromString message }
 
 
 error400 :: String -> ServantErr
@@ -68,32 +71,28 @@ pgNewToken :: Connection -> IO Token
 pgNewToken conn = do
   maybeToken <- getNewToken conn
   case maybeToken of
-    Just token ->
-      return $ Token token
-    Nothing ->
-      return $ Token ""
+    Just token -> return $ Token token
+    Nothing    -> return $ Token ""
 
 pgCreateUser :: String -> NewUser -> Connection -> IO NoContent
 pgCreateUser uuid newUser conn = do
   maybeTokenIsValid <- verifyToken uuid conn
   case maybeTokenIsValid of
-    Just tokenIsValid ->
-      if tokenIsValid
-        then do
-          _ <- insertUser newUser conn
-          return NoContent
-        else return NoContent
-    Nothing ->
-      return NoContent
+    Just tokenIsValid -> if tokenIsValid
+      then do
+        _ <- insertUser newUser conn
+        return NoContent
+      else return NoContent
+    Nothing -> return NoContent
 
 pgGrantUserJWTToken :: GrantUser -> Connection -> IO JWTToken
 pgGrantUserJWTToken grantUser conn = do
-  maybeJWTToken <- getSessionJWT (GrantUser.username grantUser) (GrantUser.password grantUser) conn
+  maybeJWTToken <- getSessionJWT (GrantUser.username grantUser)
+                                 (GrantUser.password grantUser)
+                                 conn
   case maybeJWTToken of
-    Just jwtToken ->
-      return $ JWTToken jwtToken
-    Nothing ->
-      return $ JWTToken ""
+    Just jwtToken -> return $ JWTToken jwtToken
+    Nothing       -> return $ JWTToken ""
 
 
 -- | API for the users
@@ -102,35 +101,31 @@ type AuthAPI = "token" :> Get '[JSON] Token
           :<|> "grant" :> ReqBody '[JSON] GrantUser :> Post '[JSON] JWTToken
 
 authServer :: Pool Connection -> Server AuthAPI
-authServer conns = newToken
-              :<|> createUser
-              :<|> grantHandler
+authServer conns = newToken :<|> createUser :<|> grantHandler
+ where
+  newToken :: Handler Token
+  newToken = do
+    liftIO $ withResource conns $ \conn -> do
+      withTransaction conn $ \conn -> do
+        token <- pgNewToken conn
+        return token
 
-  where newToken :: Handler Token
-        newToken = do
-          liftIO $ 
-            withResource conns $ \conn -> do
-              withTransaction conn $ \conn -> do
-                token <- pgNewToken conn
-                return token
+  createUser :: String -> NewUser -> Handler NoContent
+  createUser uuid newUser = do
+    liftIO pgExec
+    return NoContent
+   where
+    pgExec = withResource conns $ \conn -> do
+      withTransaction conn $ \conn -> do
+        token <- pgCreateUser uuid newUser conn
+        return ()
 
-        createUser :: String -> NewUser -> Handler NoContent
-        createUser uuid newUser = do
-          liftIO pgExec
-          return NoContent
-          where
-            pgExec = withResource conns $ \conn -> do
-              withTransaction conn $ \conn -> do
-                token <- pgCreateUser uuid newUser conn
-                return ()
-
-        grantHandler :: GrantUser -> Handler JWTToken
-        grantHandler grantUser = do
-          liftIO $ 
-            withResource conns $ \conn -> do
-              withTransaction conn $ \conn -> do
-                jwtToken <- pgGrantUserJWTToken grantUser conn
-                return jwtToken
+  grantHandler :: GrantUser -> Handler JWTToken
+  grantHandler grantUser = do
+    liftIO $ withResource conns $ \conn -> do
+      withTransaction conn $ \conn -> do
+        jwtToken <- pgGrantUserJWTToken grantUser conn
+        return jwtToken
 
 -- | API for the users
 type UserAPI = Get '[JSON] User
@@ -284,12 +279,16 @@ type API = AuthProtect "jwt-auth" :> CombinedAPI
       :<|> SwaggerSchemaUI "swagger-ui" "swagger.json"
 
 combinedServer :: User -> Pool Connection -> Server CombinedAPI
-combinedServer user conns = ( (userServer user conns) :<|> (wordServer user conns) )
+combinedServer user conns =
+  ((userServer user conns) :<|> (wordServer user conns))
 
 apiServer :: Pool Connection -> Server API
 apiServer conns =
   let authCombinedServer (user :: User) = (combinedServer user conns)
-  in  (authCombinedServer :<|> (authServer conns) :<|> swaggerSchemaUIServer apiSwagger)
+  in  (    authCombinedServer
+      :<|> (authServer conns)
+      :<|> swaggerSchemaUIServer apiSwagger
+      )
 
 api :: Proxy API
 api = Proxy
@@ -306,17 +305,19 @@ app :: Pool Connection -> Application
 app conns = serveWithContext api genAuthServerContext (apiServer conns)
 
 corsPolicy :: CorsResourcePolicy
-corsPolicy = CorsResourcePolicy {
-    corsOrigins = Nothing
-  , corsMethods = ["GET", "HEAD", "PUT", "POST", "DELETE"]
-  , corsRequestHeaders =["Authorization", "Content-Type"]
+corsPolicy = CorsResourcePolicy
+  { corsOrigins        = Nothing
+  , corsMethods        = ["GET", "HEAD", "PUT", "POST", "DELETE"]
+  , corsRequestHeaders = ["Authorization", "Content-Type"]
   , corsExposedHeaders = corsExposedHeaders simpleCorsResourcePolicy
-  , corsMaxAge = corsMaxAge simpleCorsResourcePolicy
-  , corsVaryOrigin = corsVaryOrigin simpleCorsResourcePolicy
-  , corsRequireOrigin = False
+  , corsMaxAge         = corsMaxAge simpleCorsResourcePolicy
+  , corsVaryOrigin     = corsVaryOrigin simpleCorsResourcePolicy
+  , corsRequireOrigin  = False
   , corsIgnoreFailures = corsIgnoreFailures simpleCorsResourcePolicy
-}
+  }
 
 runApp :: Pool Connection -> IO ()
 runApp conns = do
-  Network.Wai.Handler.Warp.run 8080 (logStdoutDev . (cors $ const $ Just corsPolicy) $ (app conns))
+  Network.Wai.Handler.Warp.run
+    8080
+    (logStdoutDev . (cors $ const $ Just corsPolicy) $ (app conns))

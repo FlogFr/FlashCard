@@ -12,26 +12,18 @@ getJWTTokenRequest grantUser =
     getJWTToken grantUser
 
 
-getUserRequest : Session -> Http.Request User
-getUserRequest session =
+getUserRequest : JWTToken -> Http.Request User
+getUserRequest jwtToken =
     let
-        jwtToken =
-            case session.authToken of
-                Just jwtToken ->
-                    (.token jwtToken)
-
-                Nothing ->
-                    ""
-
         requestAuthHeader =
-            Http.header "Authorization" jwtToken
+            Http.header "Authorization" (jwtToken.token)
     in
         getUser [ requestAuthHeader ]
 
 
-getUserCmd : (Result Error User -> msg) -> Session -> Cmd msg
-getUserCmd msgType session =
-    Http.send msgType (getUserRequest session)
+getUserCmd : (Result Error User -> msg) -> JWTToken -> Cmd msg
+getUserCmd msgType jwtToken =
+    Http.send msgType (getUserRequest jwtToken)
 
 
 updateUserRequest : Session -> FullUser -> Http.Request User

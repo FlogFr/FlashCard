@@ -33,6 +33,7 @@ dependencies:
   - HDBC-postgresql >= 2.3.2.5
   - yeshql-hdbc >= 4.1.0.1
   - yeshql >= 4.1.0.1
+  - yaml == 0.8.32
 
 source-dirs:
   - src
@@ -56,5 +57,7 @@ tests:
     source-dirs: test
     dependencies:
       - hspec == 2.*
+      - hspec-wai == 0.9.0
+      - hspec-wai-json == 0.9.0
       - mockery
       - QuickCheck

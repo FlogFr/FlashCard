@@ -1,6 +1,6 @@
 module Views.Page exposing (frame)
 
-import Data.Session exposing (AuthUser, Session)
+import Data.Session exposing (Session)
 import Data.Message exposing (..)
 import API exposing (User)
 import Route as Route exposing (..)

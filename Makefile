@@ -1,11 +1,25 @@
 POSIXCUBE_BIN ?= ~/Projects/posixcube/posixcube.sh
 
+.PHONY: ghci
+ghci:
+	# ghci accepts --test / --bench and --flag parameters
+	stack ghci
+
+.PHONY: test
+test:
+	pg_virtualenv -s $(MAKE) fulltest
+
+.PHONY: fulltest
+fulltest:
+	./bin/setup_database.sh
+	stack test
+
 .PHONY: clean
 clean:
 	stack clean
 
 .PHONY: deb
-deb: build-elm
+deb: clean build-elm
 	dpkg-buildpackage -us -uc
 
 .PHONY: build
@@ -17,6 +31,8 @@ build-elm:
 	elm-make --output build/elm.js Words/App.elm
 	sed -i 's#http://127.1:8080#https://api.izidict.com#g' build/elm.js
 	cp index.html build/
+	cp sitemap.xml build/
+	cp robots.txt build/
 
 .PHONY: serve
 serve:

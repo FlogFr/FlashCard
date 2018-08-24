@@ -18,12 +18,15 @@ import Views.Forms exposing (..)
 
 type alias Model =
     { word : Maybe Word
+    , nbKeyword : Int
     }
 
 
 initialModel : Model
 initialModel =
-    { word = Nothing }
+    { word = Nothing
+    , nbKeyword = 1
+    }
 
 
 init : Session -> Int -> Task Http.Error Word
@@ -37,6 +40,8 @@ init session wordId =
 
 type Msg
     = TestMsg
+    | IncreaseNbKeyword
+    | RemoveKeyword Int
     | WordEditInitFinished (Result Http.Error Word)
     | UpdateWord Word
     | UpdateWordRequest
@@ -60,7 +65,7 @@ view model =
         Just word ->
             div []
                 [ p [] [ text ("Word #" ++ toString (.id word)) ]
-                , viewWordForm word UpdateWord UpdateWordRequest
+                , viewWordForm word model.nbKeyword IncreaseNbKeyword RemoveKeyword UpdateWord UpdateWordRequest
                 ]
 
 
@@ -75,6 +80,28 @@ update session msg model =
             model
                 => Cmd.none
                 => NoOp
+
+        IncreaseNbKeyword ->
+            { model | nbKeyword = (model.nbKeyword + 1) }
+                => Cmd.none
+                => NoOp
+
+        RemoveKeyword indexKeyword ->
+            let
+                removeKeyword word indexKeyword =
+                    case word of
+                        Just w ->
+                            Just { w | keywords = ((List.take indexKeyword w.keywords) ++ (List.drop (indexKeyword + 1) w.keywords)) }
+
+                        Nothing ->
+                            word
+            in
+                { model
+                    | nbKeyword = (model.nbKeyword - 1)
+                    , word = removeKeyword model.word indexKeyword
+                }
+                    => Cmd.none
+                    => NoOp
 
         UpdateWord newWord ->
             { model | word = Just newWord }
@@ -94,7 +121,7 @@ update session msg model =
                         => NoOp
 
         WordEditInitFinished (Ok word) ->
-            { model | word = Just word }
+            { model | word = Just word, nbKeyword = (List.length word.keywords + 1) }
                 => Cmd.none
                 => NoOp
 

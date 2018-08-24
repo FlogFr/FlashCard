@@ -88,7 +88,7 @@ view model =
                     |> Html.Styled.toUnstyled
 
             Home subModel ->
-                Home.view subModel
+                Home.view subModel model.session
                     |> frame
                     |> Html.Styled.map HomeMsg
                     |> Html.Styled.toUnstyled
@@ -209,9 +209,9 @@ updatePage page msg model =
                         { model | session = (Session Nothing Nothing), messages = ((Message Warning "You got logged out") :: model.messages) }
                             => Cmd.batch [ deleteSession, Route.modifyUrl Route.Login ]
 
-                    ProfileEdit.GoHome ->
-                        model
-                            => Route.modifyUrl Route.Home
+                    ProfileEdit.UpdateSession newSession ->
+                        { model | session = newSession }
+                            => Cmd.map ProfileEditMsg pageMsg
 
         ( Home subModel, HomeInit subMsg ) ->
             let
@@ -348,15 +348,15 @@ setRoute maybeRoute model =
 
         Just (Route.ProfileEdit) ->
             let
-                username =
+                user =
                     case model.session.user of
-                        Just authUser ->
-                            (.username authUser)
+                        Just sessionUser ->
+                            sessionUser
 
                         Nothing ->
-                            ""
+                            User 0 "" (Just "") []
             in
-                { model | page = ProfileEdit { newUser = (NewUser username "" "---" "") } }
+                { model | page = ProfileEdit (ProfileEdit.initialModel user) }
                     => Cmd.none
 
         Just (Route.Logout) ->
@@ -366,7 +366,7 @@ setRoute maybeRoute model =
         Just (Route.Home) ->
             let
                 newModel =
-                    { model | page = Home Home.initialModel }
+                    { model | page = Home (Home.initialModel model.session) }
             in
                 case model.session.user of
                     Nothing ->

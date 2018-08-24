@@ -1,4 +1,4 @@
-module Data.Session exposing (AuthUser, Session, storeSession, deleteSession, decodeAuthUserFromJson, decodeAuthSessionFromJson, retrieveSessionFromJson)
+module Data.Session exposing (Session, storeSession, deleteSession, decodeAuthSessionFromJson, retrieveSessionFromJson)
 
 import Json.Encode as Encode exposing (Value)
 import Json.Decode as Decode exposing (Decoder, nullable, string, int, list)
@@ -9,32 +9,18 @@ import API exposing (..)
 import Util exposing ((=>))
 
 
-type alias AuthUser =
-    { username : String
-    , userpassword : String
-    }
-
-
 type alias Session =
     { authToken : Maybe JWTToken
-    , user : Maybe AuthUser
+    , user : Maybe User
     }
-
-
-encodeAuthUser : AuthUser -> Encode.Value
-encodeAuthUser x =
-    Encode.object
-        [ ( "username", Encode.string x.username )
-        , ( "userpassword", Encode.string x.userpassword )
-        ]
 
 
 encodeSession : Session -> Encode.Value
 encodeSession session =
     case ( session.user, session.authToken ) of
-        ( Just authUser, Just authToken ) ->
+        ( Just user, Just authToken ) ->
             Encode.object
-                [ ( "user", encodeAuthUser authUser )
+                [ ( "user", encodeUser user )
                 , ( "authToken", encodeJWTToken authToken )
                 ]
 
@@ -56,13 +42,6 @@ deleteSession =
     Ports.deleteLocalStorage ()
 
 
-decodeAuthUser : Decoder AuthUser
-decodeAuthUser =
-    decode AuthUser
-        |> required "username" string
-        |> required "userpassword" string
-
-
 decodeAuthToken : Decoder JWTToken
 decodeAuthToken =
     decode JWTToken
@@ -73,15 +52,7 @@ decodeAuthSession : Decoder Session
 decodeAuthSession =
     decode Session
         |> required "authToken" (nullable decodeAuthToken)
-        |> required "user" (nullable decodeAuthUser)
-
-
-decodeAuthUserFromJson : Encode.Value -> Maybe AuthUser
-decodeAuthUserFromJson json =
-    json
-        |> Decode.decodeValue Decode.string
-        |> Result.toMaybe
-        |> Maybe.andThen (Decode.decodeString decodeAuthUser >> Result.toMaybe)
+        |> required "user" (nullable decodeUser)
 
 
 decodeAuthSessionFromJson : Encode.Value -> Maybe Session

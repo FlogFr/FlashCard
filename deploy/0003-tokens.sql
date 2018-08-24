@@ -3,7 +3,7 @@
 BEGIN;
 
   -- Create token table
-  CREATE SEQUENCE token_id_seq;
+  CREATE SEQUENCE IF NOT EXISTS token_id_seq;
   
   CREATE TABLE IF NOT EXISTS token (
            "id" BIGINT NOT NULL PRIMARY KEY DEFAULT nextval('users_id_seq'),

@@ -1,4 +1,4 @@
-module Page.ProfileEdit exposing (Model, Msg(..), ExternalMsg(..), view, update)
+module Page.ProfileEdit exposing (Model, initialModel, Msg(..), ExternalMsg(..), view, update)
 
 import Util exposing ((=>))
 import API exposing (..)
@@ -11,14 +11,22 @@ import Data.Session exposing (..)
 import Route as Route exposing (Route(..), href)
 import Views.Words exposing (..)
 import Views.Forms exposing (..)
+import Debug
 
 
 -- MODEL --
 
 
 type alias Model =
-    { newUser : NewUser
+    { user : User
+    , password : String
+    , nbLanguage : Int
     }
+
+
+initialModel : User -> Model
+initialModel user =
+    Model user "" ((List.length user.languages) + 1)
 
 
 
@@ -27,7 +35,10 @@ type alias Model =
 
 type Msg
     = TestMsg
-    | UpdateUser NewUser
+    | IncreaseNbLanguage
+    | RemoveLanguage Int
+    | UpdatePassword String
+    | UpdateUser User
     | ToUpdateUser
     | UpdateUserRequestFinished (Result Http.Error User)
 
@@ -35,13 +46,13 @@ type Msg
 type ExternalMsg
     = NoOp
     | Logout
-    | GoHome
+    | UpdateSession Session
 
 
 view : Model -> Html Msg
 view model =
     div []
-        [ viewFormUpdateUser model.newUser UpdateUser ToUpdateUser
+        [ viewFormUpdateUser model.user model.nbLanguage IncreaseNbLanguage RemoveLanguage UpdateUser ToUpdateUser UpdatePassword
         ]
 
 
@@ -57,33 +68,59 @@ update session msg model =
                 => Cmd.none
                 => NoOp
 
-        UpdateUser newUser ->
-            { model | newUser = newUser }
+        UpdatePassword newPassword ->
+            { model | password = newPassword }
                 => Cmd.none
                 => NoOp
+
+        UpdateUser newUser ->
+            { model | user = newUser }
+                => Cmd.none
+                => NoOp
+
+        IncreaseNbLanguage ->
+            { model | nbLanguage = (model.nbLanguage + 1) }
+                => Cmd.none
+                => NoOp
+
+        RemoveLanguage indexLanguage ->
+            let
+                removeLanguage user indexLanguage =
+                    { user | languages = ((List.take indexLanguage user.languages) ++ (List.drop (indexLanguage + 1) user.languages)) }
+            in
+                { model
+                    | nbLanguage = (model.nbLanguage - 1)
+                    , user = removeLanguage model.user indexLanguage
+                }
+                    => Cmd.none
+                    => NoOp
 
         ToUpdateUser ->
             let
                 username =
-                    (.username model.newUser)
+                    (.username model.user)
 
                 password =
-                    (.password model.newUser)
+                    model.password
 
                 email =
-                    (.email model.newUser)
+                    (.email model.user)
 
-                lang =
-                    (.language model.newUser)
+                languages =
+                    (.languages model.user)
             in
                 model
-                    => Http.send UpdateUserRequestFinished (updateUserRequest session (FullUser 0 username password email lang))
+                    => Http.send UpdateUserRequestFinished (updateUserRequest session (FullUser 0 username password email languages))
                     => NoOp
 
         UpdateUserRequestFinished (Ok user) ->
-            model
-                => Cmd.none
-                => GoHome
+            let
+                newSession =
+                    { session | user = Just user }
+            in
+                model
+                    => Cmd.batch [ storeSession newSession, Route.modifyUrl Route.Home ]
+                    => UpdateSession newSession
 
         UpdateUserRequestFinished (Err noContent) ->
             model

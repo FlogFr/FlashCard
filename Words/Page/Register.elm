@@ -13,7 +13,6 @@ import API exposing (..)
 import Data.Session exposing (..)
 import Views.Forms exposing (..)
 import Views.Errors exposing (..)
-import Debug
 
 
 -- MODEL --
@@ -23,6 +22,7 @@ type alias Model =
     { errors : List String
     , token : String
     , newUser : NewUser
+    , nbLanguage : Int
     }
 
 
@@ -30,7 +30,8 @@ initialModel : Model
 initialModel =
     { errors = []
     , token = ""
-    , newUser = NewUser "" "" "" ""
+    , newUser = NewUser "" "" (Just "") []
+    , nbLanguage = 1
     }
 
 
@@ -45,6 +46,7 @@ init =
 
 type Msg
     = InitFinished (Result Http.Error String)
+    | IncreaseNbLanguage
     | UpdateNewUser NewUser
     | Register
     | RegisterFinished (Result Http.Error NoContent)
@@ -60,7 +62,7 @@ view model =
     div []
         [ viewErrorsDiv model.errors
         , h1 [] [ text "Register:" ]
-        , viewFormRegister model.newUser UpdateNewUser Register
+        , viewFormRegister model.newUser model.nbLanguage IncreaseNbLanguage UpdateNewUser Register
         ]
 
 
@@ -73,6 +75,11 @@ update msg model =
     case msg of
         InitFinished (Ok token) ->
             { model | token = token }
+                => Cmd.none
+                => NoOp
+
+        IncreaseNbLanguage ->
+            { model | nbLanguage = (model.nbLanguage + 1) }
                 => Cmd.none
                 => NoOp
 
@@ -117,7 +124,7 @@ update msg model =
         RegisterFinished (Err err) ->
             let
                 errorString =
-                    case Debug.log "error: " err of
+                    case err of
                         Http.BadUrl _ ->
                             "bad url"
 

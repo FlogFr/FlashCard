@@ -34,17 +34,31 @@ type alias Model =
     }
 
 
-initialModel : Model
-initialModel =
-    { myLastWords = []
-    , keywords = []
-    , addWordLanguage = "EN"
-    , addWordWord = ""
-    , addWordDefinition = ""
-    , searchWord = ""
-    , searchKeyword = "--"
-    , searchWords = []
-    }
+initialModel : Session -> Model
+initialModel session =
+    let
+        initialLanguage =
+            case session.user of
+                Just user ->
+                    case (List.head user.languages) of
+                        Just firstLang ->
+                            firstLang
+
+                        Nothing ->
+                            "EN"
+
+                Nothing ->
+                    "EN"
+    in
+        { myLastWords = []
+        , keywords = []
+        , addWordLanguage = initialLanguage
+        , addWordWord = ""
+        , addWordDefinition = ""
+        , searchWord = ""
+        , searchKeyword = "--"
+        , searchWords = []
+        }
 
 
 updateLastWords : Model -> List Word -> Model
@@ -93,27 +107,36 @@ type ExternalMsg
     | Logout
 
 
-view : Model -> Html Msg
-view model =
-    div []
-        [ div []
-            [ h1 [] [ text "You want to add a word?" ]
-            , viewFormAddWord HomeAddNewWord TypeHomeLanguage TypeHomeWord TypeHomeDefinition
+view : Model -> Session -> Html Msg
+view model session =
+    let
+        myLangs =
+            case session.user of
+                Just user ->
+                    user.languages
+
+                Nothing ->
+                    [ "EN", "FR" ]
+    in
+        div []
+            [ div []
+                [ h1 [] [ text "You want to add a word?" ]
+                , viewFormAddWord myLangs HomeAddNewWord TypeHomeLanguage TypeHomeWord TypeHomeDefinition
+                ]
+            , div []
+                [ h1 [] [ text "Search a particular word in your dict?" ]
+                , viewFormSearchWord (.keywords model) HomeSearchWord UpdateSearchWord UpdateSearchKeyword
+                , viewWordsTable model.searchWords
+                ]
+            , div []
+                [ h1 [] [ text "Your keywords:" ]
+                , viewKeywordsList model.keywords
+                ]
+            , div []
+                [ h1 [] [ text "Your last words of the week:" ]
+                , viewWordsCards model.myLastWords
+                ]
             ]
-        , div []
-            [ h1 [] [ text "Search a particular word in your dict?" ]
-            , viewFormSearchWord (.keywords model) HomeSearchWord UpdateSearchWord UpdateSearchKeyword
-            , viewWordsTable model.searchWords
-            ]
-        , div []
-            [ h1 [] [ text "Your keywords:" ]
-            , viewKeywordsList model.keywords
-            ]
-        , div []
-            [ h1 [] [ text "Your last words of the week:" ]
-            , viewWordsCards model.myLastWords
-            ]
-        ]
 
 
 

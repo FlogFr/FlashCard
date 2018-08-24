@@ -54,8 +54,8 @@ decodeWord =
 type alias User =
     { userid : Int
     , username : String
-    , email : String
-    , lang : String
+    , email : Maybe String
+    , languages : List String
     }
 
 
@@ -63,8 +63,8 @@ type alias FullUser =
     { userid : Int
     , username : String
     , password : String
-    , email : String
-    , lang : String
+    , email : Maybe String
+    , languages : List String
     }
 
 
@@ -77,8 +77,8 @@ type alias GrantUser =
 type alias NewUser =
     { username : String
     , password : String
-    , email : String
-    , language : String
+    , email : Maybe String
+    , languages : List String
     }
 
 
@@ -87,8 +87,8 @@ encodeUser x =
     Json.Encode.object
         [ ( "id", Json.Encode.int x.userid )
         , ( "username", Json.Encode.string x.username )
-        , ( "email", Json.Encode.string x.email )
-        , ( "lang", Json.Encode.string x.lang )
+        , ( "email", (Maybe.withDefault Json.Encode.null << Maybe.map Json.Encode.string) x.email )
+        , ( "languages", (Json.Encode.list << List.map Json.Encode.string) x.languages )
         ]
 
 
@@ -98,18 +98,18 @@ encodeFullUser x =
         [ ( "id", Json.Encode.int x.userid )
         , ( "username", Json.Encode.string x.username )
         , ( "passpass", Json.Encode.string x.password )
-        , ( "email", Json.Encode.string x.email )
-        , ( "lang", Json.Encode.string x.lang )
+        , ( "email", (Maybe.withDefault Json.Encode.null << Maybe.map Json.Encode.string) x.email )
+        , ( "languages", (Json.Encode.list << List.map Json.Encode.string) x.languages )
         ]
 
 
 encodeNewUser : NewUser -> Json.Encode.Value
-encodeNewUser newUser =
+encodeNewUser x =
     Json.Encode.object
-        [ ( "username", Json.Encode.string (.username newUser) )
-        , ( "password", Json.Encode.string (.password newUser) )
-        , ( "email", Json.Encode.string (.email newUser) )
-        , ( "lang", Json.Encode.string (.language newUser) )
+        [ ( "username", Json.Encode.string x.username )
+        , ( "password", Json.Encode.string x.password )
+        , ( "email", (Maybe.withDefault Json.Encode.null << Maybe.map Json.Encode.string) x.email )
+        , ( "languages", (Json.Encode.list << List.map Json.Encode.string) x.languages )
         ]
 
 
@@ -126,8 +126,8 @@ decodeUser =
     decode User
         |> required "id" int
         |> required "username" string
-        |> required "email" string
-        |> required "lang" string
+        |> required "email" (maybe string)
+        |> required "languages" (list string)
 
 
 decodeToken : Decoder String

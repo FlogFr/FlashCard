@@ -5,7 +5,7 @@ module NewUser
   , newuserUsername
   , newuserPassword
   , newuserEmail
-  , newuserLang
+  , newuserLanguages
   )
   where
 
@@ -18,15 +18,15 @@ import Database.YeshQL.HDBC.SqlRow.Class
 import Database.YeshQL.HDBC.SqlRow.TH
 import GHC.Generics
 import Servant.Elm (ElmType)
+import StringArray
+import MaybeString
 
-
-type MaybeString = Maybe String
 
 data NewUser = NewUser
   { username :: String
   , password :: String
   , email    :: MaybeString
-  , lang     :: String
+  , languages :: StringArray
   } deriving (Eq, Generic, Show)
 
 
@@ -39,8 +39,8 @@ newuserPassword = password
 newuserEmail :: NewUser -> MaybeString
 newuserEmail = email
 
-newuserLang :: NewUser -> String
-newuserLang = lang
+newuserLanguages :: NewUser -> StringArray
+newuserLanguages = languages
 
 instance ToSchema NewUser
 instance ToJSON NewUser

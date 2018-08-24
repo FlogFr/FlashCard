@@ -4,7 +4,7 @@ module FullUser
   ( FullUser(..)
   , fullUserId
   , fullUserEmail
-  , fullUserLang
+  , fullUserLanguages
   )
   where
 
@@ -22,24 +22,26 @@ import Database.YeshQL.HDBC.SqlRow.TH
 import GHC.Generics
 import Prelude (Integer, Bool)
 import Servant.Elm (ElmType)
+import StringArray
+import MaybeString
 
 data FullUser = FullUser
   { id        :: Int
   , username  :: String
   , passpass  :: String
-  , email     :: String
-  , lang      :: String
+  , email     :: MaybeString
+  , languages :: [String]
   } deriving (Eq, Generic, Show)
 makeSqlRow ''FullUser
 
 fullUserId :: FullUser -> Int
 fullUserId = id
 
-fullUserEmail :: FullUser -> String
+fullUserEmail :: FullUser -> MaybeString
 fullUserEmail = email
 
-fullUserLang :: FullUser -> String
-fullUserLang = lang
+fullUserLanguages :: FullUser -> StringArray
+fullUserLanguages = languages
 
 instance ToSchema FullUser
 instance ToJSON FullUser

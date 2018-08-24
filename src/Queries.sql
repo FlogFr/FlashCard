@@ -4,23 +4,23 @@
 UPDATE
   users
 SET
-    email    = :fullUser.fullUserEmail
-  , lang     = :fullUser.fullUserLang
+    email     = :fullUser.fullUserEmail
+  , languages = :fullUser.fullUserLanguages
 WHERE
     users.id = :user.userId
 RETURNING
     id
   , username
   , email
-  , lang
+  , languages
 ;;;
 -- name:insertUser :: (String, String)
 -- :user :: NewUser
 INSERT INTO
   users
-  (username, passpass, email, lang)
+  (username, passpass, email, languages)
 VALUES
-  (:user.newuserUsername, :user.newuserPassword, :user.newuserEmail, :user.newuserLang)
+  (:user.newuserUsername, :user.newuserPassword, :user.newuserEmail, :user.newuserLanguages)
 RETURNING
     id
   , username
@@ -57,7 +57,7 @@ SELECT
     id
   , username
   , email
-  , lang
+  , languages
 FROM
   users
   JOIN user_id
@@ -76,7 +76,7 @@ RETURNING
     id
   , username
   , email
-  , lang
+  , languages
 ;;;
 -- name:getUser :: (Int, String)
 -- :userName :: String
@@ -101,7 +101,7 @@ WHERE
 -- name:getAllWords :: [Word]
 -- :user :: User
 SELECT
-  id, COALESCE(language, 'EN'), word, COALESCE(definition, 'def'), keywords, difficulty
+  id, language, word, definition, keywords, difficulty
 FROM
   words
 WHERE
@@ -110,22 +110,29 @@ WHERE
 -- name:getQuizzWordsKeyword :: [Word]
 -- :user :: User
 -- :keyword :: String
-SELECT
-  id, COALESCE(language, 'EN'), word, COALESCE(definition, 'def'), keywords, difficulty
+WITH possible_words AS (
+  SELECT
+    id
+  FROM
+    words
+  ORDER BY
+    get_word_score(last_query_at, difficulty) DESC
+  LIMIT
+    100
+)
+SELECT 
+  id, language, word, definition, keywords, difficulty
 FROM
-  words
-WHERE
-  userid = :user.userId AND
-  :keyword = ANY (keywords)
+  words join possible_words ON words.id = possible_words.id
 ORDER BY
-  RANDOM ()
+  random()
 LIMIT
   5
 ;;;
 -- name:getLastWords :: [Word]
 -- :user :: User
 SELECT
-  id, COALESCE(language, 'EN'), word, COALESCE(definition, 'def'), keywords, difficulty
+  id, language, word, definition, keywords, difficulty
 FROM
   words
 WHERE
@@ -138,7 +145,7 @@ LIMIT 20
 -- :user :: User
 -- :keyword :: String
 SELECT
-  id, COALESCE(language, 'EN'), word, COALESCE(definition, 'def'), keywords, difficulty
+  id, language, word, definition, keywords, difficulty
 FROM
   words
 WHERE
@@ -159,7 +166,7 @@ WHERE
 -- :user :: User
 -- :searchWord :: String
 SELECT
-  id, COALESCE(language, 'EN'), word, COALESCE(definition, 'def'), keywords, difficulty
+  id, language, word, definition, keywords, difficulty
 FROM
   words
 WHERE
@@ -171,7 +178,7 @@ LIMIT
 -- name:getSearchWordsUser :: [Word]
 -- :user :: User
 SELECT
-  id, COALESCE(language, 'EN'), word, COALESCE(definition, 'def'), keywords, difficulty
+  id, language, word, definition, keywords, difficulty
 FROM
   words
 WHERE
@@ -185,7 +192,7 @@ LIMIT
 -- :user :: User
 -- :keyword :: String
 SELECT
-  id, COALESCE(language, 'EN'), word, COALESCE(definition, 'def'), keywords, difficulty
+  id, language, word, definition, keywords, difficulty
 FROM
   words
 WHERE
@@ -199,7 +206,7 @@ LIMIT
 -- :searchWord :: String
 -- :keyword :: String
 SELECT
-  id, COALESCE(language, 'EN'), word, COALESCE(definition, 'def'), keywords, difficulty
+  id, language, word, definition, keywords, difficulty
 FROM
   words
 WHERE
@@ -213,7 +220,7 @@ LIMIT
 -- :user :: User
 -- :wordId :: WordId
 SELECT
-  id, COALESCE(language, 'EN'), word, COALESCE(definition, 'def'), keywords, difficulty
+  id, language, word, definition, keywords, difficulty
 FROM
   words
 WHERE
@@ -242,6 +249,12 @@ RETURNING
   , "definition"
   , "keywords"
   , "difficulty"
+;;;
+-- name:verifyWord :: (Integer)
+-- :user :: User
+-- :wordId :: Int
+-- :testDefinition :: Word
+SELECT verify_word(:wordId, :testDefinition)
 ;;;
 -- name:insertWord :: (Integer)
 -- :user :: User

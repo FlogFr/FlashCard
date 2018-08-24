@@ -5,3 +5,4 @@
 0002-users 2018-07-16T07:41:01Z aRkadeFR <contact@arkade.info> # Add 0002-users deploy change
 0003-tokens 2018-08-03T07:06:48Z aRkadeFR <contact@arkade.info> # 0003-tokens temporary for authentication
 0004-session 2018-08-05T09:57:37Z aRkadeFR <contact@arkade.info> # Add 0004-session handle / table
+0005-scoring 2018-08-23T20:29:16Z aRkadeFR <contact@arkade.info> # Add 0005-scoring for words

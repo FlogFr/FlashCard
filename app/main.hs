@@ -1,22 +1,16 @@
 module Main (main) where
 
-import Data.Pool (Pool, createPool)
 import API
-import Database.HDBC.PostgreSQL (Connection, connectPostgreSQL)
-import Database.HDBC (disconnect)
-
-type DBConnectionString = String
-
-initConnectionPool :: DBConnectionString -> IO (Pool Connection)
-initConnectionPool connStr =
-  createPool (connectPostgreSQL connStr)
-             disconnect
-             2 -- stripes
-             60 -- unused connection are kept open for a minute
-             10 -- max. 10 connections open per stripe
+import SQL
+import Data.Yaml
+import Config
+import System.Environment
 
 main :: IO ()
 main = do
-  let connStr = "service=words"
-  pool <- initConnectionPool connStr
-  runApp pool
+  maybeConfig <- decodeFile "config.yml"
+  case maybeConfig of
+    Just config -> do
+      pool <- initConnectionPool $ "service=" ++ (pgservice config)
+      runApp pool
+    Nothing -> fail "impossible to load the config.yml file"
