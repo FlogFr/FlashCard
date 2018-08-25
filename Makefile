@@ -3,7 +3,7 @@ POSIXCUBE_BIN ?= ~/Projects/posixcube/posixcube.sh
 .PHONY: ghci
 ghci:
 	# ghci accepts --test / --bench and --flag parameters
-	stack ghci
+	stack ghci app/main.hs
 
 .PHONY: test
 test:

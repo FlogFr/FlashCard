@@ -1,4 +1,8 @@
-{-# LANGUAGE QuasiQuotes, DataKinds, DeriveGeneric, DeriveDataTypeable, FlexibleInstances, TypeOperators, TemplateHaskell, MultiParamTypeClasses #-}
+{-# LANGUAGE DataKinds #-}
+{-# LANGUAGE DeriveGeneric #-}
+{-# LANGUAGE FlexibleInstances #-}
+{-# LANGUAGE TypeOperators #-}
+{-# LANGUAGE MultiParamTypeClasses #-}
 
 module NewUser
   ( NewUser(..)
@@ -11,11 +15,6 @@ module NewUser
 
 import Data.Swagger (ToSchema)
 import Data.Aeson
-import Data.Typeable
-import Data.Convertible
-import Database.HDBC
-import Database.YeshQL.HDBC.SqlRow.Class
-import Database.YeshQL.HDBC.SqlRow.TH
 import GHC.Generics
 import Servant.Elm (ElmType)
 import StringArray

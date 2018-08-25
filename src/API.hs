@@ -1,14 +1,9 @@
 {-# LANGUAGE DataKinds                  #-}
-{-# LANGUAGE DeriveDataTypeable         #-}
-{-# LANGUAGE DeriveGeneric              #-}
 {-# LANGUAGE FlexibleContexts           #-}
 {-# LANGUAGE FlexibleInstances          #-}
-{-# LANGUAGE GeneralizedNewtypeDeriving #-}
 {-# LANGUAGE MultiParamTypeClasses      #-}
 {-# LANGUAGE OverloadedStrings          #-}
-{-# LANGUAGE QuasiQuotes                #-}
 {-# LANGUAGE ScopedTypeVariables        #-}
-{-# LANGUAGE TemplateHaskell            #-}
 {-# LANGUAGE TypeFamilies               #-}
 {-# LANGUAGE TypeOperators              #-}
 {-# LANGUAGE UndecidableInstances       #-}
@@ -27,16 +22,11 @@ module API
 import           Auth
 import           Control.Lens
 import           Control.Monad.IO.Class               (liftIO)
-import           Data.Aeson
-import qualified Data.ByteString.Lazy.UTF8            as BU
-import           Data.Convertible.Base
 import           Data.Pool
 import           Data.Swagger
-import           Database.HDBC                        (catchSql, commit,
-                                                       withTransaction)
-import           Database.HDBC.PostgreSQL             (Connection, begin)
+import           Database.HDBC.PostgreSQL             (Connection)
+import           Database.HDBC                        (withTransaction)
 import           FullUser
-import           GHC.Generics
 import           GrantUser
 import           JWTToken
 import           Network.Wai
@@ -50,7 +40,6 @@ import           Servant.API                          ((:<|>) ((:<|>)), (:>),
                                                        Get, JSON,
                                                        NoContent (..), Post,
                                                        ReqBody)
-import           Servant.Server
 import           Servant.Swagger
 import           Servant.Swagger.UI
 import           SQL
@@ -59,19 +48,11 @@ import           User
 import           Word
 
 
-mkError :: ServantErr -> String -> ServantErr
-mkError errorType message = errorType { errBody = BU.fromString message }
-
-
-error400 :: String -> ServantErr
-error400 = mkError err400
-
-
 pgNewToken :: Connection -> IO Token
 pgNewToken conn = do
   maybeToken <- getNewToken conn
   case maybeToken of
-    Just token -> return $ Token token
+    Just returnedToken -> return $ Token returnedToken
     Nothing    -> return $ Token ""
 
 pgCreateUser :: String -> NewUser -> Connection -> IO NoContent
@@ -104,66 +85,55 @@ authServer :: Pool Connection -> Server AuthAPI
 authServer conns = newToken :<|> createUser :<|> grantHandler
  where
   newToken :: Handler Token
-  newToken = do
-    liftIO $ withResource conns $ \conn -> do
-      withTransaction conn $ \conn -> do
-        token <- pgNewToken conn
-        return token
+  newToken = liftIO $ withResource conns $ \conn ->
+    withTransaction conn $ \transactionConn -> pgNewToken transactionConn
 
   createUser :: String -> NewUser -> Handler NoContent
   createUser uuid newUser = do
     liftIO pgExec
     return NoContent
    where
-    pgExec = withResource conns $ \conn -> do
-      withTransaction conn $ \conn -> do
-        token <- pgCreateUser uuid newUser conn
-        return ()
+    pgExec =
+      withResource conns
+        $ \conn -> withTransaction conn $ \transactionConn -> do
+            _ <- pgCreateUser uuid newUser transactionConn
+            return ()
 
   grantHandler :: GrantUser -> Handler JWTToken
-  grantHandler grantUser = do
-    liftIO $ withResource conns $ \conn -> do
-      withTransaction conn $ \conn -> do
-        jwtToken <- pgGrantUserJWTToken grantUser conn
-        return jwtToken
+  grantHandler grantUser = liftIO $ withResource conns $ \conn ->
+    withTransaction conn
+      $ \transactionConn -> pgGrantUserJWTToken grantUser transactionConn
 
 -- | API for the users
 type UserAPI = Get '[JSON] User
           :<|> ReqBody '[JSON] FullUser :> Put '[JSON] User
 
 userServer :: User -> Pool Connection -> Server UserAPI
-userServer user conns = retrieveUser
-                   :<|> putUser
+userServer user conns = retrieveUser :<|> putUser
+ where
+  retrieveUser :: Handler User
+  retrieveUser = return user
 
-  where retrieveUser :: Handler User
-        retrieveUser = return user
-
-        putUser :: FullUser -> Handler User
-        putUser fullUser = do
-          liftIO $ 
-            withResource conns $ \conn -> do
-              withTransaction conn $ \conn -> do
-                maybeUser <- updateFullUser user fullUser conn
-                case maybeUser of
-                  Just user -> return $ user
-                  Nothing -> fail "cant find the user to update"
+  putUser :: FullUser -> Handler User
+  putUser fullUser =
+    liftIO
+      $ withResource conns
+      $ \conn -> withTransaction conn $ \transactionConn -> do
+          maybeUser <- updateFullUser user fullUser transactionConn
+          case maybeUser of
+            Just updatedUser -> return updatedUser
+            Nothing          -> fail "cant find the user to update"
 
 -- Helpers for the word API
-pgRetrieveSearchWords :: User -> Maybe String -> Maybe String -> Connection -> IO [Word]
-pgRetrieveSearchWords user maybeSearchWord maybeSearchKeyword conn = do
+pgRetrieveSearchWords
+  :: User -> Maybe String -> Maybe String -> Connection -> IO [Word]
+pgRetrieveSearchWords user maybeSearchWord maybeSearchKeyword conn =
   case (maybeSearchWord, maybeSearchKeyword) of
-    (Just searchWord, Just searchKeyword) -> do
-      listWords <- getSearchWordsKeyword user searchWord searchKeyword conn
-      return $ listWords
-    (Just searchWord, Nothing) -> do
-      listWords <- getSearchWords user searchWord conn
-      return $ listWords
-    (Nothing, Just searchKeyword) -> do
-      listWords <- getSearchKeyword user searchKeyword conn
-      return $ listWords
-    (Nothing, Nothing) -> do
-      listWords <- getSearchWordsUser user conn
-      return $ listWords
+    (Just searchWord, Just searchKeyword) ->
+      getSearchWordsKeyword user searchWord searchKeyword conn
+    (Just searchWord, Nothing) -> getSearchWords user searchWord conn
+    (Nothing, Just searchKeyword) -> getSearchKeyword user searchKeyword conn
+    (Nothing, Nothing) -> getSearchWordsUser user conn
 
 -- | API for the words
 type WordAPI = "all" :> Get '[JSON] [Word]
@@ -177,97 +147,83 @@ type WordAPI = "all" :> Get '[JSON] [Word]
           :<|> "keywords" :> Get '[JSON] [String]
 
 wordServer :: User -> Pool Connection -> Server WordAPI
-wordServer user conns = retrieveAllWords
-                   :<|> retrieveLastWords
-                   :<|> quizzWordsByKeyword
-                   :<|> retrieveSearchWords
-                   :<|> retrieveWordById
-                   :<|> deleteWordByIdHandler
-                   :<|> putWordById
-                   :<|> postWord
-                   :<|> retrieveKeywords
+wordServer user conns =
+  retrieveAllWords
+    :<|> retrieveLastWords
+    :<|> quizzWordsByKeyword
+    :<|> retrieveSearchWords
+    :<|> retrieveWordById
+    :<|> deleteWordByIdHandler
+    :<|> putWordById
+    :<|> postWord
+    :<|> retrieveKeywords
+ where
+  retrieveAllWords :: Handler [Word]
+  retrieveAllWords = liftIO $ withResource conns $ \conn ->
+    withTransaction conn $ \transactionConn -> getAllWords user transactionConn
 
-  where retrieveAllWords :: Handler [Word]
-        retrieveAllWords = do
-          liftIO $ 
-            withResource conns $ \conn -> do
-              withTransaction conn $ \conn -> do
-                words <- getAllWords user conn
-                return words
+  retrieveLastWords :: Handler [Word]
+  retrieveLastWords = liftIO $ withResource conns $ \conn ->
+    withTransaction conn $ \transactionConn -> getLastWords user transactionConn
 
-        retrieveLastWords :: Handler [Word]
-        retrieveLastWords = do
-          liftIO $ 
-            withResource conns $ \conn -> do
-              withTransaction conn $ \conn -> do
-                words <- getLastWords user conn
-                return words
+  quizzWordsByKeyword :: String -> Handler [Word]
+  quizzWordsByKeyword keyword = liftIO $ withResource conns $ \conn ->
+    withTransaction conn
+      $ \transactionConn -> getQuizzWordsKeyword user keyword transactionConn
 
-        quizzWordsByKeyword :: String -> Handler [Word]
-        quizzWordsByKeyword keyword = do
-          liftIO $ 
-            withResource conns $ \conn -> do
-              withTransaction conn $ \conn -> do
-                listWords <- getQuizzWordsKeyword user keyword conn
-                return $ listWords
+  retrieveSearchWords :: Maybe String -> Maybe String -> Handler [Word]
+  retrieveSearchWords maybeSearchWord maybeSearchKeyword =
+    liftIO $ withResource conns $ \conn ->
+      withTransaction conn $ \transactionConn -> pgRetrieveSearchWords
+        user
+        maybeSearchWord
+        maybeSearchKeyword
+        transactionConn
 
-        retrieveSearchWords :: Maybe String -> Maybe String -> Handler [Word]
-        retrieveSearchWords maybeSearchWord maybeSearchKeyword = do
-          liftIO $ 
-            withResource conns $ \conn -> do
-              withTransaction conn $ \conn -> do
-                words <- pgRetrieveSearchWords user maybeSearchWord maybeSearchKeyword conn
-                return words
+  retrieveWordById :: WordId -> Handler Word
+  retrieveWordById wordId =
+    liftIO
+      $ withResource conns
+      $ \conn -> withTransaction conn $ \transactionConn -> do
+          maybeWord <- getWordById user wordId transactionConn
+          case maybeWord of
+            Just userWord -> return userWord
+            Nothing       -> fail "impossible to find the word"
 
-        retrieveWordById :: WordId -> Handler Word
-        retrieveWordById wordId = do
-          liftIO $ 
-            withResource conns $ \conn -> do
-              withTransaction conn $ \conn -> do
-                maybeWord <- getWordById user wordId conn
-                case maybeWord of
-                  Just word -> return word
-                  Nothing -> fail "impossible to find the word"
-
-        deleteWordByIdHandler :: WordId -> Handler NoContent
-        deleteWordByIdHandler wordId = do
-          liftIO $ 
-            withResource conns $ \conn -> do
-              withTransaction conn $ \conn -> do
-                words <- deleteWordById user wordId conn
-                return ()
+  deleteWordByIdHandler :: WordId -> Handler NoContent
+  deleteWordByIdHandler wordId =
+    liftIO
+      $ withResource conns
+      $ \conn -> withTransaction conn $ \transactionConn -> do
+          _ <- deleteWordById user wordId transactionConn
           return NoContent
 
-        putWordById :: Word -> WordId -> Handler Word
-        putWordById word wordId = do
-          liftIO $ 
-            withResource conns $ \conn -> do
-              withTransaction conn $ \conn -> do
-                maybeWord <- updateWordById user wordId word conn
-                case maybeWord of
-                  Just word -> return word
-                  Nothing -> fail "impossible to find the word"
+  putWordById :: Word -> WordId -> Handler Word
+  putWordById userWord wordId =
+    liftIO
+      $ withResource conns
+      $ \conn -> withTransaction conn $ \transactionConn -> do
+          maybeWord <- updateWordById user wordId userWord transactionConn
+          case maybeWord of
+            Just returnUserWord -> return returnUserWord
+            Nothing             -> fail "impossible to find the word"
 
-        postWord :: Word -> Handler NoContent
-        postWord newWord = do
-          liftIO $
-            withResource conns $ \conn -> do
-              withTransaction conn $ \conn -> do
-                insertWord user newWord conn
-                return ()
+  postWord :: Word -> Handler NoContent
+  postWord newWord =
+    liftIO
+      $ withResource conns
+      $ \conn -> withTransaction conn $ \transactionConn -> do
+          _ <- insertWord user newWord transactionConn
           return NoContent
 
-        retrieveKeywords :: Handler [String]
-        retrieveKeywords = do
-          liftIO $
-            withResource conns $ \conn -> do
-              withTransaction conn $ \conn -> do
-                keywords <- getAllKeywords user conn
-                return keywords
+  retrieveKeywords :: Handler [String]
+  retrieveKeywords = liftIO $ withResource conns $ \conn ->
+    withTransaction conn
+      $ \transactionConn -> getAllKeywords user transactionConn
 
 
 -- | API for serving @swagger.json@.
-type SwaggerAPI = "swagger.json" :> Get '[JSON] Swagger
+-- type SwaggerAPI = "swagger.json" :> Get '[JSON] Swagger
 
 -- | API for all objects
 type CombinedAPI = "user" :> UserAPI
@@ -280,15 +236,14 @@ type API = AuthProtect "jwt-auth" :> CombinedAPI
 
 combinedServer :: User -> Pool Connection -> Server CombinedAPI
 combinedServer user conns =
-  ((userServer user conns) :<|> (wordServer user conns))
+  userServer user conns :<|> wordServer user conns
 
 apiServer :: Pool Connection -> Server API
 apiServer conns =
-  let authCombinedServer (user :: User) = (combinedServer user conns)
-  in  (    authCombinedServer
-      :<|> (authServer conns)
+  let authCombinedServer (user :: User) = combinedServer user conns
+  in  authCombinedServer
+      :<|> authServer conns
       :<|> swaggerSchemaUIServer apiSwagger
-      )
 
 api :: Proxy API
 api = Proxy
@@ -317,7 +272,7 @@ corsPolicy = CorsResourcePolicy
   }
 
 runApp :: Pool Connection -> IO ()
-runApp conns = do
+runApp conns =
   Network.Wai.Handler.Warp.run
     8080
-    (logStdoutDev . (cors $ const $ Just corsPolicy) $ (app conns))
+    (logStdoutDev . cors (const $ Just corsPolicy) $ app conns)

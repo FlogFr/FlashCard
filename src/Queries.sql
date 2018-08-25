@@ -115,6 +115,9 @@ WITH possible_words AS (
     id
   FROM
     words
+  WHERE
+    userid = :user.userId AND
+    :keyword = ANY ( keywords )
   ORDER BY
     get_word_score(last_query_at, difficulty) DESC
   LIMIT
@@ -249,12 +252,6 @@ RETURNING
   , "definition"
   , "keywords"
   , "difficulty"
-;;;
--- name:verifyWord :: (Integer)
--- :user :: User
--- :wordId :: Int
--- :testDefinition :: Word
-SELECT verify_word(:wordId, :testDefinition)
 ;;;
 -- name:insertWord :: (Integer)
 -- :user :: User

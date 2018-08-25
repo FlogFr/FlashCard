@@ -1,4 +1,12 @@
-{-# LANGUAGE QuasiQuotes, DataKinds, DeriveGeneric, DeriveDataTypeable, FlexibleInstances, TypeOperators, TemplateHaskell, MultiParamTypeClasses, NoImplicitPrelude #-}
+{-# LANGUAGE QuasiQuotes #-}
+{-# LANGUAGE DataKinds #-}
+{-# LANGUAGE DeriveGeneric #-}
+{-# LANGUAGE DeriveDataTypeable #-}
+{-# LANGUAGE FlexibleInstances #-}
+{-# LANGUAGE TypeOperators #-}
+{-# LANGUAGE TemplateHaskell #-}
+{-# LANGUAGE MultiParamTypeClasses #-}
+{-# LANGUAGE NoImplicitPrelude #-}
 
 module User
   ( User(..)
@@ -9,31 +17,20 @@ module User
 
 import           Data.Swagger                   ( ToSchema )
 import           Data.Aeson
-import           Data.Typeable
-import           Data.Convertible
 import           Data.Int
 import           Data.Eq
 import           Data.String
 import           Text.Show
-import           Data.ByteString.UTF8          as BUTF8
-                                                ( toString
-                                                , fromString
-                                                )
-import           Data.ByteString
 import           Database.HDBC
-import           Database.YeshQL.HDBC.SqlRow.Class
 import           Database.YeshQL.HDBC.SqlRow.TH
 import           GHC.Generics
-import           Prelude                        ( Integer
-                                                , Bool
-                                                )
 import           Servant.Elm                    ( ElmType )
 import           StringArray
 import           MaybeString
 
 
 data User = User
-  { id :: Int
+  { id        :: Int
   , username  :: String
   , email     :: MaybeString
   , languages :: StringArray

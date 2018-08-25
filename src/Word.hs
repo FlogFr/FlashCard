@@ -7,6 +7,7 @@
 {-# LANGUAGE MultiParamTypeClasses      #-}
 {-# LANGUAGE TypeSynonymInstances       #-}
 
+
 module Word
   ( Word(..)
   , WordId
@@ -16,15 +17,9 @@ module Word
 import Prelude hiding (Word, id)
 import Database.HDBC
 import Database.YeshQL.HDBC.SqlRow.TH
-import Data.ByteString.UTF8 as BUTF8 (toString, fromString)
-import Data.ByteString
-import Data.Convertible.Base
 import Data.Aeson
 import Data.Swagger
-import Data.List
-import User (User(..))
 import GHC.Generics
-import Prelude (Integer, Bool)
 import Servant.Elm (ElmType)
 import StringArray
 

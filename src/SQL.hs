@@ -1,26 +1,51 @@
-{-# LANGUAGE QuasiQuotes, DataKinds, DeriveGeneric, DeriveDataTypeable, FlexibleInstances, TypeOperators, TemplateHaskell, MultiParamTypeClasses, NoImplicitPrelude #-}
+{-# LANGUAGE QuasiQuotes #-}
+{-# LANGUAGE DataKinds #-}
+{-# LANGUAGE DeriveGeneric #-}
+{-# LANGUAGE DeriveDataTypeable #-}
+{-# LANGUAGE FlexibleInstances #-}
+{-# LANGUAGE TypeOperators #-}
+{-# LANGUAGE TemplateHaskell #-}
+{-# LANGUAGE MultiParamTypeClasses #-}
+{-# LANGUAGE NoImplicitPrelude #-}
 
 module SQL
   where
 
-import Data.Int
-import Data.String
-import Data.Pool (Pool, createPool)
-import System.IO
-import Database.HDBC
-import Database.HDBC.PostgreSQL (Connection, connectPostgreSQL)
-import Database.YeshQL.HDBC (yeshFile)
-import Database.YeshQL.HDBC.SqlRow.Class
-import Database.YeshQL.HDBC.SqlRow.TH
-import GHC.Generics
-import Prelude (Integer, Bool)
-
-import User
-import FullUser
-import GrantUser
-import NewUser
-import Word
-import Token
+import           Data.Int
+import           Data.String
+import           Data.Pool                      ( Pool
+                                                , createPool
+                                                )
+import           System.IO
+import           Database.HDBC
+import           Database.HDBC.PostgreSQL       ( Connection
+                                                , connectPostgreSQL
+                                                )
+import           Database.YeshQL.HDBC           ( yeshFile )
+import           Prelude                        ( Integer
+                                                , Bool
+                                                )
+import           User                           ( User
+                                                , userId
+                                                )
+import           FullUser                       ( FullUser
+                                                , fullUserEmail
+                                                , fullUserLanguages
+                                                )
+import           NewUser                        ( NewUser
+                                                , newuserUsername
+                                                , newuserPassword
+                                                , newuserEmail
+                                                , newuserLanguages
+                                                )
+import           Word                           ( Word
+                                                , WordId
+                                                , language
+                                                , word
+                                                , definition
+                                                , keywords
+                                                , difficulty
+                                                )
 
 
 type DBConnectionString = String

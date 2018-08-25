@@ -1,9 +1,6 @@
 {-# LANGUAGE OverloadedStrings          #-}
-{-# LANGUAGE QuasiQuotes                #-}
 {-# LANGUAGE TypeOperators              #-}
-{-# LANGUAGE TemplateHaskell            #-}
 {-# LANGUAGE DataKinds                  #-}
-{-# LANGUAGE DeriveGeneric              #-}
 {-# LANGUAGE FlexibleContexts           #-}
 {-# LANGUAGE FlexibleInstances          #-}
 {-# LANGUAGE MultiParamTypeClasses      #-}
@@ -14,16 +11,13 @@
 module Auth where
 
 import Data.ByteString                  (ByteString)
-import Data.Convertible.Base
 import Control.Monad.IO.Class (liftIO)
 import Servant        (throwError)
 import Servant.Server (Context((:.),
                                EmptyContext)
-                       , BasicAuthCheck(..)
                        , Context
-                       , err401, err403, errBody
+                       , err401, errBody
                        , Handler
-                       , BasicAuthResult(Authorized, Unauthorized)
                        )
 import Servant.API.Experimental.Auth    (AuthProtect)
 import Servant.Server.Experimental.Auth (AuthHandler, AuthServerData,
@@ -33,11 +27,9 @@ import Network.Wai                      (Request, requestHeaders)
 
 import Database.HDBC.PostgreSQL (withPostgreSQL, begin)
 import Database.HDBC (commit, SqlError, handleSql)
-import Database.YeshQL.HDBC (yeshFile)
 import Data.ByteString.UTF8 (toString)
 import SQL
 import User
-import Word (Word)
 
 -- | We need to specify the data returned after authentication
 type instance AuthServerData (AuthProtect "jwt-auth") = User
@@ -62,7 +54,7 @@ handlerLookupUserFromJWT jwtHeaderByteString = do
   either handlerSqlError returnUser $ eitherSqlErrorOrUser
   where
     throw401 msg = throwError $ err401 { errBody = msg }
-    handlerSqlError sqlErrorValue = 
+    handlerSqlError _ = 
       throw401 "Error of authentication"
     returnUser user = do
       return user

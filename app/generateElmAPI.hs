@@ -6,7 +6,7 @@
 module Main (main) where
 
 import Prelude hiding (Word)
-import API (CombinedAPI, userServer , UserAPI , WordAPI , wordServer)
+import API (CombinedAPI)
 import Word
 import User
 import Elm (Spec (Spec), specsToDir, toElmDecoderSource, toElmEncoderSource, toElmTypeSource)

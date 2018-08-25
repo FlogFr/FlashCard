@@ -8,7 +8,6 @@ import Json.Decode as Decode exposing (Value)
 import Html as Html exposing (..)
 import Html.Styled
 import Route exposing (Route)
-import Request exposing (..)
 import Views.Page as Page
 import Page.Errored as Errored
 import Page.Login as Login
@@ -21,10 +20,7 @@ import Page.Quizz as Quizz
 import Page.NotFound as NotFound
 import Data.Session exposing (..)
 import Data.Message exposing (..)
-import Request exposing (..)
 import API exposing (..)
-import Ports exposing (..)
-import Debug
 
 
 type Page

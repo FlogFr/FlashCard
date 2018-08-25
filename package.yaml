@@ -47,9 +47,6 @@ executables:
   generate-elm-api:
     main: generateElmAPI.hs
     source-dirs: app
-  test-sql:
-    main: testSQL.hs
-    source-dirs: app
 
 tests:
   spec:

@@ -26,7 +26,7 @@ spec :: Spec
 spec = with webApp $ do
     describe "GET /auth/token" $ do
       it "responds with 200" $
-        get "/auth/token" `shouldRespondWith` 200
+        get "/auth/token" `shouldRespondWith` 302
   where webApp = do
           pool <- initConnectionPool "service=words"
           return $ app pool

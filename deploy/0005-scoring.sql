@@ -3,7 +3,7 @@
 BEGIN;
 
   -- Create the word scoring system
-  CREATE OR REPLACE FUNCTION get_score_word (last_query_at TIMESTAMPTZ, difficulty INT)
+  CREATE OR REPLACE FUNCTION get_word_score (last_query_at TIMESTAMPTZ, difficulty INT)
   RETURNS INT
   AS $$
   BEGIN

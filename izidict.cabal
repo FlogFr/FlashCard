@@ -2,7 +2,7 @@
 --
 -- see: https://github.com/sol/hpack
 --
--- hash: cd103a70fda65185e623a38da837b5916adddbbb22aee0aaf4cdd2c5bcbd9206
+-- hash: 862007f62876066ccf6e24161edbdaf6ab1484c078e8b71963e2a05aee41c7d9
 
 name:           izidict
 version:        0.1.0.0
@@ -73,56 +73,6 @@ executable backend-exe
 
 executable generate-elm-api
   main-is: generateElmAPI.hs
-  other-modules:
-      API
-      Auth
-      Config
-      FullUser
-      GrantUser
-      JWTToken
-      MaybeString
-      NewUser
-      SQL
-      StringArray
-      Token
-      User
-      Word
-      Paths_izidict
-  hs-source-dirs:
-      src
-      app
-  ghc-options: -Wall
-  build-depends:
-      HDBC >=2.4.0.2
-    , HDBC-postgresql >=2.3.2.5
-    , aeson
-    , aeson-pretty
-    , base >=4.7 && <5
-    , bytestring >=0.10.8.2
-    , containers
-    , convertible
-    , elm-export
-    , lens
-    , mtl
-    , resource-pool >=0.2.3.2
-    , servant >=0.5
-    , servant-elm
-    , servant-server
-    , servant-swagger
-    , servant-swagger-ui
-    , swagger2
-    , utf8-string
-    , wai
-    , wai-cors >=0.2.6
-    , wai-extra
-    , warp
-    , yaml ==0.8.32
-    , yeshql >=4.1.0.1
-    , yeshql-hdbc >=4.1.0.1
-  default-language: Haskell2010
-
-executable test-sql
-  main-is: testSQL.hs
   other-modules:
       API
       Auth

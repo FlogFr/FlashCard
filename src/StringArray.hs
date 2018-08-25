@@ -1,4 +1,9 @@
-{-# LANGUAGE QuasiQuotes, DataKinds, DeriveGeneric, DeriveDataTypeable, FlexibleInstances, TypeOperators, TemplateHaskell, MultiParamTypeClasses, NoImplicitPrelude #-}
+{-# LANGUAGE DataKinds #-}
+{-# LANGUAGE FlexibleInstances #-}
+{-# LANGUAGE DeriveGeneric #-}
+{-# LANGUAGE TypeOperators #-}
+{-# LANGUAGE MultiParamTypeClasses #-}
+{-# LANGUAGE NoImplicitPrelude #-}
 
 module StringArray
   where
@@ -8,18 +13,25 @@ import Database.HDBC
 import Data.ByteString.UTF8 as BUTF8 (toString, fromString)
 import Data.ByteString
 import Data.Convertible.Base
+import Data.Swagger (ToSchema)
+import Data.Aeson
 import Data.Char
 import Data.String
 import Data.List
 import Data.Function
 import Data.Either
 import Data.Eq
-import Data.Aeson
-import Data.ByteString
 import GHC.Generics
-import Prelude (Integer, Bool)
+import Prelude (Bool, Show)
+import Servant.Elm (ElmType)
 
-type StringArray = [String]
+newtype StringArray = StringArray [String]
+  deriving (Eq, Generic, Show)
+
+instance ElmType StringArray
+instance ToSchema StringArray
+instance ToJSON StringArray
+instance FromJSON StringArray
 
 -- Convert From SQL / To SQL
 wordsWhen     :: (Char -> Bool) -> String -> [String]
@@ -38,14 +50,14 @@ myUnwords (w:ws)          = w ++ go ws
 
 innerArrayString :: String -> String
 innerArrayString fullArrayString =
-  Data.List.takeWhile (\x -> x /= '}' ) $ Data.List.drop 1 fullArrayString
+  Data.List.takeWhile (/= '}') $ Data.List.drop 1 fullArrayString
 
 byteStringToStringArray :: ByteString -> StringArray
 byteStringToStringArray byteString =
-  wordsWhen (==',') $ innerArrayString $ BUTF8.toString byteString
+  StringArray $ wordsWhen (==',') $ innerArrayString $ BUTF8.toString byteString
 
 stringArrayToByteString :: StringArray -> ByteString
-stringArrayToByteString stringArray =
+stringArrayToByteString (StringArray stringArray) =
   BUTF8.fromString $ "{" ++ myUnwords stringArray ++ "}"
 
 instance Convertible SqlValue StringArray where
