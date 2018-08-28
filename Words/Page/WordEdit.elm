@@ -1,12 +1,12 @@
 module Page.WordEdit exposing (Model, Msg(..), ExternalMsg(..), view, update, init, initialModel)
 
-import Util exposing ((=>))
 import API exposing (..)
+import String
 import Request exposing (..)
 import Task exposing (..)
 import Http exposing (..)
-import Html.Styled as Html exposing (..)
-import Html.Styled.Attributes exposing (..)
+import Html as Html exposing (..)
+import Html.Attributes exposing (..)
 import Data.Session exposing (..)
 import Route as Route exposing (Route(..), href)
 import Views.Words exposing (..)
@@ -64,7 +64,7 @@ view model =
 
         Just word ->
             div []
-                [ p [] [ text ("Word #" ++ toString (.id word)) ]
+                [ p [] [ text ("Word #" ++ String.fromInt (.id word)) ]
                 , viewWordForm word model.nbKeyword IncreaseNbKeyword RemoveKeyword UpdateWord UpdateWordRequest
                 ]
 
@@ -77,79 +77,103 @@ update : Session -> Msg -> Model -> ( ( Model, Cmd Msg ), ExternalMsg )
 update session msg model =
     case msg of
         TestMsg ->
-            model
-                => Cmd.none
-                => NoOp
+            ( ( model
+              , Cmd.none
+              )
+            , NoOp
+            )
 
         IncreaseNbKeyword ->
-            { model | nbKeyword = (model.nbKeyword + 1) }
-                => Cmd.none
-                => NoOp
+            ( ( { model | nbKeyword = (model.nbKeyword + 1) }
+              , Cmd.none
+              )
+            , NoOp
+            )
 
-        RemoveKeyword indexKeyword ->
+        RemoveKeyword argIndexKeyword ->
             let
                 removeKeyword word indexKeyword =
                     case word of
                         Just w ->
-                            Just { w | keywords = ((List.take indexKeyword w.keywords) ++ (List.drop (indexKeyword + 1) w.keywords)) }
+                            Just { w | keywords = ((List.take argIndexKeyword w.keywords) ++ (List.drop (argIndexKeyword + 1) w.keywords)) }
 
                         Nothing ->
                             word
             in
-                { model
-                    | nbKeyword = (model.nbKeyword - 1)
-                    , word = removeKeyword model.word indexKeyword
-                }
-                    => Cmd.none
-                    => NoOp
+                ( ( { model
+                        | nbKeyword = (model.nbKeyword - 1)
+                        , word = removeKeyword model.word argIndexKeyword
+                    }
+                  , Cmd.none
+                  )
+                , NoOp
+                )
 
         UpdateWord newWord ->
-            { model | word = Just newWord }
-                => Cmd.none
-                => NoOp
+            ( ( { model | word = Just newWord }
+              , Cmd.none
+              )
+            , NoOp
+            )
 
         WordEditInitFinished (Err httpError) ->
             case httpError of
                 BadStatus httpResponse ->
-                    model
-                        => Cmd.none
-                        => Logout
+                    ( ( model
+                      , Cmd.none
+                      )
+                    , Logout
+                    )
 
                 _ ->
-                    model
-                        => Cmd.none
-                        => NoOp
+                    ( ( model
+                      , Cmd.none
+                      )
+                    , NoOp
+                    )
 
         WordEditInitFinished (Ok word) ->
-            { model | word = Just word, nbKeyword = (List.length word.keywords + 1) }
-                => Cmd.none
-                => NoOp
+            ( ( { model | word = Just word, nbKeyword = (List.length word.keywords + 1) }
+              , Cmd.none
+              )
+            , NoOp
+            )
 
         UpdateWordRequest ->
             case model.word of
                 Nothing ->
-                    model
-                        => Cmd.none
-                        => NoOp
+                    ( ( model
+                      , Cmd.none
+                      )
+                    , NoOp
+                    )
 
                 Just word ->
-                    model
-                        => putWordsIdByWordIdCmd UpdateWordRequestFinished session word
-                        => NoOp
+                    ( ( model
+                      , putWordsIdByWordIdCmd UpdateWordRequestFinished session word
+                      )
+                    , NoOp
+                    )
 
         UpdateWordRequestFinished (Ok word) ->
-            { model | word = Just word }
-                => Cmd.none
-                => GoHome
+            ( ( { model | word = Just word }
+              , Cmd.none
+              )
+            , GoHome
+            )
 
         UpdateWordRequestFinished (Err httpError) ->
             case httpError of
                 BadStatus httpResponse ->
-                    model
-                        => Cmd.none
-                        => Logout
+                    ( ( model
+                      , Cmd.none
+                      )
+                    , Logout
+                    )
 
                 _ ->
-                    model
-                        => Cmd.none
-                        => NoOp
+                    ( ( model
+                      , Cmd.none
+                      )
+                    , NoOp
+                    )

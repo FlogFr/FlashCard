@@ -1,14 +1,13 @@
 module Page.Register exposing (ExternalMsg(..), Model, Msg(..), init, initialModel, view, update)
 
-import Util exposing ((=>))
 import API exposing (..)
 import Task exposing (..)
 import Route as Route
 import Http
 import Request exposing (..)
-import Html.Styled as Html exposing (..)
-import Html.Styled.Events exposing (..)
-import Html.Styled.Attributes exposing (attribute, placeholder, type_, action)
+import Html as Html exposing (..)
+import Html.Events exposing (..)
+import Html.Attributes exposing (attribute, placeholder, type_, action, class)
 import API exposing (..)
 import Data.Session exposing (..)
 import Views.Forms exposing (..)
@@ -59,9 +58,8 @@ type ExternalMsg
 
 view : Model -> Html Msg
 view model =
-    div []
-        [ viewErrorsDiv model.errors
-        , h1 [] [ text "Register:" ]
+    div [ class "form-div" ]
+        [ h1 [] [ text "Register", span [] [ a [ Route.href Route.Login ] [ text "or login" ] ] ]
         , viewFormRegister model.newUser model.nbLanguage IncreaseNbLanguage UpdateNewUser Register
         ]
 
@@ -74,14 +72,18 @@ update : Msg -> Model -> ( ( Model, Cmd Msg ), ExternalMsg )
 update msg model =
     case msg of
         InitFinished (Ok token) ->
-            { model | token = token }
-                => Cmd.none
-                => NoOp
+            ( ( { model | token = token }
+              , Cmd.none
+              )
+            , NoOp
+            )
 
         IncreaseNbLanguage ->
-            { model | nbLanguage = (model.nbLanguage + 1) }
-                => Cmd.none
-                => NoOp
+            ( ( { model | nbLanguage = (model.nbLanguage + 1) }
+              , Cmd.none
+              )
+            , NoOp
+            )
 
         InitFinished (Err err) ->
             let
@@ -102,24 +104,32 @@ update msg model =
                         Http.BadPayload _ _ ->
                             "bad payload"
             in
-                { model | errors = errorString :: model.errors }
-                    => Cmd.none
-                    => NoOp
+                ( ( { model | errors = errorString :: model.errors }
+                  , Cmd.none
+                  )
+                , NoOp
+                )
 
         UpdateNewUser newUser ->
-            { model | newUser = newUser }
-                => Cmd.none
-                => NoOp
+            ( ( { model | newUser = newUser }
+              , Cmd.none
+              )
+            , NoOp
+            )
 
         Register ->
-            model
-                => Http.send RegisterFinished (postNewUser model.token model.newUser)
-                => NoOp
+            ( ( model
+              , Http.send RegisterFinished (postNewUser model.token model.newUser)
+              )
+            , NoOp
+            )
 
         RegisterFinished (Ok _) ->
-            model
-                => Cmd.none
-                => GoLogin
+            ( ( model
+              , Cmd.none
+              )
+            , GoLogin
+            )
 
         RegisterFinished (Err err) ->
             let
@@ -140,6 +150,8 @@ update msg model =
                         Http.BadPayload _ _ ->
                             "bad payload"
             in
-                { model | errors = errorString :: model.errors }
-                    => Cmd.none
-                    => NoOp
+                ( ( { model | errors = errorString :: model.errors }
+                  , Cmd.none
+                  )
+                , NoOp
+                )

@@ -1,7 +1,6 @@
 module Views.Words exposing (..)
 
-import Html.Styled as Html exposing (..)
-import IziCss exposing (..)
+import Html as Html exposing (..)
 import Html.Attributes exposing (attribute)
 import API exposing (..)
 import Route exposing (..)
@@ -11,11 +10,11 @@ import Maybe as Maybe
 viewWordTr : Word -> Html msg
 viewWordTr word =
     tr []
-        [ td [ tdBorder ] [ text (.language word) ]
-        , td [ tdBorder ] [ text (.word word) ]
-        , td [ tdBorder ] [ text (.definition word) ]
-        , td [ tdBorder ] [ text (String.concat (List.intersperse ", " (.keywords word))) ]
-        , td [ tdBorder ]
+        [ td [] [ text (.language word) ]
+        , td [] [ text (.word word) ]
+        , td [] [ text (.definition word) ]
+        , td [] [ text (String.concat (List.intersperse ", " (.keywords word))) ]
+        , td []
             [ a [ href (WordEdit (.id word)) ] [ text "edit" ]
             , a [ href (WordDelete (.id word)) ] [ text "delete" ]
             ]
@@ -41,12 +40,12 @@ viewWordsTable words =
 
 viewWordCard : Word -> Html msg
 viewWordCard word =
-    div [ wordCardCss ]
-        [ div [ captionWordCss ]
-            [ h1 [ captionWordH1Css ] [ text (.word word) ]
-            , p [ captionWordLanguageCss ]
-                [ a [ iconWindowClose, href (WordDelete (.id word)) ] [ text " " ]
-                , a [ iconEdit, href (WordEdit (.id word)) ] [ text " " ]
+    div []
+        [ div []
+            [ h1 [] [ text (.word word) ]
+            , p []
+                [ a [ href (WordDelete (.id word)) ] [ text " " ]
+                , a [ href (WordEdit (.id word)) ] [ text " " ]
                 , text (.language word)
                 ]
             ]

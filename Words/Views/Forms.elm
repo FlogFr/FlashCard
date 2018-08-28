@@ -1,9 +1,9 @@
 module Views.Forms exposing (..)
 
-import IziCss exposing (..)
-import Html.Styled as Html exposing (..)
-import Html.Styled.Events exposing (..)
-import Html.Styled.Attributes exposing (..)
+import Html as Html exposing (..)
+import Html.Events exposing (..)
+import Html.Attributes exposing (..)
+import String
 import API exposing (..)
 
 
@@ -33,10 +33,12 @@ viewFormSearchWord keywords toSearchMsg toUpdateSearchWord toUpdateSearchKeyword
 
 viewFormLogin : msg -> (String -> msg) -> (String -> msg) -> Html msg
 viewFormLogin loginTryMsg typeLoginMsg typePasswordMsg =
-    Html.form [ niceBoxed, onSubmit loginTryMsg, action "javascript:void(0);" ]
-        [ input [ inputCss, onInput typeLoginMsg, placeholder "login" ] []
-        , input [ inputCss, onInput typePasswordMsg, placeholder "password", attribute "type" "password" ] []
-        , btn [ type_ "submit" ] [ text "log-in" ]
+    Html.form [ onSubmit loginTryMsg, action "javascript:void(0);" ]
+        [ label [ for "username" ] [ text "Username" ]
+        , input [ onInput typeLoginMsg, placeholder "username", attribute "type" "text" ] []
+        , label [ for "password" ] [ text "Password" ]
+        , input [ onInput typePasswordMsg, placeholder "password", attribute "type" "password" ] []
+        , button [ type_ "submit" ] [ text "log-in" ]
         ]
 
 
@@ -50,8 +52,8 @@ viewLanguageUserInput user toIncreaseNbLanguage toUpdateUser toRemoveLanguage in
     let
         language =
             case (List.head <| List.drop indexInput user.languages) of
-                Just language ->
-                    language
+                Just responseLanguage ->
+                    responseLanguage
 
                 Nothing ->
                     ""
@@ -75,21 +77,22 @@ viewLanguageUserInputs numberOfInput toIncreaseNbLanguage toRemoveLanguage user 
 
 viewFormUpdateUser : User -> Int -> msg -> (Int -> msg) -> (User -> msg) -> msg -> (String -> msg) -> Html msg
 viewFormUpdateUser user nbLanguage toIncreaseNbLanguage toRemoveLanguage toUpdateNewUser toUpdateMsg toUpdatePassword =
-    Html.form [ niceBoxed, onSubmit toUpdateMsg, action "javascript:void(0);" ]
-        ([ input [ inputCss, onInput toUpdatePassword, placeholder "new password", attribute "type" "password" ] []
-         , input [ inputCss, onInput (\v -> toUpdateNewUser { user | email = Just v }), placeholder "new email", value (Maybe.withDefault "" user.email) ] []
+    Html.form [ onSubmit toUpdateMsg, action "javascript:void(0);" ]
+        ([ input [ onInput toUpdatePassword, placeholder "new password", attribute "type" "password" ] []
+         , input [ onInput (\v -> toUpdateNewUser { user | email = Just v }), placeholder "new email", value (Maybe.withDefault "" user.email) ] []
          ]
             ++ (viewLanguageUserInputs nbLanguage toIncreaseNbLanguage toRemoveLanguage user toUpdateNewUser)
-            ++ [ btn [ type_ "submit" ] [ text "update password" ]
+            ++ [ button [ type_ "submit" ] [ text "update password" ]
                ]
         )
 
 
 viewLanguageNewUserInput : NewUser -> msg -> (NewUser -> msg) -> Int -> Html msg
 viewLanguageNewUserInput newUser toIncreaseNbLanguage toUpdateRegisterModel indexInput =
-    (div []
-        [ input [ onInput (\v -> toUpdateRegisterModel { newUser | languages = updateNiemeListElement (indexInput + 1) v newUser.languages }), placeholder "languages to learn (2chars)" ] []
-        , button [ onClick toIncreaseNbLanguage, type_ "button" ] [ text ("(+) Add a language") ]
+    (div [ class "group-form" ]
+        [ label [ for ("language" ++ String.fromInt indexInput) ] [ text "Language" ]
+        , input [ onInput (\v -> toUpdateRegisterModel { newUser | languages = updateNiemeListElement (indexInput + 1) v newUser.languages }), placeholder "languages to learn (2chars)" ] []
+        , button [ onClick toIncreaseNbLanguage, class "button-add", type_ "button" ] [ span [ class "icon-plus" ] [] ]
         ]
     )
 
@@ -105,13 +108,16 @@ viewLanguageNewUserInputs numberOfInput toIncreaseNbLanguage newUser toUpdateReg
 
 viewFormRegister : NewUser -> Int -> msg -> (NewUser -> msg) -> msg -> Html msg
 viewFormRegister newUser nbLanguage toIncreaseNbLanguage toUpdateRegisterModel toRegisterMsg =
-    Html.form [ niceBoxed, onSubmit toRegisterMsg, action "javascript:void(0);" ]
-        ([ input [ onInput (\v -> toUpdateRegisterModel { newUser | username = v }), placeholder "username" ] []
+    Html.form [ onSubmit toRegisterMsg, action "javascript:void(0);" ]
+        ([ label [ for "username" ] [ text "Username" ]
+         , input [ onInput (\v -> toUpdateRegisterModel { newUser | username = v }), placeholder "username" ] []
+         , label [ for "password" ] [ text "Password" ]
          , input [ onInput (\v -> toUpdateRegisterModel { newUser | password = v }), placeholder "password", attribute "type" "password" ] []
+         , label [ for "email" ] [ text "Email" ]
          , input [ onInput (\v -> toUpdateRegisterModel { newUser | email = Just v }), placeholder "email" ] []
          ]
             ++ (viewLanguageNewUserInputs nbLanguage toIncreaseNbLanguage newUser toUpdateRegisterModel)
-            ++ [ btn [ type_ "submit" ] [ text "please, register me" ]
+            ++ [ button [ type_ "submit" ] [ text "please, register me" ]
                ]
         )
 
@@ -121,8 +127,8 @@ viewKeywordInput word toIncreaseNbKeyword toRemoveKeyword toUpdateWord indexInpu
     let
         keyword =
             case (List.head <| List.drop indexInput word.keywords) of
-                Just keyword ->
-                    keyword
+                Just responseKeyword ->
+                    responseKeyword
 
                 Nothing ->
                     ""
@@ -152,7 +158,7 @@ viewWordForm word nbKeyword toIncreaseNbKeyword toRemoveKeyword toUpdateWord toU
          ]
             ++ (viewKeywordInputs nbKeyword toIncreaseNbKeyword toRemoveKeyword word toUpdateWord)
             ++ [ input [ onInput (\v -> toUpdateWord { word | definition = v }), placeholder "definition", value (.definition word) ] []
-               , input [ placeholder "difficulty (0 to 10)", value (toString (Maybe.withDefault 0 (.difficulty word))) ] []
-               , btn [ type_ "submit" ] [ text "Update word" ]
+               , input [ placeholder "difficulty (0 to 10)", value (String.fromInt (Maybe.withDefault 0 (.difficulty word))) ] []
+               , button [ type_ "submit" ] [ text "Update word" ]
                ]
         )

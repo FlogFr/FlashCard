@@ -1,8 +1,7 @@
 module API exposing (..)
 
-import Json.Decode exposing (..)
-import Json.Decode.Pipeline exposing (..)
-import Json.Encode
+import Json.Decode as D
+import Json.Encode as E
 import Http
 import String
 
@@ -11,10 +10,10 @@ type alias JWTToken =
     { token : String }
 
 
-encodeJWTToken : JWTToken -> Json.Encode.Value
+encodeJWTToken : JWTToken -> E.Value
 encodeJWTToken x =
-    Json.Encode.object
-        [ ( "token", Json.Encode.string x.token )
+    E.object
+        [ ( "token", E.string x.token )
         ]
 
 
@@ -28,27 +27,27 @@ type alias Word =
     }
 
 
-encodeWord : Word -> Json.Encode.Value
+encodeWord : Word -> E.Value
 encodeWord x =
-    Json.Encode.object
-        [ ( "id", Json.Encode.int x.id )
-        , ( "language", Json.Encode.string x.language )
-        , ( "word", Json.Encode.string x.word )
-        , ( "keywords", (Json.Encode.list << List.map Json.Encode.string) x.keywords )
-        , ( "definition", Json.Encode.string x.definition )
-        , ( "difficulty", (Maybe.withDefault Json.Encode.null << Maybe.map Json.Encode.int) x.difficulty )
+    E.object
+        [ ( "id", E.int x.id )
+        , ( "language", E.string x.language )
+        , ( "word", E.string x.word )
+        , ( "keywords", (E.list E.string) x.keywords )
+        , ( "definition", E.string x.definition )
+        , ( "difficulty", (Maybe.withDefault E.null << Maybe.map E.int) x.difficulty )
         ]
 
 
-decodeWord : Decoder Word
+decodeWord : D.Decoder Word
 decodeWord =
-    decode Word
-        |> required "id" int
-        |> required "language" string
-        |> required "word" string
-        |> required "keywords" (list string)
-        |> required "definition" string
-        |> required "difficulty" (maybe int)
+    D.map6 Word
+        (D.field "id" D.int)
+        (D.field "language" D.string)
+        (D.field "word" D.string)
+        (D.field "keywords" (D.list D.string))
+        (D.field "definition" D.string)
+        (D.field "difficulty" (D.nullable D.int))
 
 
 type alias User =
@@ -82,63 +81,63 @@ type alias NewUser =
     }
 
 
-encodeUser : User -> Json.Encode.Value
+encodeUser : User -> E.Value
 encodeUser x =
-    Json.Encode.object
-        [ ( "id", Json.Encode.int x.userid )
-        , ( "username", Json.Encode.string x.username )
-        , ( "email", (Maybe.withDefault Json.Encode.null << Maybe.map Json.Encode.string) x.email )
-        , ( "languages", (Json.Encode.list << List.map Json.Encode.string) x.languages )
+    E.object
+        [ ( "id", E.int x.userid )
+        , ( "username", E.string x.username )
+        , ( "email", (Maybe.withDefault E.null << Maybe.map E.string) x.email )
+        , ( "languages", (E.list E.string) x.languages )
         ]
 
 
-encodeFullUser : FullUser -> Json.Encode.Value
+encodeFullUser : FullUser -> E.Value
 encodeFullUser x =
-    Json.Encode.object
-        [ ( "id", Json.Encode.int x.userid )
-        , ( "username", Json.Encode.string x.username )
-        , ( "passpass", Json.Encode.string x.password )
-        , ( "email", (Maybe.withDefault Json.Encode.null << Maybe.map Json.Encode.string) x.email )
-        , ( "languages", (Json.Encode.list << List.map Json.Encode.string) x.languages )
+    E.object
+        [ ( "id", E.int x.userid )
+        , ( "username", E.string x.username )
+        , ( "passpass", E.string x.password )
+        , ( "email", (Maybe.withDefault E.null << Maybe.map E.string) x.email )
+        , ( "languages", (E.list E.string) x.languages )
         ]
 
 
-encodeNewUser : NewUser -> Json.Encode.Value
+encodeNewUser : NewUser -> E.Value
 encodeNewUser x =
-    Json.Encode.object
-        [ ( "username", Json.Encode.string x.username )
-        , ( "password", Json.Encode.string x.password )
-        , ( "email", (Maybe.withDefault Json.Encode.null << Maybe.map Json.Encode.string) x.email )
-        , ( "languages", (Json.Encode.list << List.map Json.Encode.string) x.languages )
+    E.object
+        [ ( "username", E.string x.username )
+        , ( "password", E.string x.password )
+        , ( "email", (Maybe.withDefault E.null << Maybe.map E.string) x.email )
+        , ( "languages", (E.list E.string) x.languages )
         ]
 
 
-encodeGrantUser : GrantUser -> Json.Encode.Value
+encodeGrantUser : GrantUser -> E.Value
 encodeGrantUser grantUser =
-    Json.Encode.object
-        [ ( "username", Json.Encode.string (.username grantUser) )
-        , ( "password", Json.Encode.string (.password grantUser) )
+    E.object
+        [ ( "username", E.string (.username grantUser) )
+        , ( "password", E.string (.password grantUser) )
         ]
 
 
-decodeUser : Decoder User
+decodeUser : D.Decoder User
 decodeUser =
-    decode User
-        |> required "id" int
-        |> required "username" string
-        |> required "email" (maybe string)
-        |> required "languages" (list string)
+    D.map4 User
+        (D.field "id" D.int)
+        (D.field "username" D.string)
+        (D.field "email" (D.nullable D.string))
+        (D.field "languages" (D.list D.string))
 
 
-decodeToken : Decoder String
+decodeToken : D.Decoder String
 decodeToken =
-    field "token" string
+    D.field "token" D.string
 
 
-decodeJWTToken : Decoder JWTToken
+decodeJWTToken : D.Decoder JWTToken
 decodeJWTToken =
-    decode JWTToken
-        |> required "token" string
+    D.map JWTToken
+        (D.field "token" D.string)
 
 
 type NoContent
@@ -286,7 +285,7 @@ getWordsAll headers =
         , body =
             Http.emptyBody
         , expect =
-            Http.expectJson (list decodeWord)
+            Http.expectJson (D.list decodeWord)
         , timeout =
             Nothing
         , withCredentials =
@@ -307,12 +306,12 @@ getWordsQuizz headers keyword =
                 , "words"
                 , "quizz"
                 , "keyword"
-                , keyword |> Http.encodeUri
+                , keyword
                 ]
         , body =
             Http.emptyBody
         , expect =
-            Http.expectJson (list decodeWord)
+            Http.expectJson (D.list decodeWord)
         , timeout =
             Nothing
         , withCredentials =
@@ -336,7 +335,7 @@ getWordsKeywords headers =
         , body =
             Http.emptyBody
         , expect =
-            Http.expectJson (list string)
+            Http.expectJson (D.list D.string)
         , timeout =
             Nothing
         , withCredentials =
@@ -360,7 +359,7 @@ getWordsLast headers =
         , body =
             Http.emptyBody
         , expect =
-            Http.expectJson (list decodeWord)
+            Http.expectJson (D.list decodeWord)
         , timeout =
             Nothing
         , withCredentials =
@@ -397,7 +396,7 @@ getWordsSearchBySearchWord headers searchWord searchKeyword =
             , body =
                 Http.emptyBody
             , expect =
-                Http.expectJson (list decodeWord)
+                Http.expectJson (D.list decodeWord)
             , timeout =
                 Nothing
             , withCredentials =
@@ -417,7 +416,7 @@ getWordsIdByWordId headers capture_wordId =
                 [ "http://127.1:8080"
                 , "words"
                 , "id"
-                , capture_wordId |> toString |> Http.encodeUri
+                , capture_wordId |> String.fromInt
                 ]
         , body =
             Http.emptyBody
@@ -442,7 +441,7 @@ deleteWordsIdByWordId headers capture_wordId =
                 [ "http://127.1:8080"
                 , "words"
                 , "id"
-                , capture_wordId |> toString |> Http.encodeUri
+                , capture_wordId |> String.fromInt
                 ]
         , body =
             Http.emptyBody
@@ -473,7 +472,7 @@ putWordsIdByWordId headers capture_wordId body =
                 [ "http://127.1:8080"
                 , "words"
                 , "id"
-                , capture_wordId |> toString |> Http.encodeUri
+                , capture_wordId |> String.fromInt
                 ]
         , body =
             Http.jsonBody (encodeWord body)
@@ -487,7 +486,7 @@ putWordsIdByWordId headers capture_wordId body =
 
 
 postWords : List Http.Header -> Word -> Http.Request NoContent
-postWords headers body =
+postWords headers argBody =
     Http.request
         { method =
             "POST"
@@ -499,7 +498,7 @@ postWords headers body =
                 , "words"
                 ]
         , body =
-            Http.jsonBody (encodeWord body)
+            Http.jsonBody (encodeWord argBody)
         , expect =
             Http.expectStringResponse
                 (\{ body } ->

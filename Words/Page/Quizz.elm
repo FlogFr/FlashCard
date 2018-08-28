@@ -2,13 +2,12 @@ module Page.Quizz exposing (Model, Msg(..), initialModel, view, init, update)
 
 import Http
 import Task exposing (..)
-import Html.Styled as Html exposing (..)
-import Html.Styled.Attributes exposing (..)
+import Html as Html exposing (..)
+import Html.Attributes exposing (..)
 import Route exposing (Route(..), href)
 import Data.Session exposing (..)
 import Views.Words exposing (..)
 import Request exposing (..)
-import Util exposing ((=>))
 import API exposing (..)
 
 
@@ -60,16 +59,22 @@ update : Session -> Msg -> Model -> ( ( Model, Cmd Msg ), ExternalMsg )
 update session msg model =
     case msg of
         QuizzInitFinished (Ok listWords) ->
-            { model | words = listWords }
-                => Cmd.none
-                => NoOp
+            ( ( { model | words = listWords }
+              , Cmd.none
+              )
+            , NoOp
+            )
 
         QuizzInitFinished (Err _) ->
-            model
-                => Cmd.none
-                => NoOp
+            ( ( model
+              , Cmd.none
+              )
+            , NoOp
+            )
 
         TestMsg ->
-            model
-                => Cmd.none
-                => NoOp
+            ( ( model
+              , Cmd.none
+              )
+            , NoOp
+            )

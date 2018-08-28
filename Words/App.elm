@@ -1,13 +1,17 @@
 module WordApp exposing (main)
 
-import Navigation exposing (Location)
-import Util exposing ((=>))
+import Browser
+import Browser.Navigation
+import Url
 import Http
+import Maybe
+import Result
 import Task exposing (..)
-import Json.Decode as Decode exposing (Value)
+import Json.Decode as D
+import Json.Encode as E
 import Html as Html exposing (..)
-import Html.Styled
-import Route exposing (Route)
+import Html
+import Route exposing (..)
 import Views.Page as Page
 import Page.Errored as Errored
 import Page.Login as Login
@@ -20,7 +24,9 @@ import Page.Quizz as Quizz
 import Page.NotFound as NotFound
 import Data.Session exposing (..)
 import Data.Message exposing (..)
+import Ports
 import API exposing (..)
+import Debug
 
 
 type Page
@@ -41,76 +47,85 @@ type Page
 type alias Model =
     { messages : List Message
     , session : Session
+    , key : Browser.Navigation.Key
     , page : Page
     }
 
 
-init : Value -> Location -> ( Model, Cmd Msg )
-init val location =
-    setRoute (Route.fromLocation location)
-        { messages = []
-        , session = (retrieveSessionFromJson val)
-        , page = NotFound
-        }
+init : D.Value -> Url.Url -> Browser.Navigation.Key -> ( Model, Cmd Msg )
+init flags url argKey =
+    let
+        sessionValue =
+            Result.withDefault (E.string "") (D.decodeValue (D.field "session" D.value) flags)
+    in
+        setRoute (fromUrl (Debug.log "url: " url))
+            { messages = []
+            , session = (retrieveSessionFromJson sessionValue)
+            , key = argKey
+            , page = NotFound
+            }
 
 
 
 -- VIEW --
 
 
-view : Model -> Html Msg
+view : Model -> Browser.Document Msg
 view model =
     let
         frame =
             Page.frame model.session model.messages
+
+        document htmlElement =
+            Browser.Document "IziDict.com - My Dictionnary Online!" [ htmlElement ]
     in
         case model.page of
             Login subModel ->
                 Login.view subModel
                     |> frame
-                    |> Html.Styled.map LoginMsg
-                    |> Html.Styled.toUnstyled
+                    |> Html.map LoginMsg
+                    |> document
 
             Register subModel ->
                 Register.view subModel
                     |> frame
-                    |> Html.Styled.map RegisterMsg
-                    |> Html.Styled.toUnstyled
+                    |> Html.map RegisterMsg
+                    |> document
 
             ProfileEdit subModel ->
                 ProfileEdit.view subModel
                     |> frame
-                    |> Html.Styled.map ProfileEditMsg
-                    |> Html.Styled.toUnstyled
+                    |> Html.map ProfileEditMsg
+                    |> document
 
             Home subModel ->
                 Home.view subModel model.session
                     |> frame
-                    |> Html.Styled.map HomeMsg
-                    |> Html.Styled.toUnstyled
+                    |> Html.map HomeMsg
+                    |> document
 
             WordEdit subModel ->
                 WordEdit.view subModel
                     |> frame
-                    |> Html.Styled.map WordEditMsg
-                    |> Html.Styled.toUnstyled
+                    |> Html.map WordEditMsg
+                    |> document
 
             WordDelete subModel ->
                 WordDelete.view subModel
                     |> frame
-                    |> Html.Styled.map WordDeleteMsg
-                    |> Html.Styled.toUnstyled
+                    |> Html.map WordDeleteMsg
+                    |> document
 
             Quizz subModel ->
                 Quizz.view subModel
                     |> frame
-                    |> Html.Styled.map QuizzMsg
-                    |> Html.Styled.toUnstyled
+                    |> Html.map QuizzMsg
+                    |> document
 
             NotFound ->
                 NotFound.view
                     |> frame
-                    |> Html.Styled.toUnstyled
+                    |> document
 
 
 
@@ -128,6 +143,8 @@ subscriptions model =
 
 type Msg
     = SetRoute (Maybe Route)
+    | ChangedUrl Url.Url
+    | ClickedLink Browser.UrlRequest
     | LoginMsg Login.Msg
     | RegisterMsg Register.Msg
     | RegisterInit (Result Http.Error String)
@@ -144,19 +161,33 @@ type Msg
 
 update : Msg -> Model -> ( Model, Cmd Msg )
 update msg model =
-    updatePage (.page model) msg model
+    updatePage (.page model) (Debug.log "msg: " msg) model
 
 
 updatePage : Page -> Msg -> Model -> ( Model, Cmd Msg )
 updatePage page msg model =
     case ( page, msg ) of
+        ( _, ChangedUrl url ) ->
+            setRoute (fromUrl url) model
+
+        ( _, ClickedLink urlRequest ) ->
+            case urlRequest of
+                Browser.Internal url ->
+                    ( model
+                    , Browser.Navigation.pushUrl model.key
+                        (Url.toString url)
+                    )
+
+                Browser.External _ ->
+                    ( model, Cmd.none )
+
         ( _, SetRoute route ) ->
             setRoute route model
 
         ( Login subModel, LoginMsg subMsg ) ->
             let
                 ( ( pageModel, pageMsg ), externalMsg ) =
-                    Login.update subMsg subModel
+                    Login.update subMsg model.key subModel
 
                 newModel =
                     case externalMsg of
@@ -166,16 +197,18 @@ updatePage page msg model =
                         Login.SetSession newSession ->
                             { model | session = newSession }
             in
-                { newModel | page = Login pageModel }
-                    => Cmd.map LoginMsg pageMsg
+                ( { newModel | page = Login pageModel }
+                , Cmd.map LoginMsg pageMsg
+                )
 
         ( Register subModel, RegisterInit subMsg ) ->
             let
                 ( ( pageModel, pageMsg ), externalMsg ) =
                     Register.update (Register.InitFinished subMsg) subModel
             in
-                { model | page = Register pageModel }
-                    => Cmd.map RegisterMsg pageMsg
+                ( { model | page = Register pageModel }
+                , Cmd.map RegisterMsg pageMsg
+                )
 
         ( Register subModel, RegisterMsg subMsg ) ->
             let
@@ -184,30 +217,35 @@ updatePage page msg model =
             in
                 case externalMsg of
                     Register.NoOp ->
-                        { model | page = Register pageModel }
-                            => Cmd.map RegisterMsg pageMsg
+                        ( { model | page = Register pageModel }
+                        , Cmd.map RegisterMsg pageMsg
+                        )
 
                     Register.GoLogin ->
-                        { model | page = Login Login.initialModel }
-                            => Route.modifyUrl Route.Login
+                        ( { model | page = Login Login.initialModel }
+                        , Route.modifyUrl Route.Login model.key
+                        )
 
         ( ProfileEdit subModel, ProfileEditMsg subMsg ) ->
             let
                 ( ( pageModel, pageMsg ), externalMsg ) =
-                    ProfileEdit.update model.session subMsg subModel
+                    ProfileEdit.update model.session model.key subMsg subModel
             in
                 case externalMsg of
                     ProfileEdit.NoOp ->
-                        { model | page = ProfileEdit pageModel }
-                            => Cmd.map ProfileEditMsg pageMsg
+                        ( { model | page = ProfileEdit pageModel }
+                        , Cmd.map ProfileEditMsg pageMsg
+                        )
 
                     ProfileEdit.Logout ->
-                        { model | session = (Session Nothing Nothing), messages = ((Message Warning "You got logged out") :: model.messages) }
-                            => Cmd.batch [ deleteSession, Route.modifyUrl Route.Login ]
+                        ( { model | session = (Session Nothing Nothing), messages = ((Message Warning "You got logged out") :: model.messages) }
+                        , Cmd.batch [ deleteSession, Route.modifyUrl Route.Login model.key ]
+                        )
 
                     ProfileEdit.UpdateSession newSession ->
-                        { model | session = newSession }
-                            => Cmd.map ProfileEditMsg pageMsg
+                        ( { model | session = newSession }
+                        , Cmd.map ProfileEditMsg pageMsg
+                        )
 
         ( Home subModel, HomeInit subMsg ) ->
             let
@@ -216,22 +254,26 @@ updatePage page msg model =
             in
                 case externalMsg of
                     Home.NoOp ->
-                        { model | page = Home pageModel }
-                            => Cmd.map HomeMsg pageMsg
+                        ( { model | page = Home pageModel }
+                        , Cmd.map HomeMsg pageMsg
+                        )
 
                     Home.Logout ->
-                        { model | session = (Session Nothing Nothing), messages = ((Message Warning "You got logged out") :: model.messages) }
-                            => Cmd.batch [ deleteSession, Route.modifyUrl Route.Login ]
+                        ( { model | session = (Session Nothing Nothing), messages = ((Message Warning "You got logged out") :: model.messages) }
+                        , Cmd.batch [ deleteSession, Route.modifyUrl Route.Login model.key ]
+                        )
 
                     Home.ReloadPage ->
                         case model.session.user of
                             Nothing ->
-                                { model | page = Home pageModel }
-                                    => Cmd.none
+                                ( { model | page = Home pageModel }
+                                , Cmd.none
+                                )
 
                             Just user ->
-                                { model | page = Home pageModel }
-                                    => Task.attempt HomeInit (Home.init (.session model))
+                                ( { model | page = Home pageModel }
+                                , Task.attempt HomeInit (Home.init (.session model))
+                                )
 
         ( Home subModel, HomeMsg subMsg ) ->
             let
@@ -240,22 +282,26 @@ updatePage page msg model =
             in
                 case externalMsg of
                     Home.NoOp ->
-                        { model | page = Home pageModel }
-                            => Cmd.map HomeMsg pageMsg
+                        ( { model | page = Home pageModel }
+                        , Cmd.map HomeMsg pageMsg
+                        )
 
                     Home.Logout ->
-                        { model | session = (Session Nothing Nothing), messages = ((Message Warning "You got logged out") :: model.messages) }
-                            => Cmd.batch [ deleteSession, Route.modifyUrl Route.Login ]
+                        ( { model | session = (Session Nothing Nothing), messages = ((Message Warning "You got logged out") :: model.messages) }
+                        , Cmd.batch [ deleteSession, Route.modifyUrl Route.Login model.key ]
+                        )
 
                     Home.ReloadPage ->
                         case model.session.user of
                             Nothing ->
-                                { model | page = Home pageModel }
-                                    => Cmd.none
+                                ( { model | page = Home pageModel }
+                                , Cmd.none
+                                )
 
                             Just user ->
-                                { model | page = Home pageModel }
-                                    => Task.attempt HomeInit (Home.init (.session model))
+                                ( { model | page = Home pageModel }
+                                , Task.attempt HomeInit (Home.init (.session model))
+                                )
 
         ( WordEdit subModel, WordEditInitMsg subMsg ) ->
             let
@@ -264,16 +310,19 @@ updatePage page msg model =
             in
                 case externalMsg of
                     WordEdit.NoOp ->
-                        { model | page = WordEdit pageModel }
-                            => Cmd.map WordEditMsg pageMsg
+                        ( { model | page = WordEdit pageModel }
+                        , Cmd.map WordEditMsg pageMsg
+                        )
 
                     WordEdit.Logout ->
-                        { model | session = (Session Nothing Nothing), messages = ((Message Warning "You got logged out") :: model.messages) }
-                            => Cmd.batch [ deleteSession, Route.modifyUrl Route.Login ]
+                        ( { model | session = (Session Nothing Nothing), messages = ((Message Warning "You got logged out") :: model.messages) }
+                        , Cmd.batch [ deleteSession, Route.modifyUrl Route.Login model.key ]
+                        )
 
                     WordEdit.GoHome ->
-                        model
-                            => Route.modifyUrl Route.Home
+                        ( model
+                        , Route.modifyUrl Route.Home model.key
+                        )
 
         ( WordEdit subModel, WordEditMsg subMsg ) ->
             let
@@ -282,16 +331,19 @@ updatePage page msg model =
             in
                 case externalMsg of
                     WordEdit.NoOp ->
-                        { model | page = WordEdit pageModel }
-                            => Cmd.map WordEditMsg pageMsg
+                        ( { model | page = WordEdit pageModel }
+                        , Cmd.map WordEditMsg pageMsg
+                        )
 
                     WordEdit.Logout ->
-                        { model | session = (Session Nothing Nothing), messages = ((Message Warning "You got logged out") :: model.messages) }
-                            => Cmd.batch [ deleteSession, Route.modifyUrl Route.Login ]
+                        ( { model | session = (Session Nothing Nothing), messages = ((Message Warning "You got logged out") :: model.messages) }
+                        , Cmd.batch [ deleteSession, Route.modifyUrl Route.Login model.key ]
+                        )
 
                     WordEdit.GoHome ->
-                        model
-                            => Route.modifyUrl Route.Home
+                        ( model
+                        , Route.modifyUrl Route.Home model.key
+                        )
 
         ( WordDelete subModel, WordDeleteInitMsg subMsg ) ->
             let
@@ -300,47 +352,54 @@ updatePage page msg model =
             in
                 case externalMsg of
                     WordDelete.NoOp ->
-                        { model | page = WordDelete pageModel }
-                            => Cmd.map WordDeleteMsg pageMsg
+                        ( { model | page = WordDelete pageModel }
+                        , Cmd.map WordDeleteMsg pageMsg
+                        )
 
                     WordDelete.Logout ->
-                        { model | session = (Session Nothing Nothing), messages = ((Message Warning "You got logged out") :: model.messages) }
-                            => Cmd.batch [ deleteSession, Route.modifyUrl Route.Login ]
+                        ( { model | session = (Session Nothing Nothing), messages = ((Message Warning "You got logged out") :: model.messages) }
+                        , Cmd.batch [ deleteSession, Route.modifyUrl Route.Login model.key ]
+                        )
 
                     WordDelete.GoHome ->
-                        model
-                            => Route.modifyUrl Route.Home
+                        ( model
+                        , Route.modifyUrl Route.Home model.key
+                        )
 
         ( Quizz subModel, QuizzInit subMsg ) ->
             let
                 ( ( pageModel, pageMsg ), externalMsg ) =
                     Quizz.update model.session (Quizz.QuizzInitFinished subMsg) subModel
             in
-                { model | page = Quizz pageModel }
-                    => Cmd.none
+                ( { model | page = Quizz pageModel }
+                , Cmd.none
+                )
 
         ( Quizz subModel, QuizzMsg subMsg ) ->
             ( model, Cmd.none )
 
         ( _, _ ) ->
             -- Disregard incoming messages that arrived for the wrong page
-            model => Cmd.none
+            ( model, Cmd.none )
 
 
 setRoute : Maybe Route -> Model -> ( Model, Cmd Msg )
 setRoute maybeRoute model =
     case maybeRoute of
         Nothing ->
-            { model | page = NotFound }
-                => Cmd.none
+            ( { model | page = NotFound }
+            , Cmd.none
+            )
 
         Just (Route.Login) ->
-            { model | page = Login Login.initialModel }
-                => Cmd.none
+            ( { model | page = Login Login.initialModel }
+            , Cmd.none
+            )
 
         Just (Route.Register) ->
-            { model | page = Register Register.initialModel }
-                => Task.attempt RegisterInit Register.init
+            ( { model | page = Register Register.initialModel }
+            , Task.attempt RegisterInit Register.init
+            )
 
         Just (Route.ProfileEdit) ->
             let
@@ -352,12 +411,14 @@ setRoute maybeRoute model =
                         Nothing ->
                             User 0 "" (Just "") []
             in
-                { model | page = ProfileEdit (ProfileEdit.initialModel user) }
-                    => Cmd.none
+                ( { model | page = ProfileEdit (ProfileEdit.initialModel user) }
+                , Cmd.none
+                )
 
         Just (Route.Logout) ->
-            { model | session = (Session Nothing Nothing) }
-                => Cmd.batch [ deleteSession, Route.modifyUrl Route.Login ]
+            ( { model | session = (Session Nothing Nothing) }
+            , Cmd.batch [ deleteSession, Route.modifyUrl Route.Login model.key ]
+            )
 
         Just (Route.Home) ->
             let
@@ -366,12 +427,14 @@ setRoute maybeRoute model =
             in
                 case model.session.user of
                     Nothing ->
-                        newModel
-                            => Cmd.none
+                        ( newModel
+                        , Cmd.none
+                        )
 
                     Just user ->
-                        newModel
-                            => Task.attempt HomeInit (Home.init (.session model))
+                        ( newModel
+                        , Task.attempt HomeInit (Home.init (.session model))
+                        )
 
         Just (Route.WordEdit wordId) ->
             let
@@ -380,12 +443,14 @@ setRoute maybeRoute model =
             in
                 case model.session.user of
                     Nothing ->
-                        newModel
-                            => Cmd.none
+                        ( newModel
+                        , Cmd.none
+                        )
 
                     Just user ->
-                        newModel
-                            => Task.attempt WordEditInitMsg (WordEdit.init (.session model) wordId)
+                        ( newModel
+                        , Task.attempt WordEditInitMsg (WordEdit.init (.session model) wordId)
+                        )
 
         Just (Route.WordDelete wordId) ->
             let
@@ -394,27 +459,32 @@ setRoute maybeRoute model =
             in
                 case model.session.user of
                     Nothing ->
-                        newModel
-                            => Cmd.none
+                        ( newModel
+                        , Cmd.none
+                        )
 
                     Just user ->
-                        newModel
-                            => Task.attempt WordDeleteInitMsg (WordDelete.init (.session model) wordId)
+                        ( newModel
+                        , Task.attempt WordDeleteInitMsg (WordDelete.init (.session model) wordId)
+                        )
 
         Just (Route.Quizz keywordQuizz) ->
-            { model | page = (Quizz (Quizz.initialModel keywordQuizz)) }
-                => Task.attempt QuizzInit (Quizz.init (.session model) keywordQuizz)
+            ( { model | page = (Quizz (Quizz.initialModel keywordQuizz)) }
+            , Task.attempt QuizzInit (Quizz.init (.session model) keywordQuizz)
+            )
 
 
 
 -- MAIN --
 
 
-main : Program Value Model Msg
+main : Program D.Value Model Msg
 main =
-    Navigation.programWithFlags (Route.fromLocation >> SetRoute)
+    Browser.application
         { init = init
         , view = view
         , update = update
         , subscriptions = subscriptions
+        , onUrlRequest = ClickedLink
+        , onUrlChange = ChangedUrl
         }

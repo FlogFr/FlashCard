@@ -31,8 +31,8 @@ updateUserRequest session user =
     let
         jwtToken =
             case session.authToken of
-                Just jwtToken ->
-                    (.token jwtToken)
+                Just responseJwtToken ->
+                    (.token responseJwtToken)
 
                 Nothing ->
                     ""
@@ -48,8 +48,8 @@ getWordsKeywordsRequest session =
     let
         jwtToken =
             case session.authToken of
-                Just jwtToken ->
-                    (.token jwtToken)
+                Just responseJwtToken ->
+                    (.token responseJwtToken)
 
                 Nothing ->
                     ""
@@ -65,8 +65,8 @@ getWordsLastRequest session =
     let
         jwtToken =
             case session.authToken of
-                Just jwtToken ->
-                    (.token jwtToken)
+                Just responseJwtToken ->
+                    (.token responseJwtToken)
 
                 Nothing ->
                     ""
@@ -82,8 +82,8 @@ getWordsSearchRequest session searchWord searchKeyword =
     let
         jwtToken =
             case session.authToken of
-                Just jwtToken ->
-                    (.token jwtToken)
+                Just responseJwtToken ->
+                    (.token responseJwtToken)
 
                 Nothing ->
                     ""
@@ -104,8 +104,8 @@ getWordByIdRequest session wordId =
     let
         jwtToken =
             case session.authToken of
-                Just jwtToken ->
-                    (.token jwtToken)
+                Just responseJwtToken ->
+                    (.token responseJwtToken)
 
                 Nothing ->
                     ""
@@ -121,8 +121,8 @@ getWordsQuizzRequest session keyword =
     let
         jwtToken =
             case session.authToken of
-                Just jwtToken ->
-                    (.token jwtToken)
+                Just responseJwtToken ->
+                    (.token responseJwtToken)
 
                 Nothing ->
                     ""
@@ -138,8 +138,8 @@ deleteWordByIdRequest session wordId =
     let
         jwtToken =
             case session.authToken of
-                Just jwtToken ->
-                    (.token jwtToken)
+                Just responseJwtToken ->
+                    (.token responseJwtToken)
 
                 Nothing ->
                     ""
@@ -160,8 +160,8 @@ putWordsIdByWordIdRequest session word =
     let
         jwtToken =
             case session.authToken of
-                Just jwtToken ->
-                    (.token jwtToken)
+                Just responseJwtToken ->
+                    (.token responseJwtToken)
 
                 Nothing ->
                     ""
@@ -182,8 +182,8 @@ postWordRequest session word =
     let
         jwtToken =
             case session.authToken of
-                Just jwtToken ->
-                    (.token jwtToken)
+                Just responseJwtToken ->
+                    (.token responseJwtToken)
 
                 Nothing ->
                     ""

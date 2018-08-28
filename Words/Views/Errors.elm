@@ -1,16 +1,15 @@
 module Views.Errors exposing (..)
 
-import IziCss exposing (..)
-import Html.Styled as Html exposing (..)
-import Html.Styled.Events exposing (..)
-import Html.Styled.Attributes exposing (..)
+import Html as Html exposing (..)
+import Html.Events exposing (..)
+import Html.Attributes exposing (..)
 import List
 import API exposing (..)
 
 
 viewErrorParagraph : String -> Html msg
 viewErrorParagraph error =
-    p [ errorStyle ] [ text error ]
+    p [] [ text error ]
 
 
 viewErrorsDiv : List String -> Html msg

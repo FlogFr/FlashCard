@@ -1,10 +1,9 @@
 module Views.Messages exposing (..)
 
-import IziCss exposing (..)
 import Data.Message exposing (..)
-import Html.Styled as Html exposing (..)
-import Html.Styled.Events exposing (..)
-import Html.Styled.Attributes exposing (..)
+import Html as Html exposing (..)
+import Html.Events exposing (..)
+import Html.Attributes exposing (..)
 import API exposing (..)
 
 

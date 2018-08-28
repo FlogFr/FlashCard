@@ -1,12 +1,11 @@
 module Page.WordDelete exposing (Model, Msg(..), ExternalMsg(..), view, update, init)
 
-import Util exposing ((=>))
 import API exposing (..)
 import Request exposing (..)
 import Task exposing (..)
 import Http exposing (..)
-import Html.Styled as Html exposing (..)
-import Html.Styled.Attributes exposing (..)
+import Html as Html exposing (..)
+import Html.Attributes exposing (..)
 import Data.Session exposing (..)
 import Route as Route exposing (Route(..), href)
 import Views.Words exposing (..)
@@ -56,18 +55,24 @@ update : Session -> Msg -> Model -> ( ( Model, Cmd Msg ), ExternalMsg )
 update session msg model =
     case msg of
         WordDeleteInitFinished (Ok _) ->
-            model
-                => Cmd.none
-                => GoHome
+            ( ( model
+              , Cmd.none
+              )
+            , GoHome
+            )
 
         WordDeleteInitFinished (Err httpError) ->
             case httpError of
                 BadStatus httpResponse ->
-                    model
-                        => Cmd.none
-                        => Logout
+                    ( ( model
+                      , Cmd.none
+                      )
+                    , Logout
+                    )
 
                 _ ->
-                    model
-                        => Cmd.none
-                        => NoOp
+                    ( ( model
+                      , Cmd.none
+                      )
+                    , NoOp
+                    )

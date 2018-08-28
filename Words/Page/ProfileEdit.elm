@@ -1,12 +1,12 @@
 module Page.ProfileEdit exposing (Model, initialModel, Msg(..), ExternalMsg(..), view, update)
 
-import Util exposing ((=>))
 import API exposing (..)
+import Browser.Navigation as N
 import Request exposing (..)
 import Task exposing (..)
 import Http exposing (..)
-import Html.Styled as Html exposing (..)
-import Html.Styled.Attributes exposing (..)
+import Html as Html exposing (..)
+import Html.Attributes exposing (..)
 import Data.Session exposing (..)
 import Route as Route exposing (Route(..), href)
 import Views.Words exposing (..)
@@ -60,40 +60,50 @@ view model =
 -- UPDATE --
 
 
-update : Session -> Msg -> Model -> ( ( Model, Cmd Msg ), ExternalMsg )
-update session msg model =
+update : Session -> N.Key -> Msg -> Model -> ( ( Model, Cmd Msg ), ExternalMsg )
+update session key msg model =
     case msg of
         TestMsg ->
-            model
-                => Cmd.none
-                => NoOp
+            ( ( model
+              , Cmd.none
+              )
+            , NoOp
+            )
 
         UpdatePassword newPassword ->
-            { model | password = newPassword }
-                => Cmd.none
-                => NoOp
+            ( ( { model | password = newPassword }
+              , Cmd.none
+              )
+            , NoOp
+            )
 
         UpdateUser newUser ->
-            { model | user = newUser }
-                => Cmd.none
-                => NoOp
+            ( ( { model | user = newUser }
+              , Cmd.none
+              )
+            , NoOp
+            )
 
         IncreaseNbLanguage ->
-            { model | nbLanguage = (model.nbLanguage + 1) }
-                => Cmd.none
-                => NoOp
+            ( ( { model | nbLanguage = (model.nbLanguage + 1) }
+              , Cmd.none
+              )
+            , NoOp
+            )
 
-        RemoveLanguage indexLanguage ->
+        RemoveLanguage argIndexLanguage ->
             let
                 removeLanguage user indexLanguage =
-                    { user | languages = ((List.take indexLanguage user.languages) ++ (List.drop (indexLanguage + 1) user.languages)) }
+                    { user | languages = ((List.take argIndexLanguage user.languages) ++ (List.drop (argIndexLanguage + 1) user.languages)) }
             in
-                { model
-                    | nbLanguage = (model.nbLanguage - 1)
-                    , user = removeLanguage model.user indexLanguage
-                }
-                    => Cmd.none
-                    => NoOp
+                ( ( { model
+                        | nbLanguage = (model.nbLanguage - 1)
+                        , user = removeLanguage model.user argIndexLanguage
+                    }
+                  , Cmd.none
+                  )
+                , NoOp
+                )
 
         ToUpdateUser ->
             let
@@ -109,20 +119,26 @@ update session msg model =
                 languages =
                     (.languages model.user)
             in
-                model
-                    => Http.send UpdateUserRequestFinished (updateUserRequest session (FullUser 0 username password email languages))
-                    => NoOp
+                ( ( model
+                  , Http.send UpdateUserRequestFinished (updateUserRequest session (FullUser 0 username password email languages))
+                  )
+                , NoOp
+                )
 
         UpdateUserRequestFinished (Ok user) ->
             let
                 newSession =
                     { session | user = Just user }
             in
-                model
-                    => Cmd.batch [ storeSession newSession, Route.modifyUrl Route.Home ]
-                    => UpdateSession newSession
+                ( ( model
+                  , Cmd.batch [ storeSession newSession, Route.modifyUrl Route.Home key ]
+                  )
+                , UpdateSession newSession
+                )
 
         UpdateUserRequestFinished (Err noContent) ->
-            model
-                => Cmd.none
-                => NoOp
+            ( ( model
+              , Cmd.none
+              )
+            , NoOp
+            )

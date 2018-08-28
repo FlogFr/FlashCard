@@ -7,13 +7,15 @@
 -- type called Route which callers use to specify which page they want.
 
 
-module Route exposing (Route(..), fromLocation, href, modifyUrl)
+module Route exposing (Route(..), route, fromUrl, href, modifyUrl, locationHrefToRoute)
 
-import Html.Styled as Html exposing (Attribute)
-import Html.Styled.Attributes as Attr
-import Navigation exposing (Location)
-import UrlParser as Url exposing ((</>), Parser, oneOf, parseHash, s, string, int)
-import Debug
+import Html as Html exposing (Attribute)
+import Html.Attributes as Attr
+import Browser.Navigation
+import String
+import Ports
+import Url exposing (Url, fromString)
+import Url.Parser exposing (Parser, (</>), map, parse, oneOf, top, s, string, int)
 
 
 -- ROUTING --
@@ -33,14 +35,14 @@ type Route
 route : Parser (Route -> a) a
 route =
     oneOf
-        [ Url.map Login (s "")
-        , Url.map Logout (s "logout")
-        , Url.map Register (s "register")
-        , Url.map ProfileEdit (s "profile")
-        , Url.map Home (s "home")
-        , Url.map WordEdit (s "wordEdit" </> int)
-        , Url.map WordDelete (s "wordDelete" </> int)
-        , Url.map Quizz (s "quizz" </> string)
+        [ map Login top
+        , map Logout (s "logout")
+        , map Register (s "register")
+        , map ProfileEdit (s "profile")
+        , map Home (s "home")
+        , map WordEdit (s "wordEdit" </> int)
+        , map WordDelete (s "wordDelete" </> int)
+        , map Quizz (s "quizz" </> string)
         ]
 
 
@@ -69,15 +71,15 @@ routeToString page =
                     [ "home" ]
 
                 WordEdit wordId ->
-                    [ "wordEdit", toString wordId ]
+                    [ "wordEdit", String.fromInt wordId ]
 
                 WordDelete wordId ->
-                    [ "wordDelete", toString wordId ]
+                    [ "wordDelete", String.fromInt wordId ]
 
                 Quizz keywordQuizz ->
                     [ "quizz", keywordQuizz ]
     in
-        "#/" ++ String.join "/" pieces
+        String.join "/" pieces
 
 
 
@@ -85,18 +87,32 @@ routeToString page =
 
 
 href : Route -> Attribute msg
-href route =
-    Attr.href (routeToString route)
+href argRoute =
+    Attr.href ("/" ++ (routeToString argRoute))
 
 
-modifyUrl : Route -> Cmd msg
-modifyUrl =
-    routeToString >> Navigation.modifyUrl
+modifyUrl : Route -> Browser.Navigation.Key -> Cmd msg
+modifyUrl theRoute key =
+    routeToString theRoute
+        |> Browser.Navigation.pushUrl key
 
 
-fromLocation : Location -> Maybe Route
-fromLocation location =
-    if String.isEmpty location.hash then
-        Just Login
-    else
-        parseHash route location
+fromUrl : Url -> Maybe Route
+fromUrl url =
+    parse route url
+
+
+
+-- link : msg -> List (Attribute msg) -> List (Html msg) -> Html msg
+-- link href attrs children =
+--   a (preventDefaultOn "click" (D.succeed (href, True)) :: attrs) children
+
+
+locationHrefToRoute : String -> Maybe Route
+locationHrefToRoute locationHref =
+    case fromString locationHref of
+        Nothing ->
+            Just Login
+
+        Just url ->
+            parse route url

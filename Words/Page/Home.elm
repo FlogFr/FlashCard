@@ -1,18 +1,16 @@
 module Page.Home exposing (Model, InitModel, Msg(..), ExternalMsg(..), initialModel, view, update, init)
 
-import Util exposing ((=>))
 import API exposing (..)
 import Request exposing (..)
 import Task exposing (..)
 import Http exposing (..)
-import Html.Styled as Html exposing (..)
-import Html.Styled.Attributes exposing (..)
+import Html as Html exposing (..)
+import Html.Attributes exposing (..)
 import Page.Errored exposing (..)
 import Data.Session exposing (..)
 import Route as Route exposing (Route(..), href)
 import Views.Words exposing (..)
 import Views.Forms exposing (..)
-import Debug
 
 
 -- MODEL --
@@ -147,106 +145,144 @@ update : Session -> Msg -> Model -> ( ( Model, Cmd Msg ), ExternalMsg )
 update session msg model =
     case msg of
         TestMsg ->
-            model
-                => Cmd.none
-                => NoOp
+            ( ( model
+              , Cmd.none
+              )
+            , NoOp
+            )
 
         HomeAddNewWord ->
             let
                 httpCmd =
                     postWordCmd HomeAddNewWordFinished session (Word 0 (.addWordLanguage model) (.addWordWord model) [] (.addWordDefinition model) Nothing)
             in
-                model
-                    => Cmd.batch [ httpCmd ]
-                    => NoOp
+                ( ( model
+                  , Cmd.batch [ httpCmd ]
+                  )
+                , NoOp
+                )
 
         HomeAddNewWordFinished (Ok _) ->
-            model
-                => Cmd.none
-                => ReloadPage
+            ( ( model
+              , Cmd.none
+              )
+            , ReloadPage
+            )
 
         HomeAddNewWordFinished (Err httpError) ->
             case httpError of
                 BadStatus httpResponse ->
-                    model
-                        => Cmd.none
-                        => Logout
+                    ( ( model
+                      , Cmd.none
+                      )
+                    , Logout
+                    )
 
                 _ ->
-                    model
-                        => Cmd.none
-                        => NoOp
+                    ( ( model
+                      , Cmd.none
+                      )
+                    , NoOp
+                    )
 
         TypeHomeLanguage newLanguage ->
-            { model | addWordLanguage = newLanguage }
-                => Cmd.none
-                => NoOp
+            ( ( { model | addWordLanguage = newLanguage }
+              , Cmd.none
+              )
+            , NoOp
+            )
 
         TypeHomeWord newWord ->
-            { model | addWordWord = newWord }
-                => Cmd.none
-                => NoOp
+            ( ( { model | addWordWord = newWord }
+              , Cmd.none
+              )
+            , NoOp
+            )
 
         TypeHomeDefinition newDefinition ->
-            { model | addWordDefinition = newDefinition }
-                => Cmd.none
-                => NoOp
+            ( ( { model | addWordDefinition = newDefinition }
+              , Cmd.none
+              )
+            , NoOp
+            )
 
         LastWordsReqCompletedMsg (Ok listWords) ->
-            { model | myLastWords = listWords }
-                => Cmd.none
-                => NoOp
+            ( ( { model | myLastWords = listWords }
+              , Cmd.none
+              )
+            , NoOp
+            )
 
         LastWordsReqCompletedMsg (Err httpError) ->
             case httpError of
                 BadStatus httpResponse ->
-                    model
-                        => Cmd.none
-                        => Logout
+                    ( ( model
+                      , Cmd.none
+                      )
+                    , Logout
+                    )
 
                 _ ->
-                    model
-                        => Cmd.none
-                        => NoOp
+                    ( ( model
+                      , Cmd.none
+                      )
+                    , NoOp
+                    )
 
         InitFinished (Ok (InitModel lastWords keywords)) ->
-            { model | myLastWords = lastWords, keywords = keywords }
-                => Cmd.none
-                => NoOp
+            ( ( { model | myLastWords = lastWords, keywords = keywords }
+              , Cmd.none
+              )
+            , NoOp
+            )
 
         InitFinished (Err pageLoadError) ->
-            model
-                => Cmd.none
-                => Logout
+            ( ( model
+              , Cmd.none
+              )
+            , Logout
+            )
 
         UpdateSearchWord newSearchWord ->
-            { model | searchWord = newSearchWord }
-                => Cmd.none
-                => NoOp
+            ( ( { model | searchWord = newSearchWord }
+              , Cmd.none
+              )
+            , NoOp
+            )
 
         UpdateSearchKeyword newSearchKeyword ->
-            { model | searchKeyword = newSearchKeyword }
-                => Cmd.none
-                => NoOp
+            ( ( { model | searchKeyword = newSearchKeyword }
+              , Cmd.none
+              )
+            , NoOp
+            )
 
         HomeSearchWord ->
-            model
-                => getWordsSearchCmd HomeSearchWordFinished session (.searchWord model) (.searchKeyword model)
-                => NoOp
+            ( ( model
+              , getWordsSearchCmd HomeSearchWordFinished session (.searchWord model) (.searchKeyword model)
+              )
+            , NoOp
+            )
 
         HomeSearchWordFinished (Ok listSearchWords) ->
-            { model | searchWords = listSearchWords }
-                => Cmd.none
-                => NoOp
+            ( ( { model | searchWords = listSearchWords }
+              , Cmd.none
+              )
+            , NoOp
+            )
 
         HomeSearchWordFinished (Err httpError) ->
             case httpError of
                 BadStatus httpResponse ->
-                    model
-                        => Cmd.none
-                        => Logout
+                    ( ( model
+                      , Cmd.none
+                      )
+                    , Logout
+                    )
 
                 _ ->
-                    model
-                        => Cmd.none
-                        => NoOp
+                    ( ( model
+                      , Cmd.none
+                      )
+                    , NoOp
+                    )

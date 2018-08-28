@@ -1,12 +1,10 @@
 module Data.Session exposing (Session, storeSession, deleteSession, decodeAuthSessionFromJson, retrieveSessionFromJson)
 
-import Json.Encode as Encode exposing (Value)
-import Json.Decode as Decode exposing (Decoder, nullable, string, int, list)
-import Json.Decode.Pipeline exposing (decode, required, optional)
+import Json.Encode as E
+import Json.Decode as D
 import Maybe exposing (withDefault)
 import Ports exposing (..)
 import API exposing (..)
-import Util exposing ((=>))
 
 
 type alias Session =
@@ -15,24 +13,24 @@ type alias Session =
     }
 
 
-encodeSession : Session -> Encode.Value
+encodeSession : Session -> E.Value
 encodeSession session =
     case ( session.user, session.authToken ) of
         ( Just user, Just authToken ) ->
-            Encode.object
+            E.object
                 [ ( "user", encodeUser user )
                 , ( "authToken", encodeJWTToken authToken )
                 ]
 
         ( _, _ ) ->
-            Encode.object
+            E.object
                 []
 
 
 storeSession : Session -> Cmd msg
 storeSession session =
     encodeSession session
-        |> Encode.encode 0
+        |> E.encode 0
         |> Just
         |> Ports.storeSession
 
@@ -42,28 +40,28 @@ deleteSession =
     Ports.deleteLocalStorage ()
 
 
-decodeAuthToken : Decoder JWTToken
+decodeAuthToken : D.Decoder JWTToken
 decodeAuthToken =
-    decode JWTToken
-        |> required "token" string
+    D.map JWTToken
+        (D.field "token" D.string)
 
 
-decodeAuthSession : Decoder Session
+decodeAuthSession : D.Decoder Session
 decodeAuthSession =
-    decode Session
-        |> required "authToken" (nullable decodeAuthToken)
-        |> required "user" (nullable decodeUser)
+    D.map2 Session
+        (D.field "authToken" (D.nullable decodeAuthToken))
+        (D.field "user" (D.nullable decodeUser))
 
 
-decodeAuthSessionFromJson : Encode.Value -> Maybe Session
+decodeAuthSessionFromJson : E.Value -> Maybe Session
 decodeAuthSessionFromJson json =
     json
-        |> Decode.decodeValue Decode.string
+        |> D.decodeValue D.string
         |> Result.toMaybe
-        |> Maybe.andThen (Decode.decodeString decodeAuthSession >> Result.toMaybe)
+        |> Maybe.andThen (D.decodeString decodeAuthSession >> Result.toMaybe)
 
 
-retrieveSessionFromJson : Encode.Value -> Session
+retrieveSessionFromJson : E.Value -> Session
 retrieveSessionFromJson json =
     decodeAuthSessionFromJson json
         |> withDefault (Session Nothing Nothing)
