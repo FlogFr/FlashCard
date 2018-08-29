@@ -1,0 +1,9 @@
+.HTF/
+.stack-work
+.tags
+Makefile
+cubes
+debian
+*.env
+bin
+*.cabal

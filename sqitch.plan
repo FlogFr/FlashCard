@@ -1,0 +1,8 @@
+%syntax-version=1.0.0
+%project=words
+
+0001-words 2018-02-05T21:59:14Z aRkadeFR <contact@arkade.info> # Schema for words
+0002-users 2018-07-16T07:41:01Z aRkadeFR <contact@arkade.info> # Add 0002-users deploy change
+0003-tokens 2018-08-03T07:06:48Z aRkadeFR <contact@arkade.info> # 0003-tokens temporary for authentication
+0004-session 2018-08-05T09:57:37Z aRkadeFR <contact@arkade.info> # Add 0004-session handle / table
+0005-scoring 2018-08-23T20:29:16Z aRkadeFR <contact@arkade.info> # Add 0005-scoring for words
