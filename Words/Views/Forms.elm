@@ -10,8 +10,11 @@ import API exposing (..)
 viewFormAddWord : List String -> msg -> (String -> msg) -> (String -> msg) -> (String -> msg) -> Html msg
 viewFormAddWord possibleLanguages homeAddNewWord typeHomeLanguage typeHomeWord typeHomeDefinition =
     Html.form [ onSubmit homeAddNewWord, action "javascript:void(0);" ]
-        [ select [ onInput typeHomeLanguage, name "language" ] (List.map (\l -> option [] [ text l ]) possibleLanguages)
+        [ label [ for "language" ] [ text "Language" ]
+        , select [ onInput typeHomeLanguage, name "language" ] (List.map (\l -> option [] [ text l ]) possibleLanguages)
+        , label [ for "word" ] [ text "Word" ]
         , input [ onInput typeHomeWord, placeholder "word" ] []
+        , label [ for "definition" ] [ text "Definition" ]
         , input [ onInput typeHomeDefinition, placeholder "definition" ] []
         , button [ type_ "submit" ] [ text "add word" ]
         ]
@@ -20,7 +23,9 @@ viewFormAddWord possibleLanguages homeAddNewWord typeHomeLanguage typeHomeWord t
 viewFormSearchWord : List String -> msg -> (String -> msg) -> (String -> msg) -> Html msg
 viewFormSearchWord keywords toSearchMsg toUpdateSearchWord toUpdateSearchKeyword =
     Html.form [ onSubmit toSearchMsg, action "javascript:void(0);" ]
-        [ input [ onInput toUpdateSearchWord, placeholder "original word" ] []
+        [ label [ for "original word" ] [ text "Word" ]
+        , input [ onInput toUpdateSearchWord, placeholder "original word" ] []
+        , label [ for "keyword" ] [ text "Keyword" ]
         , select [ onInput toUpdateSearchKeyword, name "keyword" ]
             (List.concat
                 [ [ option [] [ text "--" ] ]
@@ -58,10 +63,13 @@ viewLanguageUserInput user toIncreaseNbLanguage toUpdateUser toRemoveLanguage in
                 Nothing ->
                     ""
     in
-        (div []
-            [ input [ onInput (\v -> toUpdateUser { user | languages = updateNiemeListElement (indexInput + 1) v user.languages }), placeholder "languages to learn (2chars)", value language ] []
-            , button [ onClick toIncreaseNbLanguage, type_ "button" ] [ text ("(+) Add a language") ]
-            , button [ onClick (toRemoveLanguage indexInput), type_ "button" ] [ text ("(-) Remove language") ]
+        (div [ class "group-form" ]
+            [ label [ for ("language" ++ String.fromInt indexInput) ] [ text "Language" ]
+            , input [ onInput (\v -> toUpdateUser { user | languages = updateNiemeListElement (indexInput + 1) v user.languages }), placeholder "languages to learn (2chars)", value language ] []
+            , button [ onClick toIncreaseNbLanguage, type_ "button", class "button-add" ] [ span [ class "icon-plus" ] [] ]
+            , button [ onClick (toRemoveLanguage indexInput), type_ "button", class "button-minus" ]
+                [ span [ class "icon-minus" ] []
+                ]
             ]
         )
 
@@ -78,11 +86,13 @@ viewLanguageUserInputs numberOfInput toIncreaseNbLanguage toRemoveLanguage user 
 viewFormUpdateUser : User -> Int -> msg -> (Int -> msg) -> (User -> msg) -> msg -> (String -> msg) -> Html msg
 viewFormUpdateUser user nbLanguage toIncreaseNbLanguage toRemoveLanguage toUpdateNewUser toUpdateMsg toUpdatePassword =
     Html.form [ onSubmit toUpdateMsg, action "javascript:void(0);" ]
-        ([ input [ onInput toUpdatePassword, placeholder "new password", attribute "type" "password" ] []
+        ([ label [ for "password" ] [ text "Language" ]
+         , input [ onInput toUpdatePassword, placeholder "new password", attribute "type" "password" ] []
+         , label [ for "email" ] [ text "Email" ]
          , input [ onInput (\v -> toUpdateNewUser { user | email = Just v }), placeholder "new email", value (Maybe.withDefault "" user.email) ] []
          ]
             ++ (viewLanguageUserInputs nbLanguage toIncreaseNbLanguage toRemoveLanguage user toUpdateNewUser)
-            ++ [ button [ type_ "submit" ] [ text "update password" ]
+            ++ [ button [ type_ "submit" ] [ text "Update my profile" ]
                ]
         )
 
@@ -133,10 +143,16 @@ viewKeywordInput word toIncreaseNbKeyword toRemoveKeyword toUpdateWord indexInpu
                 Nothing ->
                     ""
     in
-        (div []
-            [ input [ onInput (\v -> toUpdateWord { word | keywords = updateNiemeListElement (indexInput + 1) v word.keywords }), placeholder "keyword", value keyword ] []
-            , button [ onClick toIncreaseNbKeyword, type_ "button" ] [ text ("(+) Add a keyword") ]
-            , button [ onClick (toRemoveKeyword indexInput), type_ "button" ] [ text ("(-) Remove keyword") ]
+        (div [ class "group-form" ]
+            [ label [ for ("keyword" ++ String.fromInt indexInput) ] [ text "Keyword" ]
+            , input [ onInput (\v -> toUpdateWord { word | keywords = updateNiemeListElement (indexInput + 1) v word.keywords }), placeholder "keyword", value keyword ] []
+            , button [ onClick toIncreaseNbKeyword, type_ "button", class "button-add" ] [ span [ class "icon-plus" ] [] ]
+            , button
+                [ onClick (toRemoveKeyword indexInput)
+                , type_ "button"
+                , class "button-minus"
+                ]
+                [ span [ class "icon-minus" ] [] ]
             ]
         )
 
@@ -153,11 +169,15 @@ viewKeywordInputs numberOfInput toIncreaseNbKeyword toRemoveKeyword word toUpdat
 viewWordForm : Word -> Int -> msg -> (Int -> msg) -> (Word -> msg) -> msg -> Html msg
 viewWordForm word nbKeyword toIncreaseNbKeyword toRemoveKeyword toUpdateWord toUpdateMsg =
     Html.form [ onSubmit toUpdateMsg ]
-        ([ input [ onInput (\v -> toUpdateWord { word | language = v }), placeholder "language", value (.language word) ] []
+        ([ label [ for "language" ] [ text "Language" ]
+         , input [ onInput (\v -> toUpdateWord { word | language = v }), placeholder "language", value (.language word) ] []
+         , label [ for "definition" ] [ text "Definition" ]
          , input [ onInput (\v -> toUpdateWord { word | word = v }), placeholder "definition", value (.word word) ] []
          ]
             ++ (viewKeywordInputs nbKeyword toIncreaseNbKeyword toRemoveKeyword word toUpdateWord)
-            ++ [ input [ onInput (\v -> toUpdateWord { word | definition = v }), placeholder "definition", value (.definition word) ] []
+            ++ [ label [ for "definition" ] [ text "Definition" ]
+               , input [ onInput (\v -> toUpdateWord { word | definition = v }), placeholder "definition", value (.definition word) ] []
+               , label [ for "difficulty" ] [ text "Difficulty" ]
                , input [ placeholder "difficulty (0 to 10)", value (String.fromInt (Maybe.withDefault 0 (.difficulty word))) ] []
                , button [ type_ "submit" ] [ text "Update word" ]
                ]

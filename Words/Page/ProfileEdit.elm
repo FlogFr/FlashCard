@@ -51,8 +51,9 @@ type ExternalMsg
 
 view : Model -> Html Msg
 view model =
-    div []
-        [ viewFormUpdateUser model.user model.nbLanguage IncreaseNbLanguage RemoveLanguage UpdateUser ToUpdateUser UpdatePassword
+    div [ class "form-div" ]
+        [ h1 [] [ text "My profile information" ]
+        , viewFormUpdateUser model.user model.nbLanguage IncreaseNbLanguage RemoveLanguage UpdateUser ToUpdateUser UpdatePassword
         ]
 
 
@@ -131,7 +132,7 @@ update session key msg model =
                     { session | user = Just user }
             in
                 ( ( model
-                  , Cmd.batch [ storeSession newSession, Route.modifyUrl Route.Home key ]
+                  , Cmd.batch [ storeSession newSession, N.pushUrl key (Route.routeToString Route.Home) ]
                   )
                 , UpdateSession newSession
                 )

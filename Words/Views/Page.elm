@@ -52,7 +52,7 @@ viewMessages listMessages =
 viewFooter : Html msg
 viewFooter =
     div [ class "footer" ]
-        [ p [] [ text "Proudly powered by " ]
+        [ p [] [ text "Made with ❤ from WAW ❤ by ", a [ Html.Attributes.href "https://github.com/aRkadeFR" ] [ text "aRkadeFR" ] ]
         ]
 
 
@@ -71,6 +71,7 @@ viewNav session =
         Nothing ->
             nav []
                 [ ul []
-                    [ li [] [ a [ Route.href Route.Register ] [ text "Register" ] ]
+                    [ li [] [ a [ Route.href Route.Login ] [ text "Login" ] ]
+                    , li [] [ a [ Route.href Route.Register ] [ text "Register" ] ]
                     ]
                 ]

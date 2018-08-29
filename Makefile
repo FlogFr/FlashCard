@@ -45,7 +45,7 @@ elm:
 
 .PHONY: live
 live: elm
-	http-server -p 8000 www
+	http-server --no-dotfiles -p 8000 www
 
 .PHONY: generate
 generate:

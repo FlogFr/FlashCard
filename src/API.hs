@@ -138,7 +138,8 @@ pgRetrieveSearchWords user maybeSearchWord maybeSearchKeyword conn =
 -- | API for the words
 type WordAPI = "all" :> Get '[JSON] [Word]
           :<|> "last" :> Get '[JSON] [Word]
-          :<|> "quizz" :> "keyword" :> Capture "searchKeyword" String :> Get '[JSON] [Word]
+          :<|> "quizz" :> "response" :> Capture "wordId" WordId :> ReqBody '[JSON] String :> Post '[JSON] (Maybe Bool)
+          :<|> "quizz" :> "keyword" :> Capture "lang" String :> Get '[JSON] [Word]
           :<|> "search" :> QueryParam "word" String :> QueryParam "keyword" String :> Get '[JSON] [Word]
           :<|> "id" :> Capture "wordId" WordId :> Get '[JSON] Word
           :<|> "id" :> Capture "wordId" WordId :> Delete '[JSON] NoContent
@@ -150,7 +151,8 @@ wordServer :: User -> Pool Connection -> Server WordAPI
 wordServer user conns =
   retrieveAllWords
     :<|> retrieveLastWords
-    :<|> quizzWordsByKeyword
+    :<|> quizzWordsResponse
+    :<|> quizzWordsByLang
     :<|> retrieveSearchWords
     :<|> retrieveWordById
     :<|> deleteWordByIdHandler
@@ -166,10 +168,15 @@ wordServer user conns =
   retrieveLastWords = liftIO $ withResource conns $ \conn ->
     withTransaction conn $ \transactionConn -> getLastWords user transactionConn
 
-  quizzWordsByKeyword :: String -> Handler [Word]
-  quizzWordsByKeyword keyword = liftIO $ withResource conns $ \conn ->
+  quizzWordsResponse :: WordId -> String -> Handler (Maybe Bool)
+  quizzWordsResponse wordId testResponse = liftIO $ withResource conns $ \conn ->
     withTransaction conn
-      $ \transactionConn -> getQuizzWordsKeyword user keyword transactionConn
+      $ \transactionConn -> getQuizzResponse wordId testResponse transactionConn
+
+  quizzWordsByLang :: String -> Handler [Word]
+  quizzWordsByLang lang = liftIO $ withResource conns $ \conn ->
+    withTransaction conn
+      $ \transactionConn -> getQuizzWordsLang user lang transactionConn
 
   retrieveSearchWords :: Maybe String -> Maybe String -> Handler [Word]
   retrieveSearchWords maybeSearchWord maybeSearchKeyword =

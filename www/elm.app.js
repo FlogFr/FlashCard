@@ -4484,6 +4484,89 @@ function _Browser_load(url)
 		}
 	}));
 }
+
+
+
+var _Bitwise_and = F2(function(a, b)
+{
+	return a & b;
+});
+
+var _Bitwise_or = F2(function(a, b)
+{
+	return a | b;
+});
+
+var _Bitwise_xor = F2(function(a, b)
+{
+	return a ^ b;
+});
+
+function _Bitwise_complement(a)
+{
+	return ~a;
+};
+
+var _Bitwise_shiftLeftBy = F2(function(offset, a)
+{
+	return a << offset;
+});
+
+var _Bitwise_shiftRightBy = F2(function(offset, a)
+{
+	return a >> offset;
+});
+
+var _Bitwise_shiftRightZfBy = F2(function(offset, a)
+{
+	return a >>> offset;
+});
+
+
+
+function _Time_now(millisToPosix)
+{
+	return _Scheduler_binding(function(callback)
+	{
+		callback(_Scheduler_succeed(millisToPosix(Date.now())));
+	});
+}
+
+var _Time_setInterval = F2(function(interval, task)
+{
+	return _Scheduler_binding(function(callback)
+	{
+		var id = setInterval(function() { _Scheduler_rawSpawn(task); }, interval);
+		return function() { clearInterval(id); };
+	});
+});
+
+function _Time_here()
+{
+	return _Scheduler_binding(function(callback)
+	{
+		callback(_Scheduler_succeed(
+			A2(elm$time$Time$customZone, -(new Date().getTimezoneOffset()), _List_Nil)
+		));
+	});
+}
+
+
+function _Time_getZoneName()
+{
+	return _Scheduler_binding(function(callback)
+	{
+		try
+		{
+			var name = elm$time$Time$Name(Intl.DateTimeFormat().resolvedOptions().timeZone);
+		}
+		catch (e)
+		{
+			var name = elm$time$Time$Offset(new Date().getTimezoneOffset());
+		}
+		callback(_Scheduler_succeed(name));
+	});
+}
 var author$project$WordApp$ChangedUrl = function (a) {
 	return {$: 'ChangedUrl', a: a};
 };
@@ -6275,7 +6358,7 @@ var author$project$Page$Quizz$init = F2(
 			A2(author$project$Request$getWordsQuizzRequest, session, keyword));
 	});
 var author$project$Page$Quizz$initialModel = function (keyWord) {
-	return {errors: _List_Nil, keyword: keyWord, words: _List_Nil};
+	return {errors: _List_Nil, keyword: keyWord, word: elm$core$Maybe$Nothing, wordResponse: '', words: _List_Nil};
 };
 var author$project$API$decodeToken = A2(elm$json$Json$Decode$field, 'token', elm$json$Json$Decode$string);
 var author$project$API$getToken = elm$http$Http$request(
@@ -6414,45 +6497,41 @@ var author$project$Page$WordEdit$init = F2(
 			A2(author$project$Request$getWordByIdRequest, session, wordId));
 	});
 var author$project$Page$WordEdit$initialModel = {nbKeyword: 1, word: elm$core$Maybe$Nothing};
-var author$project$Route$routeToString = function (page) {
-	var pieces = function () {
-		switch (page.$) {
-			case 'Login':
-				return _List_fromArray(
-					['']);
-			case 'Logout':
-				return _List_fromArray(
-					['logout']);
-			case 'Register':
-				return _List_fromArray(
-					['register']);
-			case 'ProfileEdit':
-				return _List_fromArray(
-					['profile']);
-			case 'Home':
-				return _List_fromArray(
-					['home']);
-			case 'WordEdit':
-				var wordId = page.a;
-				return _List_fromArray(
-					[
-						'wordEdit',
-						elm$core$String$fromInt(wordId)
-					]);
-			case 'WordDelete':
-				var wordId = page.a;
-				return _List_fromArray(
-					[
-						'wordDelete',
-						elm$core$String$fromInt(wordId)
-					]);
-			default:
-				var keywordQuizz = page.a;
-				return _List_fromArray(
-					['quizz', keywordQuizz]);
-		}
-	}();
-	return A2(elm$core$String$join, '/', pieces);
+var author$project$WordApp$Home = function (a) {
+	return {$: 'Home', a: a};
+};
+var author$project$WordApp$HomeInit = function (a) {
+	return {$: 'HomeInit', a: a};
+};
+var author$project$WordApp$Login = function (a) {
+	return {$: 'Login', a: a};
+};
+var author$project$WordApp$ProfileEdit = function (a) {
+	return {$: 'ProfileEdit', a: a};
+};
+var author$project$WordApp$Quizz = function (a) {
+	return {$: 'Quizz', a: a};
+};
+var author$project$WordApp$QuizzInit = function (a) {
+	return {$: 'QuizzInit', a: a};
+};
+var author$project$WordApp$Register = function (a) {
+	return {$: 'Register', a: a};
+};
+var author$project$WordApp$RegisterInit = function (a) {
+	return {$: 'RegisterInit', a: a};
+};
+var author$project$WordApp$WordDelete = function (a) {
+	return {$: 'WordDelete', a: a};
+};
+var author$project$WordApp$WordDeleteInitMsg = function (a) {
+	return {$: 'WordDeleteInitMsg', a: a};
+};
+var author$project$WordApp$WordEdit = function (a) {
+	return {$: 'WordEdit', a: a};
+};
+var author$project$WordApp$WordEditInitMsg = function (a) {
+	return {$: 'WordEditInitMsg', a: a};
 };
 var elm$browser$Browser$External = function (a) {
 	return {$: 'External', a: a};
@@ -6673,49 +6752,6 @@ var elm$url$Url$fromString = function (str) {
 		A2(elm$core$String$dropLeft, 8, str)) : elm$core$Maybe$Nothing);
 };
 var elm$browser$Browser$Navigation$pushUrl = _Browser_pushUrl;
-var author$project$Route$modifyUrl = F2(
-	function (theRoute, key) {
-		return A2(
-			elm$browser$Browser$Navigation$pushUrl,
-			key,
-			author$project$Route$routeToString(theRoute));
-	});
-var author$project$WordApp$Home = function (a) {
-	return {$: 'Home', a: a};
-};
-var author$project$WordApp$HomeInit = function (a) {
-	return {$: 'HomeInit', a: a};
-};
-var author$project$WordApp$Login = function (a) {
-	return {$: 'Login', a: a};
-};
-var author$project$WordApp$ProfileEdit = function (a) {
-	return {$: 'ProfileEdit', a: a};
-};
-var author$project$WordApp$Quizz = function (a) {
-	return {$: 'Quizz', a: a};
-};
-var author$project$WordApp$QuizzInit = function (a) {
-	return {$: 'QuizzInit', a: a};
-};
-var author$project$WordApp$Register = function (a) {
-	return {$: 'Register', a: a};
-};
-var author$project$WordApp$RegisterInit = function (a) {
-	return {$: 'RegisterInit', a: a};
-};
-var author$project$WordApp$WordDelete = function (a) {
-	return {$: 'WordDelete', a: a};
-};
-var author$project$WordApp$WordDeleteInitMsg = function (a) {
-	return {$: 'WordDeleteInitMsg', a: a};
-};
-var author$project$WordApp$WordEdit = function (a) {
-	return {$: 'WordEdit', a: a};
-};
-var author$project$WordApp$WordEditInitMsg = function (a) {
-	return {$: 'WordEditInitMsg', a: a};
-};
 var elm$core$Platform$Cmd$batch = _Platform_batch;
 var elm$core$Platform$Cmd$none = elm$core$Platform$Cmd$batch(_List_Nil);
 var elm$core$Task$attempt = F2(
@@ -6800,7 +6836,7 @@ var author$project$WordApp$setRoute = F2(
 							_List_fromArray(
 								[
 									author$project$Data$Session$deleteSession,
-									A2(author$project$Route$modifyUrl, author$project$Route$Login, model.key)
+									A2(elm$browser$Browser$Navigation$pushUrl, model.key, '/')
 								])));
 				case 'Home':
 					var _n6 = maybeRoute.a;
@@ -6895,7 +6931,6 @@ var author$project$WordApp$setRoute = F2(
 			}
 		}
 	});
-var elm$core$Debug$log = _Debug_log;
 var elm$core$Result$withDefault = F2(
 	function (def, result) {
 		if (result.$ === 'Ok') {
@@ -6918,8 +6953,7 @@ var author$project$WordApp$init = F3(
 				flags));
 		return A2(
 			author$project$WordApp$setRoute,
-			author$project$Route$fromUrl(
-				A2(elm$core$Debug$log, 'url: ', url)),
+			author$project$Route$fromUrl(url),
 			{
 				key: argKey,
 				messages: _List_Nil,
@@ -7463,6 +7497,46 @@ var author$project$Request$getUserCmd = F2(
 			msgType,
 			author$project$Request$getUserRequest(jwtToken));
 	});
+var author$project$Route$routeToString = function (page) {
+	var pieces = function () {
+		switch (page.$) {
+			case 'Login':
+				return _List_fromArray(
+					['']);
+			case 'Logout':
+				return _List_fromArray(
+					['logout']);
+			case 'Register':
+				return _List_fromArray(
+					['register']);
+			case 'ProfileEdit':
+				return _List_fromArray(
+					['profile']);
+			case 'Home':
+				return _List_fromArray(
+					['home']);
+			case 'WordEdit':
+				var wordId = page.a;
+				return _List_fromArray(
+					[
+						'wordEdit',
+						elm$core$String$fromInt(wordId)
+					]);
+			case 'WordDelete':
+				var wordId = page.a;
+				return _List_fromArray(
+					[
+						'wordDelete',
+						elm$core$String$fromInt(wordId)
+					]);
+			default:
+				var keywordQuizz = page.a;
+				return _List_fromArray(
+					['quizz', keywordQuizz]);
+		}
+	}();
+	return A2(elm$core$String$join, '/', pieces);
+};
 var author$project$Page$Login$update = F3(
 	function (msg, key, model) {
 		switch (msg.$) {
@@ -7574,7 +7648,10 @@ var author$project$Page$Login$update = F3(
 								_List_fromArray(
 									[
 										author$project$Data$Session$storeSession(session),
-										A2(author$project$Route$modifyUrl, author$project$Route$Home, key)
+										A2(
+										elm$browser$Browser$Navigation$pushUrl,
+										key,
+										author$project$Route$routeToString(author$project$Route$Home))
 									]))),
 						author$project$Page$Login$SetSession(session));
 				} else {
@@ -7931,7 +8008,10 @@ var author$project$Page$ProfileEdit$update = F4(
 								_List_fromArray(
 									[
 										author$project$Data$Session$storeSession(newSession),
-										A2(author$project$Route$modifyUrl, author$project$Route$Home, key)
+										A2(
+										elm$browser$Browser$Navigation$pushUrl,
+										key,
+										author$project$Route$routeToString(author$project$Route$Home))
 									]))),
 						author$project$Page$ProfileEdit$UpdateSession(newSession));
 				} else {
@@ -7946,27 +8026,369 @@ var author$project$Page$Quizz$QuizzInitFinished = function (a) {
 	return {$: 'QuizzInitFinished', a: a};
 };
 var author$project$Page$Quizz$NoOp = {$: 'NoOp'};
+var author$project$Page$Quizz$QuizzReInit = {$: 'QuizzReInit'};
+var author$project$Page$Quizz$QuizzReInitFinished = function (a) {
+	return {$: 'QuizzReInitFinished', a: a};
+};
+var author$project$Page$Quizz$TakeQuizzNb = function (a) {
+	return {$: 'TakeQuizzNb', a: a};
+};
+var author$project$Page$Quizz$TakeQuizzResponse = function (a) {
+	return {$: 'TakeQuizzResponse', a: a};
+};
+var elm$core$Basics$always = F2(
+	function (a, _n0) {
+		return a;
+	});
+var elm$core$Process$sleep = _Process_sleep;
+var author$project$Page$Quizz$delay = F2(
+	function (timeout, msg) {
+		return A2(
+			elm$core$Task$perform,
+			elm$core$Basics$identity,
+			A2(
+				elm$core$Task$andThen,
+				elm$core$Basics$always(
+					elm$core$Task$succeed(msg)),
+				elm$core$Process$sleep(timeout)));
+	});
+var elm$json$Json$Decode$bool = _Json_decodeBool;
+var author$project$API$postWordQuizzResponse = F3(
+	function (headers, wordId, response) {
+		return elm$http$Http$request(
+			{
+				body: elm$http$Http$jsonBody(
+					elm$json$Json$Encode$string(response)),
+				expect: elm$http$Http$expectJson(
+					elm$json$Json$Decode$nullable(elm$json$Json$Decode$bool)),
+				headers: headers,
+				method: 'POST',
+				timeout: elm$core$Maybe$Nothing,
+				url: A2(
+					elm$core$String$join,
+					'/',
+					_List_fromArray(
+						[
+							'http://127.1:8080',
+							'words',
+							'quizz',
+							'response',
+							elm$core$String$fromInt(wordId)
+						])),
+				withCredentials: false
+			});
+	});
+var author$project$Request$postWordQuizzResponseRequest = F3(
+	function (session, wordId, response) {
+		var jwtToken = function () {
+			var _n0 = session.authToken;
+			if (_n0.$ === 'Just') {
+				var responseJwtToken = _n0.a;
+				return function ($) {
+					return $.token;
+				}(responseJwtToken);
+			} else {
+				return '';
+			}
+		}();
+		var requestAuthHeader = A2(elm$http$Http$header, 'Authorization', jwtToken);
+		return A3(
+			author$project$API$postWordQuizzResponse,
+			_List_fromArray(
+				[requestAuthHeader]),
+			wordId,
+			response);
+	});
+var author$project$Request$postWordQuizzResponseCmd = F4(
+	function (msgType, session, wordId, wordResponse) {
+		return A2(
+			elm$http$Http$send,
+			msgType,
+			A3(author$project$Request$postWordQuizzResponseRequest, session, wordId, wordResponse));
+	});
+var elm$random$Random$Generate = function (a) {
+	return {$: 'Generate', a: a};
+};
+var elm$core$Bitwise$shiftRightZfBy = _Bitwise_shiftRightZfBy;
+var elm$random$Random$Seed = F2(
+	function (a, b) {
+		return {$: 'Seed', a: a, b: b};
+	});
+var elm$random$Random$next = function (_n0) {
+	var state0 = _n0.a;
+	var incr = _n0.b;
+	return A2(elm$random$Random$Seed, ((state0 * 1664525) + incr) >>> 0, incr);
+};
+var elm$random$Random$initialSeed = function (x) {
+	var _n0 = elm$random$Random$next(
+		A2(elm$random$Random$Seed, 0, 1013904223));
+	var state1 = _n0.a;
+	var incr = _n0.b;
+	var state2 = (state1 + x) >>> 0;
+	return elm$random$Random$next(
+		A2(elm$random$Random$Seed, state2, incr));
+};
+var elm$time$Time$Name = function (a) {
+	return {$: 'Name', a: a};
+};
+var elm$time$Time$Offset = function (a) {
+	return {$: 'Offset', a: a};
+};
+var elm$time$Time$Zone = F2(
+	function (a, b) {
+		return {$: 'Zone', a: a, b: b};
+	});
+var elm$time$Time$customZone = elm$time$Time$Zone;
+var elm$time$Time$Posix = function (a) {
+	return {$: 'Posix', a: a};
+};
+var elm$time$Time$millisToPosix = elm$time$Time$Posix;
+var elm$time$Time$now = _Time_now(elm$time$Time$millisToPosix);
+var elm$time$Time$posixToMillis = function (_n0) {
+	var millis = _n0.a;
+	return millis;
+};
+var elm$random$Random$init = A2(
+	elm$core$Task$andThen,
+	function (time) {
+		return elm$core$Task$succeed(
+			elm$random$Random$initialSeed(
+				elm$time$Time$posixToMillis(time)));
+	},
+	elm$time$Time$now);
+var elm$random$Random$step = F2(
+	function (_n0, seed) {
+		var generator = _n0.a;
+		return generator(seed);
+	});
+var elm$random$Random$onEffects = F3(
+	function (router, commands, seed) {
+		if (!commands.b) {
+			return elm$core$Task$succeed(seed);
+		} else {
+			var generator = commands.a.a;
+			var rest = commands.b;
+			var _n1 = A2(elm$random$Random$step, generator, seed);
+			var value = _n1.a;
+			var newSeed = _n1.b;
+			return A2(
+				elm$core$Task$andThen,
+				function (_n2) {
+					return A3(elm$random$Random$onEffects, router, rest, newSeed);
+				},
+				A2(elm$core$Platform$sendToApp, router, value));
+		}
+	});
+var elm$random$Random$onSelfMsg = F3(
+	function (_n0, _n1, seed) {
+		return elm$core$Task$succeed(seed);
+	});
+var elm$random$Random$Generator = function (a) {
+	return {$: 'Generator', a: a};
+};
+var elm$random$Random$map = F2(
+	function (func, _n0) {
+		var genA = _n0.a;
+		return elm$random$Random$Generator(
+			function (seed0) {
+				var _n1 = genA(seed0);
+				var a = _n1.a;
+				var seed1 = _n1.b;
+				return _Utils_Tuple2(
+					func(a),
+					seed1);
+			});
+	});
+var elm$random$Random$cmdMap = F2(
+	function (func, _n0) {
+		var generator = _n0.a;
+		return elm$random$Random$Generate(
+			A2(elm$random$Random$map, func, generator));
+	});
+_Platform_effectManagers['Random'] = _Platform_createManager(elm$random$Random$init, elm$random$Random$onEffects, elm$random$Random$onSelfMsg, elm$random$Random$cmdMap);
+var elm$random$Random$command = _Platform_leaf('Random');
+var elm$random$Random$generate = F2(
+	function (tagger, generator) {
+		return elm$random$Random$command(
+			elm$random$Random$Generate(
+				A2(elm$random$Random$map, tagger, generator)));
+	});
+var elm$core$Basics$negate = function (n) {
+	return -n;
+};
+var elm$core$Bitwise$and = _Bitwise_and;
+var elm$core$Bitwise$xor = _Bitwise_xor;
+var elm$random$Random$peel = function (_n0) {
+	var state = _n0.a;
+	var word = (state ^ (state >>> ((state >>> 28) + 4))) * 277803737;
+	return ((word >>> 22) ^ word) >>> 0;
+};
+var elm$random$Random$int = F2(
+	function (a, b) {
+		return elm$random$Random$Generator(
+			function (seed0) {
+				var _n0 = (_Utils_cmp(a, b) < 0) ? _Utils_Tuple2(a, b) : _Utils_Tuple2(b, a);
+				var lo = _n0.a;
+				var hi = _n0.b;
+				var range = (hi - lo) + 1;
+				if (!((range - 1) & range)) {
+					return _Utils_Tuple2(
+						(((range - 1) & elm$random$Random$peel(seed0)) >>> 0) + lo,
+						elm$random$Random$next(seed0));
+				} else {
+					var threshhold = (((-range) >>> 0) % range) >>> 0;
+					var accountForBias = function (seed) {
+						accountForBias:
+						while (true) {
+							var x = elm$random$Random$peel(seed);
+							var seedN = elm$random$Random$next(seed);
+							if (_Utils_cmp(x, threshhold) < 0) {
+								var $temp$seed = seedN;
+								seed = $temp$seed;
+								continue accountForBias;
+							} else {
+								return _Utils_Tuple2((x % range) + lo, seedN);
+							}
+						}
+					};
+					return accountForBias(seed0);
+				}
+			});
+	});
 var author$project$Page$Quizz$update = F3(
 	function (session, msg, model) {
-		if (msg.$ === 'QuizzInitFinished') {
-			if (msg.a.$ === 'Ok') {
-				var listWords = msg.a.a;
+		switch (msg.$) {
+			case 'QuizzReInit':
 				return _Utils_Tuple2(
 					_Utils_Tuple2(
 						_Utils_update(
 							model,
-							{words: listWords}),
+							{word: elm$core$Maybe$Nothing, wordResponse: ''}),
+						A2(
+							elm$core$Task$attempt,
+							author$project$Page$Quizz$QuizzReInitFinished,
+							A2(author$project$Page$Quizz$init, session, model.keyword))),
+					author$project$Page$Quizz$NoOp);
+			case 'QuizzInitFinished':
+				if (msg.a.$ === 'Ok') {
+					var listWords = msg.a.a;
+					return _Utils_Tuple2(
+						_Utils_Tuple2(
+							_Utils_update(
+								model,
+								{words: listWords}),
+							elm$core$Platform$Cmd$none),
+						author$project$Page$Quizz$NoOp);
+				} else {
+					return _Utils_Tuple2(
+						_Utils_Tuple2(model, elm$core$Platform$Cmd$none),
+						author$project$Page$Quizz$NoOp);
+				}
+			case 'QuizzReInitFinished':
+				if (msg.a.$ === 'Ok') {
+					var listWords = msg.a.a;
+					return _Utils_Tuple2(
+						_Utils_Tuple2(
+							_Utils_update(
+								model,
+								{word: elm$core$Maybe$Nothing, wordResponse: '', words: listWords}),
+							elm$core$Platform$Cmd$none),
+						author$project$Page$Quizz$NoOp);
+				} else {
+					return _Utils_Tuple2(
+						_Utils_Tuple2(model, elm$core$Platform$Cmd$none),
+						author$project$Page$Quizz$NoOp);
+				}
+			case 'TakeQuizz':
+				return _Utils_Tuple2(
+					_Utils_Tuple2(
+						model,
+						A2(
+							elm$random$Random$generate,
+							author$project$Page$Quizz$TakeQuizzNb,
+							A2(
+								elm$random$Random$int,
+								0,
+								elm$core$List$length(model.words)))),
+					author$project$Page$Quizz$NoOp);
+			case 'TakeQuizzNb':
+				var randomInt = msg.a;
+				var randomWord = elm$core$List$head(
+					A2(elm$core$List$drop, randomInt, model.words));
+				return _Utils_Tuple2(
+					_Utils_Tuple2(
+						_Utils_update(
+							model,
+							{
+								word: A2(
+									elm$core$Maybe$map,
+									function (w) {
+										return _Utils_Tuple2(w, elm$core$Maybe$Nothing);
+									},
+									randomWord)
+							}),
 						elm$core$Platform$Cmd$none),
 					author$project$Page$Quizz$NoOp);
-			} else {
+			case 'TakeQuizzUpdateResponse':
+				var newReponse = msg.a;
+				return _Utils_Tuple2(
+					_Utils_Tuple2(
+						_Utils_update(
+							model,
+							{wordResponse: newReponse}),
+						elm$core$Platform$Cmd$none),
+					author$project$Page$Quizz$NoOp);
+			case 'TakeQuizzAttempt':
+				var wordId = function () {
+					var _n1 = model.word;
+					if (_n1.$ === 'Just') {
+						var _n2 = _n1.a;
+						var theWord = _n2.a;
+						return theWord.id;
+					} else {
+						return 0;
+					}
+				}();
+				return _Utils_Tuple2(
+					_Utils_Tuple2(
+						model,
+						A4(author$project$Request$postWordQuizzResponseCmd, author$project$Page$Quizz$TakeQuizzResponse, session, wordId, model.wordResponse)),
+					author$project$Page$Quizz$NoOp);
+			case 'TakeQuizzResponse':
+				if (msg.a.$ === 'Ok') {
+					var maybeVerified = msg.a.a;
+					var newWord = function () {
+						var _n3 = model.word;
+						if (_n3.$ === 'Just') {
+							var _n4 = _n3.a;
+							var theWord = _n4.a;
+							return elm$core$Maybe$Just(
+								_Utils_Tuple2(theWord, maybeVerified));
+						} else {
+							return elm$core$Maybe$Nothing;
+						}
+					}();
+					return _Utils_Tuple2(
+						_Utils_Tuple2(
+							_Utils_update(
+								model,
+								{word: newWord}),
+							A2(author$project$Page$Quizz$delay, 4000, author$project$Page$Quizz$QuizzReInit)),
+						author$project$Page$Quizz$NoOp);
+				} else {
+					return _Utils_Tuple2(
+						_Utils_Tuple2(
+							model,
+							A2(
+								elm$core$Task$attempt,
+								author$project$Page$Quizz$QuizzReInitFinished,
+								A2(author$project$Page$Quizz$init, session, model.keyword))),
+						author$project$Page$Quizz$NoOp);
+				}
+			default:
 				return _Utils_Tuple2(
 					_Utils_Tuple2(model, elm$core$Platform$Cmd$none),
 					author$project$Page$Quizz$NoOp);
-			}
-		} else {
-			return _Utils_Tuple2(
-				_Utils_Tuple2(model, elm$core$Platform$Cmd$none),
-				author$project$Page$Quizz$NoOp);
 		}
 	});
 var author$project$Page$Register$InitFinished = function (a) {
@@ -8336,6 +8758,9 @@ var author$project$WordApp$LoginMsg = function (a) {
 var author$project$WordApp$ProfileEditMsg = function (a) {
 	return {$: 'ProfileEditMsg', a: a};
 };
+var author$project$WordApp$QuizzMsg = function (a) {
+	return {$: 'QuizzMsg', a: a};
+};
 var author$project$WordApp$RegisterMsg = function (a) {
 	return {$: 'RegisterMsg', a: a};
 };
@@ -8345,6 +8770,7 @@ var author$project$WordApp$WordDeleteMsg = function (a) {
 var author$project$WordApp$WordEditMsg = function (a) {
 	return {$: 'WordEditMsg', a: a};
 };
+var elm$browser$Browser$Navigation$load = _Browser_load;
 var elm$core$Platform$Cmd$map = _Platform_map;
 var elm$url$Url$addPort = F2(
 	function (maybePort, starter) {
@@ -8413,7 +8839,10 @@ var author$project$WordApp$updatePage = F3(
 								model.key,
 								elm$url$Url$toString(url)));
 					} else {
-						return _Utils_Tuple2(model, elm$core$Platform$Cmd$none);
+						var url = urlRequest.a;
+						return _Utils_Tuple2(
+							model,
+							elm$browser$Browser$Navigation$load(url));
 					}
 				case 'SetRoute':
 					var route = _n0.b.a;
@@ -8493,7 +8922,7 @@ var author$project$WordApp$updatePage = F3(
 									{
 										page: author$project$WordApp$Login(author$project$Page$Login$initialModel)
 									}),
-								A2(author$project$Route$modifyUrl, author$project$Route$Login, model.key));
+								elm$core$Platform$Cmd$none);
 						}
 					} else {
 						break _n0$14;
@@ -8531,7 +8960,7 @@ var author$project$WordApp$updatePage = F3(
 										_List_fromArray(
 											[
 												author$project$Data$Session$deleteSession,
-												A2(author$project$Route$modifyUrl, author$project$Route$Login, model.key)
+												A2(elm$browser$Browser$Navigation$pushUrl, model.key, '/')
 											])));
 							default:
 								var newSession = externalMsg.a;
@@ -8581,7 +9010,7 @@ var author$project$WordApp$updatePage = F3(
 										_List_fromArray(
 											[
 												author$project$Data$Session$deleteSession,
-												A2(author$project$Route$modifyUrl, author$project$Route$Login, model.key)
+												A2(elm$browser$Browser$Navigation$pushUrl, model.key, '/')
 											])));
 							default:
 								var _n16 = model.session.user;
@@ -8646,7 +9075,7 @@ var author$project$WordApp$updatePage = F3(
 										_List_fromArray(
 											[
 												author$project$Data$Session$deleteSession,
-												A2(author$project$Route$modifyUrl, author$project$Route$Login, model.key)
+												A2(elm$browser$Browser$Navigation$pushUrl, model.key, '/')
 											])));
 							default:
 								var _n20 = model.session.user;
@@ -8715,12 +9144,15 @@ var author$project$WordApp$updatePage = F3(
 										_List_fromArray(
 											[
 												author$project$Data$Session$deleteSession,
-												A2(author$project$Route$modifyUrl, author$project$Route$Login, model.key)
+												A2(elm$browser$Browser$Navigation$pushUrl, model.key, '/')
 											])));
 							default:
 								return _Utils_Tuple2(
 									model,
-									A2(author$project$Route$modifyUrl, author$project$Route$Home, model.key));
+									A2(
+										elm$browser$Browser$Navigation$pushUrl,
+										model.key,
+										'/' + author$project$Route$routeToString(author$project$Route$Home)));
 						}
 					} else {
 						break _n0$14;
@@ -8758,12 +9190,15 @@ var author$project$WordApp$updatePage = F3(
 										_List_fromArray(
 											[
 												author$project$Data$Session$deleteSession,
-												A2(author$project$Route$modifyUrl, author$project$Route$Login, model.key)
+												A2(elm$browser$Browser$Navigation$pushUrl, model.key, '/')
 											])));
 							default:
 								return _Utils_Tuple2(
 									model,
-									A2(author$project$Route$modifyUrl, author$project$Route$Home, model.key));
+									A2(
+										elm$browser$Browser$Navigation$pushUrl,
+										model.key,
+										'/' + author$project$Route$routeToString(author$project$Route$Home)));
 						}
 					} else {
 						break _n0$14;
@@ -8805,12 +9240,15 @@ var author$project$WordApp$updatePage = F3(
 										_List_fromArray(
 											[
 												author$project$Data$Session$deleteSession,
-												A2(author$project$Route$modifyUrl, author$project$Route$Login, model.key)
+												A2(elm$browser$Browser$Navigation$pushUrl, model.key, '/')
 											])));
 							default:
 								return _Utils_Tuple2(
 									model,
-									A2(author$project$Route$modifyUrl, author$project$Route$Home, model.key));
+									A2(
+										elm$browser$Browser$Navigation$pushUrl,
+										model.key,
+										'/' + author$project$Route$routeToString(author$project$Route$Home)));
 						}
 					} else {
 						break _n0$14;
@@ -8834,7 +9272,7 @@ var author$project$WordApp$updatePage = F3(
 								{
 									page: author$project$WordApp$Quizz(pageModel)
 								}),
-							elm$core$Platform$Cmd$none);
+							A2(elm$core$Platform$Cmd$map, author$project$WordApp$QuizzMsg, pageMsg));
 					} else {
 						break _n0$14;
 					}
@@ -8842,7 +9280,18 @@ var author$project$WordApp$updatePage = F3(
 					if (_n0.a.$ === 'Quizz') {
 						var subModel = _n0.a.a;
 						var subMsg = _n0.b.a;
-						return _Utils_Tuple2(model, elm$core$Platform$Cmd$none);
+						var _n32 = A3(author$project$Page$Quizz$update, model.session, subMsg, subModel);
+						var _n33 = _n32.a;
+						var pageModel = _n33.a;
+						var pageMsg = _n33.b;
+						var externalMsg = _n32.b;
+						return _Utils_Tuple2(
+							_Utils_update(
+								model,
+								{
+									page: author$project$WordApp$Quizz(pageModel)
+								}),
+							A2(elm$core$Platform$Cmd$map, author$project$WordApp$QuizzMsg, pageMsg));
 					} else {
 						break _n0$14;
 					}
@@ -8852,6 +9301,7 @@ var author$project$WordApp$updatePage = F3(
 		}
 		return _Utils_Tuple2(model, elm$core$Platform$Cmd$none);
 	});
+var elm$core$Debug$log = _Debug_log;
 var author$project$WordApp$update = F2(
 	function (msg, model) {
 		return A3(
@@ -8879,13 +9329,6 @@ var author$project$Page$Home$UpdateSearchKeyword = function (a) {
 var author$project$Page$Home$UpdateSearchWord = function (a) {
 	return {$: 'UpdateSearchWord', a: a};
 };
-var elm$html$Html$button = _VirtualDom_node('button');
-var elm$html$Html$form = _VirtualDom_node('form');
-var elm$html$Html$input = _VirtualDom_node('input');
-var elm$html$Html$option = _VirtualDom_node('option');
-var elm$html$Html$select = _VirtualDom_node('select');
-var elm$virtual_dom$VirtualDom$text = _VirtualDom_text;
-var elm$html$Html$text = elm$virtual_dom$VirtualDom$text;
 var elm$html$Html$Attributes$stringProperty = F2(
 	function (key, string) {
 		return A2(
@@ -8893,12 +9336,31 @@ var elm$html$Html$Attributes$stringProperty = F2(
 			key,
 			elm$json$Json$Encode$string(string));
 	});
+var elm$html$Html$Attributes$href = function (url) {
+	return A2(
+		elm$html$Html$Attributes$stringProperty,
+		'href',
+		_VirtualDom_noJavaScriptUri(url));
+};
+var author$project$Route$href = function (argRoute) {
+	return elm$html$Html$Attributes$href(
+		'/' + author$project$Route$routeToString(argRoute));
+};
+var elm$html$Html$button = _VirtualDom_node('button');
+var elm$html$Html$form = _VirtualDom_node('form');
+var elm$html$Html$input = _VirtualDom_node('input');
+var elm$html$Html$label = _VirtualDom_node('label');
+var elm$html$Html$option = _VirtualDom_node('option');
+var elm$html$Html$select = _VirtualDom_node('select');
+var elm$virtual_dom$VirtualDom$text = _VirtualDom_text;
+var elm$html$Html$text = elm$virtual_dom$VirtualDom$text;
 var elm$html$Html$Attributes$action = function (uri) {
 	return A2(
 		elm$html$Html$Attributes$stringProperty,
 		'action',
 		_VirtualDom_noJavaScriptUri(uri));
 };
+var elm$html$Html$Attributes$for = elm$html$Html$Attributes$stringProperty('htmlFor');
 var elm$html$Html$Attributes$name = elm$html$Html$Attributes$stringProperty('name');
 var elm$html$Html$Attributes$placeholder = elm$html$Html$Attributes$stringProperty('placeholder');
 var elm$html$Html$Attributes$type_ = elm$html$Html$Attributes$stringProperty('type');
@@ -8968,6 +9430,16 @@ var author$project$Views$Forms$viewFormAddWord = F5(
 			_List_fromArray(
 				[
 					A2(
+					elm$html$Html$label,
+					_List_fromArray(
+						[
+							elm$html$Html$Attributes$for('language')
+						]),
+					_List_fromArray(
+						[
+							elm$html$Html$text('Language')
+						])),
+					A2(
 					elm$html$Html$select,
 					_List_fromArray(
 						[
@@ -8987,6 +9459,16 @@ var author$project$Views$Forms$viewFormAddWord = F5(
 						},
 						possibleLanguages)),
 					A2(
+					elm$html$Html$label,
+					_List_fromArray(
+						[
+							elm$html$Html$Attributes$for('word')
+						]),
+					_List_fromArray(
+						[
+							elm$html$Html$text('Word')
+						])),
+					A2(
 					elm$html$Html$input,
 					_List_fromArray(
 						[
@@ -8994,6 +9476,16 @@ var author$project$Views$Forms$viewFormAddWord = F5(
 							elm$html$Html$Attributes$placeholder('word')
 						]),
 					_List_Nil),
+					A2(
+					elm$html$Html$label,
+					_List_fromArray(
+						[
+							elm$html$Html$Attributes$for('definition')
+						]),
+					_List_fromArray(
+						[
+							elm$html$Html$text('Definition')
+						])),
 					A2(
 					elm$html$Html$input,
 					_List_fromArray(
@@ -9026,6 +9518,16 @@ var author$project$Views$Forms$viewFormSearchWord = F4(
 			_List_fromArray(
 				[
 					A2(
+					elm$html$Html$label,
+					_List_fromArray(
+						[
+							elm$html$Html$Attributes$for('original word')
+						]),
+					_List_fromArray(
+						[
+							elm$html$Html$text('Word')
+						])),
+					A2(
 					elm$html$Html$input,
 					_List_fromArray(
 						[
@@ -9033,6 +9535,16 @@ var author$project$Views$Forms$viewFormSearchWord = F4(
 							elm$html$Html$Attributes$placeholder('original word')
 						]),
 					_List_Nil),
+					A2(
+					elm$html$Html$label,
+					_List_fromArray(
+						[
+							elm$html$Html$Attributes$for('keyword')
+						]),
+					_List_fromArray(
+						[
+							elm$html$Html$text('Keyword')
+						])),
 					A2(
 					elm$html$Html$select,
 					_List_fromArray(
@@ -9078,58 +9590,33 @@ var author$project$Views$Forms$viewFormSearchWord = F4(
 						]))
 				]));
 	});
-var elm$html$Html$Attributes$href = function (url) {
-	return A2(
-		elm$html$Html$Attributes$stringProperty,
-		'href',
-		_VirtualDom_noJavaScriptUri(url));
-};
-var author$project$Route$href = function (argRoute) {
-	return elm$html$Html$Attributes$href(
-		'/' + author$project$Route$routeToString(argRoute));
-};
+var elm$core$String$toLower = _String_toLower;
 var elm$html$Html$a = _VirtualDom_node('a');
-var elm$html$Html$li = _VirtualDom_node('li');
-var elm$html$Html$ul = _VirtualDom_node('ul');
-var author$project$Views$Words$viewKeywordsList = function (listKeywords) {
-	return A2(
-		elm$html$Html$ul,
-		_List_Nil,
-		A2(
-			elm$core$List$map,
-			function (k) {
-				return A2(
-					elm$html$Html$li,
-					_List_Nil,
-					_List_fromArray(
-						[
-							A2(
-							elm$html$Html$a,
-							_List_fromArray(
-								[
-									author$project$Route$href(
-									author$project$Route$Quizz(k))
-								]),
-							_List_fromArray(
-								[
-									elm$html$Html$text(k)
-								]))
-						]));
-			},
-			listKeywords));
-};
 var elm$html$Html$div = _VirtualDom_node('div');
 var elm$html$Html$h1 = _VirtualDom_node('h1');
 var elm$html$Html$p = _VirtualDom_node('p');
+var elm$html$Html$span = _VirtualDom_node('span');
+var elm$html$Html$Attributes$class = elm$html$Html$Attributes$stringProperty('className');
+var elm$html$Html$Attributes$rel = _VirtualDom_attribute('rel');
+var elm$html$Html$Attributes$target = elm$html$Html$Attributes$stringProperty('target');
+var elm$url$Url$percentEncode = _Url_percentEncode;
 var author$project$Views$Words$viewWordCard = function (word) {
+	var dicUrl = 'https://' + (elm$core$String$toLower(word.language) + ('.wiktionary.org/wiki/Special:Search?search=' + elm$url$Url$percentEncode(word.word)));
 	return A2(
 		elm$html$Html$div,
-		_List_Nil,
 		_List_fromArray(
 			[
+				elm$html$Html$Attributes$class('word-container')
+			]),
+		_List_fromArray(
+			[
+				elm$html$Html$text(' '),
 				A2(
 				elm$html$Html$div,
-				_List_Nil,
+				_List_fromArray(
+					[
+						elm$html$Html$Attributes$class('word-container-header')
+					]),
 				_List_fromArray(
 					[
 						A2(
@@ -9143,8 +9630,11 @@ var author$project$Views$Words$viewWordCard = function (word) {
 								}(word))
 							])),
 						A2(
-						elm$html$Html$p,
-						_List_Nil,
+						elm$html$Html$div,
+						_List_fromArray(
+							[
+								elm$html$Html$Attributes$class('word-container-header-icons')
+							]),
 						_List_fromArray(
 							[
 								A2(
@@ -9159,7 +9649,13 @@ var author$project$Views$Words$viewWordCard = function (word) {
 									]),
 								_List_fromArray(
 									[
-										elm$html$Html$text(' ')
+										A2(
+										elm$html$Html$span,
+										_List_fromArray(
+											[
+												elm$html$Html$Attributes$class('icon-trash-empty')
+											]),
+										_List_Nil)
 									])),
 								A2(
 								elm$html$Html$a,
@@ -9173,17 +9669,50 @@ var author$project$Views$Words$viewWordCard = function (word) {
 									]),
 								_List_fromArray(
 									[
-										elm$html$Html$text(' ')
+										A2(
+										elm$html$Html$span,
+										_List_fromArray(
+											[
+												elm$html$Html$Attributes$class('icon-pencil')
+											]),
+										_List_Nil)
 									])),
-								elm$html$Html$text(
-								function ($) {
-									return $.language;
-								}(word))
+								A2(
+								elm$html$Html$a,
+								_List_fromArray(
+									[
+										elm$html$Html$Attributes$href(dicUrl),
+										elm$html$Html$Attributes$target('_blank'),
+										elm$html$Html$Attributes$rel('noopener noreferrer')
+									]),
+								_List_fromArray(
+									[
+										A2(
+										elm$html$Html$span,
+										_List_fromArray(
+											[
+												elm$html$Html$Attributes$class('icon-search')
+											]),
+										_List_Nil),
+										A2(
+										elm$html$Html$span,
+										_List_Nil,
+										_List_fromArray(
+											[
+												elm$html$Html$text(
+												function ($) {
+													return $.language;
+												}(word))
+											]))
+									]))
 							]))
 					])),
 				A2(
 				elm$html$Html$div,
-				_List_Nil,
+				_List_fromArray(
+					[
+						elm$html$Html$Attributes$class('word-container-body')
+					]),
 				_List_fromArray(
 					[
 						A2(
@@ -9198,12 +9727,6 @@ var author$project$Views$Words$viewWordCard = function (word) {
 							]))
 					]))
 			]));
-};
-var author$project$Views$Words$viewWordsCards = function (words) {
-	return A2(
-		elm$html$Html$div,
-		_List_Nil,
-		A2(elm$core$List$map, author$project$Views$Words$viewWordCard, words));
 };
 var elm$core$List$intersperse = F2(
 	function (sep, xs) {
@@ -9223,6 +9746,12 @@ var elm$core$List$intersperse = F2(
 			return A2(elm$core$List$cons, hd, spersed);
 		}
 	});
+var author$project$Views$Words$viewWordsCards = function (words) {
+	return A2(
+		elm$core$List$intersperse,
+		elm$html$Html$text(' '),
+		A2(elm$core$List$map, author$project$Views$Words$viewWordCard, words));
+};
 var elm$core$String$concat = function (strings) {
 	return A2(elm$core$String$join, '', strings);
 };
@@ -9295,7 +9824,13 @@ var author$project$Views$Words$viewWordTr = function (word) {
 							]),
 						_List_fromArray(
 							[
-								elm$html$Html$text('edit')
+								A2(
+								elm$html$Html$span,
+								_List_fromArray(
+									[
+										elm$html$Html$Attributes$class('icon-pencil')
+									]),
+								_List_Nil)
 							])),
 						A2(
 						elm$html$Html$a,
@@ -9309,7 +9844,13 @@ var author$project$Views$Words$viewWordTr = function (word) {
 							]),
 						_List_fromArray(
 							[
-								elm$html$Html$text('delete')
+								A2(
+								elm$html$Html$span,
+								_List_fromArray(
+									[
+										elm$html$Html$Attributes$class('icon-trash-empty')
+									]),
+								_List_Nil)
 							]))
 					]))
 			]));
@@ -9406,7 +9947,51 @@ var author$project$Page$Home$view = F2(
 								[
 									elm$html$Html$text('You want to add a word?')
 								])),
-							A5(author$project$Views$Forms$viewFormAddWord, myLangs, author$project$Page$Home$HomeAddNewWord, author$project$Page$Home$TypeHomeLanguage, author$project$Page$Home$TypeHomeWord, author$project$Page$Home$TypeHomeDefinition)
+							A2(
+							elm$html$Html$div,
+							_List_fromArray(
+								[
+									elm$html$Html$Attributes$class('form-div')
+								]),
+							_List_fromArray(
+								[
+									A5(author$project$Views$Forms$viewFormAddWord, myLangs, author$project$Page$Home$HomeAddNewWord, author$project$Page$Home$TypeHomeLanguage, author$project$Page$Home$TypeHomeWord, author$project$Page$Home$TypeHomeDefinition)
+								]))
+						])),
+					A2(
+					elm$html$Html$div,
+					_List_Nil,
+					_List_fromArray(
+						[
+							A2(
+							elm$html$Html$h1,
+							_List_Nil,
+							_List_fromArray(
+								[
+									elm$html$Html$text('Take a quizz')
+								])),
+							A2(
+							elm$html$Html$div,
+							_List_fromArray(
+								[
+									elm$html$Html$Attributes$class('quizz-container-links')
+								]),
+							A2(
+								elm$core$List$map,
+								function (l) {
+									return A2(
+										elm$html$Html$a,
+										_List_fromArray(
+											[
+												author$project$Route$href(
+												author$project$Route$Quizz(l))
+											]),
+										_List_fromArray(
+											[
+												elm$html$Html$text(l)
+											]));
+								},
+								myLangs))
 						])),
 					A2(
 					elm$html$Html$div,
@@ -9420,29 +10005,24 @@ var author$project$Page$Home$view = F2(
 								[
 									elm$html$Html$text('Search a particular word in your dict?')
 								])),
-							A4(
-							author$project$Views$Forms$viewFormSearchWord,
-							function ($) {
-								return $.keywords;
-							}(model),
-							author$project$Page$Home$HomeSearchWord,
-							author$project$Page$Home$UpdateSearchWord,
-							author$project$Page$Home$UpdateSearchKeyword),
-							author$project$Views$Words$viewWordsTable(model.searchWords)
-						])),
-					A2(
-					elm$html$Html$div,
-					_List_Nil,
-					_List_fromArray(
-						[
 							A2(
-							elm$html$Html$h1,
-							_List_Nil,
+							elm$html$Html$div,
 							_List_fromArray(
 								[
-									elm$html$Html$text('Your keywords:')
+									elm$html$Html$Attributes$class('form-div')
+								]),
+							_List_fromArray(
+								[
+									A4(
+									author$project$Views$Forms$viewFormSearchWord,
+									function ($) {
+										return $.keywords;
+									}(model),
+									author$project$Page$Home$HomeSearchWord,
+									author$project$Page$Home$UpdateSearchWord,
+									author$project$Page$Home$UpdateSearchKeyword)
 								])),
-							author$project$Views$Words$viewKeywordsList(model.keywords)
+							author$project$Views$Words$viewWordsTable(model.searchWords)
 						])),
 					A2(
 					elm$html$Html$div,
@@ -9456,7 +10036,13 @@ var author$project$Page$Home$view = F2(
 								[
 									elm$html$Html$text('Your last words of the week:')
 								])),
-							author$project$Views$Words$viewWordsCards(model.myLastWords)
+							A2(
+							elm$html$Html$div,
+							_List_fromArray(
+								[
+									elm$html$Html$Attributes$class('container-cards')
+								]),
+							author$project$Views$Words$viewWordsCards(model.myLastWords))
 						]))
 				]));
 	});
@@ -9467,7 +10053,6 @@ var author$project$Page$Login$TypeLoginMsg = function (a) {
 var author$project$Page$Login$TypePasswordMsg = function (a) {
 	return {$: 'TypePasswordMsg', a: a};
 };
-var elm$html$Html$label = _VirtualDom_node('label');
 var elm$virtual_dom$VirtualDom$attribute = F2(
 	function (key, value) {
 		return A2(
@@ -9476,7 +10061,6 @@ var elm$virtual_dom$VirtualDom$attribute = F2(
 			_VirtualDom_noJavaScriptOrHtmlUri(value));
 	});
 var elm$html$Html$Attributes$attribute = elm$virtual_dom$VirtualDom$attribute;
-var elm$html$Html$Attributes$for = elm$html$Html$Attributes$stringProperty('htmlFor');
 var author$project$Views$Forms$viewFormLogin = F3(
 	function (loginTryMsg, typeLoginMsg, typePasswordMsg) {
 		return A2(
@@ -9538,8 +10122,6 @@ var author$project$Views$Forms$viewFormLogin = F3(
 						]))
 				]));
 	});
-var elm$html$Html$span = _VirtualDom_node('span');
-var elm$html$Html$Attributes$class = elm$html$Html$Attributes$stringProperty('className');
 var author$project$Page$Login$view = function (model) {
 	return A2(
 		elm$html$Html$div,
@@ -9641,9 +10223,23 @@ var author$project$Views$Forms$viewLanguageUserInput = F5(
 		}();
 		return A2(
 			elm$html$Html$div,
-			_List_Nil,
 			_List_fromArray(
 				[
+					elm$html$Html$Attributes$class('group-form')
+				]),
+			_List_fromArray(
+				[
+					A2(
+					elm$html$Html$label,
+					_List_fromArray(
+						[
+							elm$html$Html$Attributes$for(
+							'language' + elm$core$String$fromInt(indexInput))
+						]),
+					_List_fromArray(
+						[
+							elm$html$Html$text('Language')
+						])),
 					A2(
 					elm$html$Html$input,
 					_List_fromArray(
@@ -9666,11 +10262,18 @@ var author$project$Views$Forms$viewLanguageUserInput = F5(
 					_List_fromArray(
 						[
 							elm$html$Html$Events$onClick(toIncreaseNbLanguage),
-							elm$html$Html$Attributes$type_('button')
+							elm$html$Html$Attributes$type_('button'),
+							elm$html$Html$Attributes$class('button-add')
 						]),
 					_List_fromArray(
 						[
-							elm$html$Html$text('(+) Add a language')
+							A2(
+							elm$html$Html$span,
+							_List_fromArray(
+								[
+									elm$html$Html$Attributes$class('icon-plus')
+								]),
+							_List_Nil)
 						])),
 					A2(
 					elm$html$Html$button,
@@ -9678,11 +10281,18 @@ var author$project$Views$Forms$viewLanguageUserInput = F5(
 						[
 							elm$html$Html$Events$onClick(
 							toRemoveLanguage(indexInput)),
-							elm$html$Html$Attributes$type_('button')
+							elm$html$Html$Attributes$type_('button'),
+							elm$html$Html$Attributes$class('button-minus')
 						]),
 					_List_fromArray(
 						[
-							elm$html$Html$text('(-) Remove language')
+							A2(
+							elm$html$Html$span,
+							_List_fromArray(
+								[
+									elm$html$Html$Attributes$class('icon-minus')
+								]),
+							_List_Nil)
 						]))
 				]));
 	});
@@ -9731,6 +10341,16 @@ var author$project$Views$Forms$viewFormUpdateUser = F7(
 				_List_fromArray(
 					[
 						A2(
+						elm$html$Html$label,
+						_List_fromArray(
+							[
+								elm$html$Html$Attributes$for('password')
+							]),
+						_List_fromArray(
+							[
+								elm$html$Html$text('Language')
+							])),
+						A2(
 						elm$html$Html$input,
 						_List_fromArray(
 							[
@@ -9739,6 +10359,16 @@ var author$project$Views$Forms$viewFormUpdateUser = F7(
 								A2(elm$html$Html$Attributes$attribute, 'type', 'password')
 							]),
 						_List_Nil),
+						A2(
+						elm$html$Html$label,
+						_List_fromArray(
+							[
+								elm$html$Html$Attributes$for('email')
+							]),
+						_List_fromArray(
+							[
+								elm$html$Html$text('Email')
+							])),
 						A2(
 						elm$html$Html$input,
 						_List_fromArray(
@@ -9770,38 +10400,343 @@ var author$project$Views$Forms$viewFormUpdateUser = F7(
 								]),
 							_List_fromArray(
 								[
-									elm$html$Html$text('update password')
+									elm$html$Html$text('Update my profile')
 								]))
 						]))));
 	});
 var author$project$Page$ProfileEdit$view = function (model) {
 	return A2(
 		elm$html$Html$div,
-		_List_Nil,
 		_List_fromArray(
 			[
-				A7(author$project$Views$Forms$viewFormUpdateUser, model.user, model.nbLanguage, author$project$Page$ProfileEdit$IncreaseNbLanguage, author$project$Page$ProfileEdit$RemoveLanguage, author$project$Page$ProfileEdit$UpdateUser, author$project$Page$ProfileEdit$ToUpdateUser, author$project$Page$ProfileEdit$UpdatePassword)
-			]));
-};
-var elm$html$Html$h2 = _VirtualDom_node('h2');
-var author$project$Page$Quizz$view = function (model) {
-	return A2(
-		elm$html$Html$div,
-		_List_Nil,
+				elm$html$Html$Attributes$class('form-div')
+			]),
 		_List_fromArray(
 			[
 				A2(
-				elm$html$Html$h2,
+				elm$html$Html$h1,
 				_List_Nil,
 				_List_fromArray(
 					[
-						elm$html$Html$text('My words for the quizz:')
+						elm$html$Html$text('My profile information')
 					])),
-				author$project$Views$Words$viewWordsCards(
-				function ($) {
-					return $.words;
-				}(model))
+				A7(author$project$Views$Forms$viewFormUpdateUser, model.user, model.nbLanguage, author$project$Page$ProfileEdit$IncreaseNbLanguage, author$project$Page$ProfileEdit$RemoveLanguage, author$project$Page$ProfileEdit$UpdateUser, author$project$Page$ProfileEdit$ToUpdateUser, author$project$Page$ProfileEdit$UpdatePassword)
 			]));
+};
+var author$project$Page$Quizz$TakeQuizz = {$: 'TakeQuizz'};
+var author$project$Page$Quizz$TakeQuizzAttempt = {$: 'TakeQuizzAttempt'};
+var author$project$Page$Quizz$TakeQuizzUpdateResponse = function (a) {
+	return {$: 'TakeQuizzUpdateResponse', a: a};
+};
+var author$project$Page$Quizz$boolToColor = function (boo) {
+	if (boo) {
+		return 'green';
+	} else {
+		return 'red';
+	}
+};
+var author$project$Views$Words$viewWordCardForm = F3(
+	function (word, toUpdateWord, toTakeQuizz) {
+		return A2(
+			elm$html$Html$div,
+			_List_fromArray(
+				[
+					elm$html$Html$Attributes$class('word-container')
+				]),
+			_List_fromArray(
+				[
+					elm$html$Html$text(' '),
+					A2(
+					elm$html$Html$div,
+					_List_fromArray(
+						[
+							elm$html$Html$Attributes$class('word-container-header')
+						]),
+					_List_fromArray(
+						[
+							A2(
+							elm$html$Html$h1,
+							_List_Nil,
+							_List_fromArray(
+								[
+									elm$html$Html$text(
+									function ($) {
+										return $.word;
+									}(word))
+								])),
+							A2(
+							elm$html$Html$div,
+							_List_fromArray(
+								[
+									elm$html$Html$Attributes$class('word-container-header-icons')
+								]),
+							_List_fromArray(
+								[
+									A2(
+									elm$html$Html$a,
+									_List_fromArray(
+										[
+											author$project$Route$href(
+											author$project$Route$WordDelete(
+												function ($) {
+													return $.id;
+												}(word)))
+										]),
+									_List_fromArray(
+										[
+											A2(
+											elm$html$Html$span,
+											_List_fromArray(
+												[
+													elm$html$Html$Attributes$class('icon-trash-empty')
+												]),
+											_List_Nil)
+										])),
+									A2(
+									elm$html$Html$a,
+									_List_fromArray(
+										[
+											author$project$Route$href(
+											author$project$Route$WordEdit(
+												function ($) {
+													return $.id;
+												}(word)))
+										]),
+									_List_fromArray(
+										[
+											A2(
+											elm$html$Html$span,
+											_List_fromArray(
+												[
+													elm$html$Html$Attributes$class('icon-pencil')
+												]),
+											_List_Nil)
+										])),
+									A2(
+									elm$html$Html$span,
+									_List_Nil,
+									_List_fromArray(
+										[
+											elm$html$Html$text(
+											function ($) {
+												return $.language;
+											}(word))
+										]))
+								]))
+						])),
+					A2(
+					elm$html$Html$div,
+					_List_fromArray(
+						[
+							elm$html$Html$Attributes$class('word-container-body')
+						]),
+					_List_fromArray(
+						[
+							A2(
+							elm$html$Html$form,
+							_List_fromArray(
+								[
+									elm$html$Html$Events$onSubmit(toTakeQuizz),
+									elm$html$Html$Attributes$action('javascript:void(0);')
+								]),
+							_List_fromArray(
+								[
+									A2(
+									elm$html$Html$input,
+									_List_fromArray(
+										[
+											elm$html$Html$Events$onInput(toUpdateWord),
+											elm$html$Html$Attributes$placeholder('response')
+										]),
+									_List_Nil)
+								]))
+						]))
+				]));
+	});
+var elm$html$Html$h2 = _VirtualDom_node('h2');
+var elm$virtual_dom$VirtualDom$style = _VirtualDom_style;
+var elm$html$Html$Attributes$style = elm$virtual_dom$VirtualDom$style;
+var author$project$Page$Quizz$view = function (model) {
+	var _n0 = model.word;
+	if (_n0.$ === 'Just') {
+		var _n1 = _n0.a;
+		var quizzWord = _n1.a;
+		var maybeVerified = _n1.b;
+		var color = A2(
+			elm$core$Maybe$withDefault,
+			'black',
+			A2(elm$core$Maybe$map, author$project$Page$Quizz$boolToColor, maybeVerified));
+		if (maybeVerified.$ === 'Just') {
+			return A2(
+				elm$html$Html$div,
+				_List_Nil,
+				_List_fromArray(
+					[
+						A2(
+						elm$html$Html$div,
+						_List_fromArray(
+							[
+								elm$html$Html$Attributes$class('container-quizz-buttons')
+							]),
+						_List_fromArray(
+							[
+								A2(
+								elm$html$Html$a,
+								_List_fromArray(
+									[
+										elm$html$Html$Events$onClick(author$project$Page$Quizz$QuizzReInit)
+									]),
+								_List_fromArray(
+									[
+										A2(
+										elm$html$Html$span,
+										_List_fromArray(
+											[
+												elm$html$Html$Attributes$class('icon-arrows-cw')
+											]),
+										_List_Nil)
+									]))
+							])),
+						A2(
+						elm$html$Html$h2,
+						_List_fromArray(
+							[
+								A2(elm$html$Html$Attributes$style, 'color', color)
+							]),
+						_List_fromArray(
+							[
+								elm$html$Html$text('The word to find:')
+							])),
+						A2(
+						elm$html$Html$div,
+						_List_fromArray(
+							[
+								elm$html$Html$Attributes$class('container-cards')
+							]),
+						_List_fromArray(
+							[
+								author$project$Views$Words$viewWordCard(quizzWord)
+							]))
+					]));
+		} else {
+			return A2(
+				elm$html$Html$div,
+				_List_Nil,
+				_List_fromArray(
+					[
+						A2(
+						elm$html$Html$div,
+						_List_fromArray(
+							[
+								elm$html$Html$Attributes$class('container-quizz-buttons')
+							]),
+						_List_fromArray(
+							[
+								A2(
+								elm$html$Html$a,
+								_List_fromArray(
+									[
+										elm$html$Html$Events$onClick(author$project$Page$Quizz$QuizzReInit)
+									]),
+								_List_fromArray(
+									[
+										A2(
+										elm$html$Html$span,
+										_List_fromArray(
+											[
+												elm$html$Html$Attributes$class('icon-arrows-cw')
+											]),
+										_List_Nil)
+									]))
+							])),
+						A2(
+						elm$html$Html$h2,
+						_List_fromArray(
+							[
+								A2(elm$html$Html$Attributes$style, 'color', color)
+							]),
+						_List_fromArray(
+							[
+								elm$html$Html$text('The word to find:')
+							])),
+						A2(
+						elm$html$Html$div,
+						_List_fromArray(
+							[
+								elm$html$Html$Attributes$class('container-cards')
+							]),
+						_List_fromArray(
+							[
+								A3(author$project$Views$Words$viewWordCardForm, quizzWord, author$project$Page$Quizz$TakeQuizzUpdateResponse, author$project$Page$Quizz$TakeQuizzAttempt)
+							]))
+					]));
+		}
+	} else {
+		return A2(
+			elm$html$Html$div,
+			_List_Nil,
+			_List_fromArray(
+				[
+					A2(
+					elm$html$Html$div,
+					_List_fromArray(
+						[
+							elm$html$Html$Attributes$class('container-quizz-buttons')
+						]),
+					_List_fromArray(
+						[
+							A2(
+							elm$html$Html$a,
+							_List_fromArray(
+								[
+									elm$html$Html$Events$onClick(author$project$Page$Quizz$QuizzReInit)
+								]),
+							_List_fromArray(
+								[
+									A2(
+									elm$html$Html$span,
+									_List_fromArray(
+										[
+											elm$html$Html$Attributes$class('icon-arrows-cw')
+										]),
+									_List_Nil)
+								])),
+							A2(
+							elm$html$Html$a,
+							_List_fromArray(
+								[
+									elm$html$Html$Events$onClick(author$project$Page$Quizz$TakeQuizz)
+								]),
+							_List_fromArray(
+								[
+									A2(
+									elm$html$Html$span,
+									_List_fromArray(
+										[
+											elm$html$Html$Attributes$class('icon-play-circled')
+										]),
+									_List_Nil)
+								]))
+						])),
+					A2(
+					elm$html$Html$h2,
+					_List_Nil,
+					_List_fromArray(
+						[
+							elm$html$Html$text('My words for the quizz:')
+						])),
+					A2(
+					elm$html$Html$div,
+					_List_fromArray(
+						[
+							elm$html$Html$Attributes$class('container-cards')
+						]),
+					author$project$Views$Words$viewWordsCards(
+						function ($) {
+							return $.words;
+						}(model)))
+				]));
+	}
 };
 var author$project$Page$Register$IncreaseNbLanguage = {$: 'IncreaseNbLanguage'};
 var author$project$Page$Register$Register = {$: 'Register'};
@@ -10004,7 +10939,7 @@ var author$project$Page$Register$view = function (model) {
 								elm$html$Html$a,
 								_List_fromArray(
 									[
-										author$project$Route$href(author$project$Route$Logout)
+										author$project$Route$href(author$project$Route$Login)
 									]),
 								_List_fromArray(
 									[
@@ -10052,9 +10987,23 @@ var author$project$Views$Forms$viewKeywordInput = F5(
 		}();
 		return A2(
 			elm$html$Html$div,
-			_List_Nil,
 			_List_fromArray(
 				[
+					elm$html$Html$Attributes$class('group-form')
+				]),
+			_List_fromArray(
+				[
+					A2(
+					elm$html$Html$label,
+					_List_fromArray(
+						[
+							elm$html$Html$Attributes$for(
+							'keyword' + elm$core$String$fromInt(indexInput))
+						]),
+					_List_fromArray(
+						[
+							elm$html$Html$text('Keyword')
+						])),
 					A2(
 					elm$html$Html$input,
 					_List_fromArray(
@@ -10077,11 +11026,18 @@ var author$project$Views$Forms$viewKeywordInput = F5(
 					_List_fromArray(
 						[
 							elm$html$Html$Events$onClick(toIncreaseNbKeyword),
-							elm$html$Html$Attributes$type_('button')
+							elm$html$Html$Attributes$type_('button'),
+							elm$html$Html$Attributes$class('button-add')
 						]),
 					_List_fromArray(
 						[
-							elm$html$Html$text('(+) Add a keyword')
+							A2(
+							elm$html$Html$span,
+							_List_fromArray(
+								[
+									elm$html$Html$Attributes$class('icon-plus')
+								]),
+							_List_Nil)
 						])),
 					A2(
 					elm$html$Html$button,
@@ -10089,11 +11045,18 @@ var author$project$Views$Forms$viewKeywordInput = F5(
 						[
 							elm$html$Html$Events$onClick(
 							toRemoveKeyword(indexInput)),
-							elm$html$Html$Attributes$type_('button')
+							elm$html$Html$Attributes$type_('button'),
+							elm$html$Html$Attributes$class('button-minus')
 						]),
 					_List_fromArray(
 						[
-							elm$html$Html$text('(-) Remove keyword')
+							A2(
+							elm$html$Html$span,
+							_List_fromArray(
+								[
+									elm$html$Html$Attributes$class('icon-minus')
+								]),
+							_List_Nil)
 						]))
 				]));
 	});
@@ -10120,6 +11083,16 @@ var author$project$Views$Forms$viewWordForm = F6(
 				_List_fromArray(
 					[
 						A2(
+						elm$html$Html$label,
+						_List_fromArray(
+							[
+								elm$html$Html$Attributes$for('language')
+							]),
+						_List_fromArray(
+							[
+								elm$html$Html$text('Language')
+							])),
+						A2(
 						elm$html$Html$input,
 						_List_fromArray(
 							[
@@ -10137,6 +11110,16 @@ var author$project$Views$Forms$viewWordForm = F6(
 								}(word))
 							]),
 						_List_Nil),
+						A2(
+						elm$html$Html$label,
+						_List_fromArray(
+							[
+								elm$html$Html$Attributes$for('definition')
+							]),
+						_List_fromArray(
+							[
+								elm$html$Html$text('Definition')
+							])),
 						A2(
 						elm$html$Html$input,
 						_List_fromArray(
@@ -10161,6 +11144,16 @@ var author$project$Views$Forms$viewWordForm = F6(
 					_List_fromArray(
 						[
 							A2(
+							elm$html$Html$label,
+							_List_fromArray(
+								[
+									elm$html$Html$Attributes$for('definition')
+								]),
+							_List_fromArray(
+								[
+									elm$html$Html$text('Definition')
+								])),
+							A2(
 							elm$html$Html$input,
 							_List_fromArray(
 								[
@@ -10178,6 +11171,16 @@ var author$project$Views$Forms$viewWordForm = F6(
 									}(word))
 								]),
 							_List_Nil),
+							A2(
+							elm$html$Html$label,
+							_List_fromArray(
+								[
+									elm$html$Html$Attributes$for('difficulty')
+								]),
+							_List_fromArray(
+								[
+									elm$html$Html$text('Difficulty')
+								])),
 							A2(
 							elm$html$Html$input,
 							_List_fromArray(
@@ -10214,7 +11217,7 @@ var author$project$Page$WordEdit$view = function (model) {
 			_List_fromArray(
 				[
 					A2(
-					elm$html$Html$p,
+					elm$html$Html$h1,
 					_List_Nil,
 					_List_fromArray(
 						[
@@ -10225,11 +11228,14 @@ var author$project$Page$WordEdit$view = function (model) {
 		var word = _n0.a;
 		return A2(
 			elm$html$Html$div,
-			_List_Nil,
+			_List_fromArray(
+				[
+					elm$html$Html$Attributes$class('form-div')
+				]),
 			_List_fromArray(
 				[
 					A2(
-					elm$html$Html$p,
+					elm$html$Html$h1,
 					_List_Nil,
 					_List_fromArray(
 						[
@@ -10256,10 +11262,22 @@ var author$project$Views$Page$viewFooter = A2(
 			_List_Nil,
 			_List_fromArray(
 				[
-					elm$html$Html$text('Proudly powered by ')
+					elm$html$Html$text('Made with ❤ from WAW ❤ by '),
+					A2(
+					elm$html$Html$a,
+					_List_fromArray(
+						[
+							elm$html$Html$Attributes$href('https://github.com/aRkadeFR')
+						]),
+					_List_fromArray(
+						[
+							elm$html$Html$text('aRkadeFR')
+						]))
 				]))
 		]));
+var elm$html$Html$li = _VirtualDom_node('li');
 var elm$html$Html$nav = _VirtualDom_node('nav');
+var elm$html$Html$ul = _VirtualDom_node('ul');
 var author$project$Views$Page$viewNav = function (session) {
 	var _n0 = session.user;
 	if (_n0.$ === 'Just') {
@@ -10335,6 +11353,22 @@ var author$project$Views$Page$viewNav = function (session) {
 					_List_Nil,
 					_List_fromArray(
 						[
+							A2(
+							elm$html$Html$li,
+							_List_Nil,
+							_List_fromArray(
+								[
+									A2(
+									elm$html$Html$a,
+									_List_fromArray(
+										[
+											author$project$Route$href(author$project$Route$Login)
+										]),
+									_List_fromArray(
+										[
+											elm$html$Html$text('Login')
+										]))
+								])),
 							A2(
 							elm$html$Html$li,
 							_List_Nil,
@@ -10516,9 +11550,6 @@ var author$project$Views$Page$frame = F3(
 					author$project$Views$Page$viewFooter
 				]));
 	});
-var author$project$WordApp$QuizzMsg = function (a) {
-	return {$: 'QuizzMsg', a: a};
-};
 var elm$browser$Browser$Document = F2(
 	function (title, body) {
 		return {body: body, title: title};

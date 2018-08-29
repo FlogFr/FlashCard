@@ -127,7 +127,7 @@ update msg key model =
                     Session (model.jwtToken) (Just user)
             in
                 ( ( model
-                  , Cmd.batch [ storeSession session, Route.modifyUrl Route.Home key ]
+                  , Cmd.batch [ storeSession session, N.pushUrl key (Route.routeToString Route.Home) ]
                   )
                 , SetSession session
                 )

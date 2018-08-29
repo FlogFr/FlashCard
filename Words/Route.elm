@@ -7,7 +7,7 @@
 -- type called Route which callers use to specify which page they want.
 
 
-module Route exposing (Route(..), route, fromUrl, href, modifyUrl, locationHrefToRoute)
+module Route exposing (Route(..), routeToString, fromUrl, href, locationHrefToRoute)
 
 import Html as Html exposing (Attribute)
 import Html.Attributes as Attr
@@ -89,12 +89,6 @@ routeToString page =
 href : Route -> Attribute msg
 href argRoute =
     Attr.href ("/" ++ (routeToString argRoute))
-
-
-modifyUrl : Route -> Browser.Navigation.Key -> Cmd msg
-modifyUrl theRoute key =
-    routeToString theRoute
-        |> Browser.Navigation.pushUrl key
 
 
 fromUrl : Url -> Maybe Route

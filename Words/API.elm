@@ -319,6 +319,32 @@ getWordsQuizz headers keyword =
         }
 
 
+postWordQuizzResponse : List Http.Header -> Int -> String -> Http.Request (Maybe Bool)
+postWordQuizzResponse headers wordId response =
+    Http.request
+        { method =
+            "POST"
+        , headers =
+            headers
+        , url =
+            String.join "/"
+                [ "http://127.1:8080"
+                , "words"
+                , "quizz"
+                , "response"
+                , String.fromInt wordId
+                ]
+        , body =
+            Http.jsonBody (E.string response)
+        , expect =
+            Http.expectJson (D.nullable D.bool)
+        , timeout =
+            Nothing
+        , withCredentials =
+            False
+        }
+
+
 getWordsKeywords : List Http.Header -> Http.Request (List String)
 getWordsKeywords headers =
     Http.request

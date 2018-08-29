@@ -133,6 +133,33 @@ getWordsQuizzRequest session keyword =
         getWordsQuizz [ requestAuthHeader ] keyword
 
 
+postWordQuizzResponseRequest : Session -> Int -> String -> Http.Request (Maybe Bool)
+postWordQuizzResponseRequest session wordId response =
+    let
+        jwtToken =
+            case session.authToken of
+                Just responseJwtToken ->
+                    (.token responseJwtToken)
+
+                Nothing ->
+                    ""
+
+        requestAuthHeader =
+            Http.header "Authorization" jwtToken
+    in
+        postWordQuizzResponse [ requestAuthHeader ] wordId response
+
+
+postWordQuizzResponseCmd :
+    (Result Error (Maybe Bool) -> msg)
+    -> Session
+    -> Int
+    -> String
+    -> Cmd msg
+postWordQuizzResponseCmd msgType session wordId wordResponse =
+    Http.send msgType (postWordQuizzResponseRequest session wordId wordResponse)
+
+
 deleteWordByIdRequest : Session -> Int -> Http.Request NoContent
 deleteWordByIdRequest session wordId =
     let

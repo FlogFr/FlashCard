@@ -107,9 +107,9 @@ FROM
 WHERE
   userid = :user.userId
 ;;;
--- name:getQuizzWordsKeyword :: [Word]
+-- name:getQuizzWordsLang :: [Word]
 -- :user :: User
--- :keyword :: String
+-- :lang :: String
 WITH possible_words AS (
   SELECT
     id
@@ -117,20 +117,25 @@ WITH possible_words AS (
     words
   WHERE
     userid = :user.userId AND
-    :keyword = ANY ( keywords )
+    language = :lang
   ORDER BY
     get_word_score(last_query_at, difficulty) DESC
   LIMIT
     100
 )
 SELECT 
-  id, language, word, definition, keywords, difficulty
+  w.id, w.language, w.word, w.definition, w.keywords, w.difficulty
 FROM
-  words join possible_words ON words.id = possible_words.id
+  possible_words p join words w ON p.id = w.id 
 ORDER BY
   random()
 LIMIT
   5
+;;;
+-- name:getQuizzResponse :: (Bool)
+-- :wordId :: WordId
+-- :testResponse :: String
+SELECT * FROM verify_word_full(:wordId, :testResponse);
 ;;;
 -- name:getLastWords :: [Word]
 -- :user :: User

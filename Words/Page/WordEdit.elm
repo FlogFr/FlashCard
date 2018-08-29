@@ -59,12 +59,12 @@ view model =
     case model.word of
         Nothing ->
             div []
-                [ p [] [ text "Loading the word…" ]
+                [ h1 [] [ text "Loading the word…" ]
                 ]
 
         Just word ->
-            div []
-                [ p [] [ text ("Word #" ++ String.fromInt (.id word)) ]
+            div [ class "form-div" ]
+                [ h1 [] [ text ("Word #" ++ String.fromInt (.id word)) ]
                 , viewWordForm word model.nbKeyword IncreaseNbKeyword RemoveKeyword UpdateWord UpdateWordRequest
                 ]
 

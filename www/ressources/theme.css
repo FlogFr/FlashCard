@@ -254,12 +254,11 @@ p,label,input {
 .main {
 	grid-area: main;
 	position: relative;
-	min-height: 25rem;
 }
 
 .main > div {
 	margin-top: 4rem;
-	margin-bottom: 2rem;
+	margin-bottom: 6rem;
 }
 
 .main > div p {
@@ -270,6 +269,7 @@ p,label,input {
 	position: relative;
 	margin-left: 5rem;
 	margin-right: 5rem;
+	padding-bottom: 4rem;
 }
 
 .form-div h1 {
@@ -291,7 +291,7 @@ form label {
 	margin-top: 1rem;
 }
 
-form input {
+form input,select {
 	display: block;
 	width: 60%;
 	margin: auto;
@@ -301,7 +301,7 @@ form input {
 form button[type=submit] {
 	position: absolute;
 	right: 10rem;
-	margin-top: 2rem;
+	bottom: 0;
 }
 
 
@@ -319,6 +319,15 @@ form button[type=submit] {
 	border: none;
 }
 
+.group-form button.button-minus {
+	display: block;
+	position: absolute;
+	right: 25%;
+	bottom: 0;
+	background: none;
+	border: none;
+}
+
 /* Footer */
 .footer {
 	grid-area: footer;
@@ -330,6 +339,106 @@ form button[type=submit] {
 	position: relative;
 	margin: 1rem;
 	color: white;
+}
+
+.footer a {
+	color: white;
+}
+
+/* Components */
+
+/* table */
+table > thead > tr {
+
+}
+
+table > thead > tr > th {
+	border-bottom: solid 0.1rem black;
+}
+
+
+table > tbody > tr:hover {
+	background: #ccc;
+}
+
+table > tbody > tr > td {
+	border-bottom: solid 0.01rem #ccc;
+}
+
+/* Home Page Links */
+.quizz-container-links {
+}
+
+.quizz-container-links > a {
+	display: inline-block;
+	color: black;
+	text-decoration: none;
+	padding: 1rem;
+	border: solid 0.1rem #ccc;
+}
+
+.quizz-container-links > a:hover {
+	display: inline-block;
+	color: white;
+	background: #ccc;
+	padding: 1rem;
+	border: solid 0.1rem #ccc;
+}
+
+/* word card container */
+.container-cards {
+	text-align: justify;
+	position: relative;
+	width: 100%;
+}
+
+.container-cards:after {
+	display: inline-block;
+	width: 100%;
+	content: '';
+}
+
+.word-container {
+	position: relative;
+	display: inline-block;
+	vertical-align: top;
+	border: solid 0.1rem #333;
+	width: 12rem;
+	margin: 0.5rem;
+}
+
+.word-container-header {
+	display: block;
+	position: relative;
+	background: #333;
+}
+
+.word-container-header > h1 {
+	color: white;
+	font-size: 1.2rem;
+}
+
+.word-container-header a {
+	color: white;
+}
+
+.word-container-header-icons {
+	position: absolute;
+	top: -0.9rem;
+	right: -1rem;
+	background: rgba(255, 255, 255, 0.5);
+	border: solid 0.1rem black;
+	border-radius: 0.5rem;
+	color: white;
+}
+
+.word-container-header-icons a,span {
+	color: black;
+}
+
+.word-container-body {
+	padding-top: 0.5rem;
+	padding-bottom: 0.5rem;
 }
 
 /* icons for fontello */

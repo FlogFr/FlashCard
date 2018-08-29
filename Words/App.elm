@@ -58,7 +58,7 @@ init flags url argKey =
         sessionValue =
             Result.withDefault (E.string "") (D.decodeValue (D.field "session" D.value) flags)
     in
-        setRoute (fromUrl (Debug.log "url: " url))
+        setRoute (fromUrl url)
             { messages = []
             , session = (retrieveSessionFromJson sessionValue)
             , key = argKey
@@ -174,12 +174,13 @@ updatePage page msg model =
             case urlRequest of
                 Browser.Internal url ->
                     ( model
-                    , Browser.Navigation.pushUrl model.key
-                        (Url.toString url)
+                    , Browser.Navigation.pushUrl model.key (Url.toString url)
                     )
 
-                Browser.External _ ->
-                    ( model, Cmd.none )
+                Browser.External url ->
+                    ( model
+                    , Browser.Navigation.load url
+                    )
 
         ( _, SetRoute route ) ->
             setRoute route model
@@ -223,7 +224,7 @@ updatePage page msg model =
 
                     Register.GoLogin ->
                         ( { model | page = Login Login.initialModel }
-                        , Route.modifyUrl Route.Login model.key
+                        , Cmd.none
                         )
 
         ( ProfileEdit subModel, ProfileEditMsg subMsg ) ->
@@ -239,7 +240,7 @@ updatePage page msg model =
 
                     ProfileEdit.Logout ->
                         ( { model | session = (Session Nothing Nothing), messages = ((Message Warning "You got logged out") :: model.messages) }
-                        , Cmd.batch [ deleteSession, Route.modifyUrl Route.Login model.key ]
+                        , Cmd.batch [ deleteSession, Browser.Navigation.pushUrl model.key "/" ]
                         )
 
                     ProfileEdit.UpdateSession newSession ->
@@ -260,7 +261,7 @@ updatePage page msg model =
 
                     Home.Logout ->
                         ( { model | session = (Session Nothing Nothing), messages = ((Message Warning "You got logged out") :: model.messages) }
-                        , Cmd.batch [ deleteSession, Route.modifyUrl Route.Login model.key ]
+                        , Cmd.batch [ deleteSession, Browser.Navigation.pushUrl model.key "/" ]
                         )
 
                     Home.ReloadPage ->
@@ -288,7 +289,7 @@ updatePage page msg model =
 
                     Home.Logout ->
                         ( { model | session = (Session Nothing Nothing), messages = ((Message Warning "You got logged out") :: model.messages) }
-                        , Cmd.batch [ deleteSession, Route.modifyUrl Route.Login model.key ]
+                        , Cmd.batch [ deleteSession, Browser.Navigation.pushUrl model.key "/" ]
                         )
 
                     Home.ReloadPage ->
@@ -316,12 +317,15 @@ updatePage page msg model =
 
                     WordEdit.Logout ->
                         ( { model | session = (Session Nothing Nothing), messages = ((Message Warning "You got logged out") :: model.messages) }
-                        , Cmd.batch [ deleteSession, Route.modifyUrl Route.Login model.key ]
+                        , Cmd.batch [ deleteSession, Browser.Navigation.pushUrl model.key "/" ]
                         )
 
                     WordEdit.GoHome ->
                         ( model
-                        , Route.modifyUrl Route.Home model.key
+                        , Browser.Navigation.pushUrl model.key
+                            ("/"
+                                ++ (Route.routeToString Route.Home)
+                            )
                         )
 
         ( WordEdit subModel, WordEditMsg subMsg ) ->
@@ -337,12 +341,15 @@ updatePage page msg model =
 
                     WordEdit.Logout ->
                         ( { model | session = (Session Nothing Nothing), messages = ((Message Warning "You got logged out") :: model.messages) }
-                        , Cmd.batch [ deleteSession, Route.modifyUrl Route.Login model.key ]
+                        , Cmd.batch [ deleteSession, Browser.Navigation.pushUrl model.key "/" ]
                         )
 
                     WordEdit.GoHome ->
                         ( model
-                        , Route.modifyUrl Route.Home model.key
+                        , Browser.Navigation.pushUrl model.key
+                            ("/"
+                                ++ (Route.routeToString Route.Home)
+                            )
                         )
 
         ( WordDelete subModel, WordDeleteInitMsg subMsg ) ->
@@ -358,12 +365,15 @@ updatePage page msg model =
 
                     WordDelete.Logout ->
                         ( { model | session = (Session Nothing Nothing), messages = ((Message Warning "You got logged out") :: model.messages) }
-                        , Cmd.batch [ deleteSession, Route.modifyUrl Route.Login model.key ]
+                        , Cmd.batch [ deleteSession, Browser.Navigation.pushUrl model.key "/" ]
                         )
 
                     WordDelete.GoHome ->
                         ( model
-                        , Route.modifyUrl Route.Home model.key
+                        , Browser.Navigation.pushUrl model.key
+                            ("/"
+                                ++ (Route.routeToString Route.Home)
+                            )
                         )
 
         ( Quizz subModel, QuizzInit subMsg ) ->
@@ -372,11 +382,19 @@ updatePage page msg model =
                     Quizz.update model.session (Quizz.QuizzInitFinished subMsg) subModel
             in
                 ( { model | page = Quizz pageModel }
-                , Cmd.none
+                , Cmd.map QuizzMsg pageMsg
                 )
 
         ( Quizz subModel, QuizzMsg subMsg ) ->
-            ( model, Cmd.none )
+            let
+                ( ( pageModel, pageMsg ), externalMsg ) =
+                    Quizz.update model.session subMsg subModel
+            in
+                case externalMsg of
+                    Quizz.NoOp ->
+                        ( { model | page = Quizz pageModel }
+                        , Cmd.map QuizzMsg pageMsg
+                        )
 
         ( _, _ ) ->
             -- Disregard incoming messages that arrived for the wrong page
@@ -417,7 +435,7 @@ setRoute maybeRoute model =
 
         Just (Route.Logout) ->
             ( { model | session = (Session Nothing Nothing) }
-            , Cmd.batch [ deleteSession, Route.modifyUrl Route.Login model.key ]
+            , Cmd.batch [ deleteSession, Browser.Navigation.pushUrl model.key "/" ]
             )
 
         Just (Route.Home) ->

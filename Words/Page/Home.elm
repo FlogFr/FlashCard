@@ -119,20 +119,25 @@ view model session =
         div []
             [ div []
                 [ h1 [] [ text "You want to add a word?" ]
-                , viewFormAddWord myLangs HomeAddNewWord TypeHomeLanguage TypeHomeWord TypeHomeDefinition
+                , div [ class "form-div" ] [ viewFormAddWord myLangs HomeAddNewWord TypeHomeLanguage TypeHomeWord TypeHomeDefinition ]
+                ]
+            , div []
+                [ h1 [] [ text "Take a quizz" ]
+                , div [ class "quizz-container-links" ] (List.map (\l -> a [ href (Route.Quizz l) ] [ text l ]) (myLangs))
                 ]
             , div []
                 [ h1 [] [ text "Search a particular word in your dict?" ]
-                , viewFormSearchWord (.keywords model) HomeSearchWord UpdateSearchWord UpdateSearchKeyword
+                , div [ class "form-div" ]
+                    [ viewFormSearchWord (.keywords model)
+                        HomeSearchWord
+                        UpdateSearchWord
+                        UpdateSearchKeyword
+                    ]
                 , viewWordsTable model.searchWords
                 ]
             , div []
-                [ h1 [] [ text "Your keywords:" ]
-                , viewKeywordsList model.keywords
-                ]
-            , div []
                 [ h1 [] [ text "Your last words of the week:" ]
-                , viewWordsCards model.myLastWords
+                , div [ class "container-cards" ] (viewWordsCards model.myLastWords)
                 ]
             ]
 
