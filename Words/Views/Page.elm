@@ -54,7 +54,7 @@ viewMessages listMessages =
 viewFooter : Html msg
 viewFooter =
     div [ class "footer" ]
-        [ p [] [ text "Made with ❤ from WAW ❤ by ", a [ Html.Attributes.href "https://github.com/aRkadeFR" ] [ text "aRkadeFR" ] ]
+        [ p [] [ text "Made with ❤ from WAW ❤ by ", a [ Html.Attributes.href "https://github.com/aRkadeFR", target "_blank", rel "noopener noreferrer" ] [ text "aRkadeFR" ] ]
         ]
 
 
