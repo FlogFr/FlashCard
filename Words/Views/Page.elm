@@ -26,8 +26,10 @@ viewHeader session =
     div [ class "header" ]
         [ div [ class "header-title" ]
             [ h1 []
-                [ img [ src "/ressources/dictionnary.logo.png" ] []
-                , text "IziDict.com"
+                [ a [ Route.href Route.Home ]
+                    [ img [ src "/ressources/dictionnary.logo.png" ] []
+                    , text "IziDict.com"
+                    ]
                 ]
             ]
         , div [ class "logos" ]

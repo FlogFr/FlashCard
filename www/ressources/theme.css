@@ -211,10 +211,11 @@ p,label,input {
 	height: 4rem;
 }
 
-.header-title h1 {
+.header-title h1 a {
 	display: inline;
 	font-size: 4rem;
 	color: white;
+	text-decoration: none;
 	font-family: "PT Serif", serif;
 }
 
