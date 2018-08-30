@@ -266,6 +266,11 @@ p,label,input {
 	text-align: justify;
 }
 
+.main-container > div {
+	margin-top: 4rem;
+	margin-bottom: 6rem;
+}
+
 .form-div {
 	position: relative;
 	margin-left: 5rem;

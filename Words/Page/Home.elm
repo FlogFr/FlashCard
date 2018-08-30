@@ -116,7 +116,7 @@ view model session =
                 Nothing ->
                     [ "EN", "FR" ]
     in
-        div []
+        div [ class "main-container" ]
             [ div []
                 [ h1 [] [ text "You want to add a word?" ]
                 , div [ class "form-div" ] [ viewFormAddWord myLangs HomeAddNewWord TypeHomeLanguage TypeHomeWord TypeHomeDefinition ]
