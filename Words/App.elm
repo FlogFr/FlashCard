@@ -178,9 +178,12 @@ updatePage page msg model =
                     )
 
                 Browser.External url ->
-                    ( model
-                    , Browser.Navigation.load url
-                    )
+                    case url of
+                        "" ->
+                            ( model, Cmd.none )
+
+                        _ ->
+                            ( model, Browser.Navigation.load url )
 
         ( _, SetRoute route ) ->
             setRoute route model

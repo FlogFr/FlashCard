@@ -36,13 +36,19 @@ viewFormSearchWord keywords toSearchMsg toUpdateSearchWord toUpdateSearchKeyword
         ]
 
 
-viewFormLogin : msg -> (String -> msg) -> (String -> msg) -> Html msg
-viewFormLogin loginTryMsg typeLoginMsg typePasswordMsg =
+viewFormLogin loginModel loginTryMsg typeLoginMsg typePasswordMsg =
     Html.form [ onSubmit loginTryMsg, action "javascript:void(0);" ]
         [ label [ for "username" ] [ text "Username" ]
-        , input [ onInput typeLoginMsg, placeholder "username", attribute "type" "text" ] []
+        , input
+            [ onInput typeLoginMsg
+            , placeholder "username"
+            , attribute "type"
+                "text"
+            , value loginModel.username
+            ]
+            []
         , label [ for "password" ] [ text "Password" ]
-        , input [ onInput typePasswordMsg, placeholder "password", attribute "type" "password" ] []
+        , input [ onInput typePasswordMsg, placeholder "password", attribute "type" "password", value loginModel.userpassword ] []
         , button [ type_ "submit" ] [ text "log-in" ]
         ]
 

@@ -54,7 +54,7 @@ view : Model -> Html Msg
 view model =
     div [ class "form-div" ]
         [ h1 [] [ text "Login", span [] [ a [ Route.href Route.Register ] [ text "or register" ] ] ]
-        , viewFormLogin LoginTryMsg TypeLoginMsg TypePasswordMsg
+        , viewFormLogin model LoginTryMsg TypeLoginMsg TypePasswordMsg
         ]
 
 

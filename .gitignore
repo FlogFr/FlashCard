@@ -7,3 +7,5 @@ debian
 *.env
 bin
 *.cabal
+www/elm.app.js
+www/elm.tmp.js
