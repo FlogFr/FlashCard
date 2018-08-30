@@ -7,7 +7,7 @@ BEGIN;
   RETURNS INT
   AS $$
   BEGIN
-    RETURN (difficulty * 100) + date_part('day', (now() - last_query_at));
+    RETURN difficulty;
   END
   $$ LANGUAGE plpgsql;
 
