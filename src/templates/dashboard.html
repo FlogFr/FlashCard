@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<head>
+    {{> head.html}}
+</head>
+
+<body>
+    <header>
+        {{> header-logo.html}}
+
+        <ul class="header-menu">
+            <li>
+                <a href="/">Home</a>
+            </li>
+        </ul>
+
+        {{> nav.login.html}}
+    </header>
+
+    {{> nav.fullscreen.html}}
+
+    <div class="main">
+        <div class="main-part-header bg-dashboard">
+            <h1>Your FlashCard dashboard</h1>
+        </div>
+
+        <div class="main-part">
+            <h2><a href="/flashcard/add">Add a flashcard</a></h2>
+            <h2><a href="/quizz">Take a quizz</a></h2>
+            <h2>Search a flashcard</h2>
+            <form action="/dashboard" method="post" >
+                <input type="text" name="search-text" value="" placeholder="search flashcard recto/verso" />
+                <input type="submit" value="Search" />
+            </form>
+
+            <h2>My FlashCards</h2>
+            {{#flashcards}}
+            <div class="flashcard-container">
+                <div class="flashcard-icons">
+                    <a href="/flashcard/edit/{{id}}"><span class="icon-edit">Edit FlashCard</span></a>
+                    <a href="/flashcard/delete/{{id}}"><span class="icon-delete">Delete FlashCard</span></a>
+                </div>
+                <div class="flashcard-recto">
+                <h3>{{recto}}</h3>
+                </div>
+                <div class="flashcard-verso">
+                <h3>{{verso}}</h3>
+                </div>
+            </div>
+            {{/flashcards}}
+        </div>
+    </div>
+
+    {{> footer.html}}
+
+    <script>
+let backendVariables = {{{frontEndVariables}}};
+    </script>
+    <script src="/static/js/izidict.js"></script>
+</body>

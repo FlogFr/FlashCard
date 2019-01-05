@@ -1,2 +1,11 @@
 .stack-work/
 .tags
+front/node_modules/*
+config.yml
+cubes/*
+backup.sql
+debian/*
+*.env
+words.csv
+words.sql
+db_dump.sql

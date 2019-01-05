@@ -1,5 +1,0 @@
-# Rules
-User-agent: *
-Allow: /
-
-Sitemap: https://izidict.com/sitemap.xml

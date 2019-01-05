@@ -1,0 +1,1 @@
+../../front/dist/izidict.js

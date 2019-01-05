@@ -1,8 +1,0 @@
-Source: izidict
-Section: admin
-Maintainer: Florian Grignon <grignon.florian@gmail.com>
-Priority: optional
-
-Package: izidict
-Architecture: amd64
-Description: Backend server for izidict.com

@@ -1,9 +1,9 @@
 POSIXCUBE_BIN ?= ~/Projects/posixcube/posixcube.sh
 
-.PHONY: ghci
-ghci:
-	# ghci accepts --test / --bench and --flag parameters
-	stack ghci app/main.hs
+.PHONY: ghcid
+ghcid:
+	# http://www.parsonsmatt.org/2018/05/19/ghcid_for_the_win.html
+	ghcid --command "cabal new-repl backend-exe" --test "main"
 
 .PHONY: test
 test:
@@ -19,37 +19,16 @@ clean:
 	stack clean
 
 .PHONY: deb
-deb: clean build-elm
+deb: clean
 	dpkg-buildpackage -us -uc
 
 .PHONY: build
 build:
 	stack build
 
-.PHONY: build-elm
-build-elm: elm
-	uglifyjs www/elm.js --compress 'pure_funcs="F2,F3,F4,F5,F6,F7,F8,F9,A2,A3,A4,A5,A6,A7,A8,A9",pure_getters,keep_fargs=false,unsafe_comps,unsafe' | uglifyjs --mangle --output=www/elm.min.js
-	sed -i 's#http://127.1:8080#https://api.izidict.com#g' build/elm.js
-	cp www/elm.min.js build/elm.js
-	cp www/index.html build/
-	cp www/sitemap.xml build/
-	cp www/robots.txt build/
-
 .PHONY: serve
 serve:
 	stack exec backend-exe
-
-.PHONY: elm
-elm:
-	elm make Words/App.elm --output www/elm.app.js
-
-.PHONY: live
-live: elm
-	http-server --no-dotfiles -p 8000 www
-
-.PHONY: generate
-generate:
-	stack exec generate-elm-api
 
 .PHONY: deploybaseconfiguration
 deploybaseconfiguration:
