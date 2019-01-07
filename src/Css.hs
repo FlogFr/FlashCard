@@ -529,53 +529,78 @@ fullscreenMenuCSS = do
     height (pct 100)
     background darkGreyColor
     span # byClass "icon-user" ? do
-      height (rem 4)
-      width (rem 4)
-      backgroundPosition (positioned (rem (-84)) (rem 0))
+      height (rem 2)
+      width (rem 2)
+      backgroundPosition (positioned (rem (-42)) (rem 0))
     span # byClass "icon-home" ? do
-      height (rem 4)
-      width (rem 4)
-      backgroundPosition (positioned (rem (-52)) (rem 0))
+      height (rem 2)
+      width (rem 2)
+      backgroundPosition (positioned (rem (-26)) (rem 0))
     span # byClass "icon-add" ? do
-      height (rem 4)
-      width (rem 4)
-      backgroundPosition (positioned (rem (-96)) (rem 0))
+      height (rem 2)
+      width (rem 2)
+      backgroundPosition (positioned (rem (-48)) (rem 0))
     span # byClass "icon-quizz" ? do
-      height (rem 4)
-      width (rem 4)
-      backgroundPosition (positioned (rem (-56)) (rem 0))
+      height (rem 2)
+      width (rem 2)
+      backgroundPosition (positioned (rem (-28)) (rem 0))
     span # byClass "icon-facebook-blue" ? do
-      height (rem 4)
-      width (rem 4)
-      backgroundPosition (positioned (rem (-24)) (rem 0))
+      height (rem 2)
+      width (rem 2)
+      backgroundPosition (positioned (rem (-12)) (rem 0))
+    query Q.screen [Q.minWidth (px 640)] $ do
+      span # byClass "icon-user" ? do
+        height (rem 4)
+        width (rem 4)
+        backgroundPosition (positioned (rem (-84)) (rem 0))
+      span # byClass "icon-home" ? do
+        height (rem 4)
+        width (rem 4)
+        backgroundPosition (positioned (rem (-52)) (rem 0))
+      span # byClass "icon-add" ? do
+        height (rem 4)
+        width (rem 4)
+        backgroundPosition (positioned (rem (-96)) (rem 0))
+      span # byClass "icon-quizz" ? do
+        height (rem 4)
+        width (rem 4)
+        backgroundPosition (positioned (rem (-56)) (rem 0))
+      span # byClass "icon-facebook-blue" ? do
+        height (rem 4)
+        width (rem 4)
+        backgroundPosition (positioned (rem (-24)) (rem 0))
     ul ? do
-      margin (rem 8) (rem 0) (rem 0) (rem 0)
+      margin (rem 5) (rem 0) (rem 0) (rem 0)
       padding (rem 0) (rem 0) (rem 0) (rem 0)
       listStyleType none
       a ? do
         textTransform capitalize
         color white
-        lineHeight (rem 8)
         fontFamily ["Roboto"] [sansSerif]
+        lineHeight (rem 3)
+        query Q.screen [Q.minWidth (px 640)] $ do
+          lineHeight (rem 6)
         li ? do
           display block
           position relative
           width (pct 100)
           textAlign center
-          fontSize (rem 2)
+          fontSize (rem 1.5)
           color white
+          lineHeight (rem 3)
           query Q.screen [Q.minWidth (px 640)] $ do
-            fontSize (rem 3)
-          lineHeight (rem 6)
+            fontSize (rem 2)
+            lineHeight (rem 6)
         form ? do
           input # ("type" @= "submit") ? do
             key "background" (Value "none")
             key "border" (Value "none")
             color white
             fontSize (rem 2)
+            lineHeight (rem 3)
             query Q.screen [Q.minWidth (px 640)] $ do
               fontSize (rem 3)
-            lineHeight (rem 8)
+              lineHeight (rem 6)
             fontFamily ["Roboto"] [sansSerif]
           input # ("type" @= "submit") ? do
             cursor pointer
@@ -617,16 +642,17 @@ formCSS :: Css
 formCSS = do
   label ? do
     display inlineBlock
-    width (rem 8)
+    query Q.screen [Q.minWidth (px 640)] $ do
+      width (rem 8)
     textAlign end
   input # ("type" @= "password") ? do
-    width (rem 20)
+    width (rem 12)
   input # ("type" @= "text") ? do
     display inlineBlock
     border solid (rem 0) white
     borderBottom solid (rem 0.1) (setA 0.2 black)
     background (setA 0.3 white)
-    width (rem 20)
+    width (rem 12)
     fontFamily ["Roboto"] [sansSerif]
     fontSize (rem 1)
   textarea ? do
@@ -671,7 +697,9 @@ mainPartCSS :: Css
 mainPartCSS = do
   div # byClass "main-part-container" ?do
     display grid
-    gridTemplateColumns "1fr 3fr 1fr"
+    gridTemplateColumns "1fr 10fr 1fr"
+    query Q.screen [Q.minWidth (px 640)] $ do
+      gridTemplateColumns "1fr 3fr 1fr"
     gridTemplateRows "auto"
     gridTemplateAreas "\"leftvoid main-part rightvoid\""
     div # byClass "main-part" ? do
@@ -690,6 +718,9 @@ mainPartCSS = do
 
 flashcardCss :: Css
 flashcardCss = do
+  div # byClass "main-part-flashcard-container" ? do
+    display block
+    textAlign center
   div # byClass "flashcard-tags-container" ? do
     display inlineBlock
     div # byClass "flashcard-tag-container" ? do
@@ -749,6 +780,26 @@ flashcardCss = do
       width (pct 100)
       height (rem 7.5)
 
+squareActionCSS :: Css
+squareActionCSS = do
+  div # byClass "square-action-container" ? do
+    display inlineBlock
+    borderRadius (rem 0.5) (rem 0.5) (rem 0.5) (rem 0.5)
+    background black
+    width (rem 3)
+    height (rem 3)
+    textAlign center
+    span # byClass "icon-quizz" ? do
+      marginTop (rem 0.5)
+      height (rem 2)
+      width (rem 2)
+      backgroundPosition (positioned (rem (-28)) (rem 0))
+    span # byClass "icon-add" ? do
+      marginTop (rem 0.5)
+      height (rem 2)
+      width (rem 2)
+      backgroundPosition (positioned (rem (-48)) (rem 0))
+
 mainCSS :: Css
 mainCSS = do
   backgroundMainCSS
@@ -769,6 +820,7 @@ mainCSS = do
     mainPartCSS
     subMenuCSS
     flashcardCss
+    squareActionCSS
     div # byClass "main-part" ? do
       gridArea "main-part"
       marginBottom (rem 2)
@@ -902,9 +954,11 @@ headerCSS = do
           width (rem 2)
           height (rem 2)
         h1 ? do
-          display inlineBlock
-          fontFamily ["SansForgetica"] [sansSerif]
-          color white
+          display none
+          query Q.screen [Q.minWidth (px 640)] $ do
+            display inlineBlock
+            fontFamily ["SansForgetica"] [sansSerif]
+            color white
     nav # byClass "top-nav-login" ? do
       display inlineBlock
       position absolute
@@ -963,33 +1017,60 @@ footerCSS = do
     ul ? do
       display inlineBlock
       span # byClass "icon-postgresql" ? do
-        height (rem 2)
-        width (rem 2)
-        backgroundPosition (positioned (rem (-32)) (rem 0))
+        height (rem 1)
+        width (rem 1)
+        backgroundPosition (positioned (rem (-16)) (rem 0))
       span # byClass "icon-haskell" ? do
-        height (rem 2)
-        width (rem 2)
-        backgroundPosition (positioned (rem (-40)) (rem 0))
+        height (rem 1)
+        width (rem 1)
+        backgroundPosition (positioned (rem (-20)) (rem 0))
       span # byClass "icon-servant" ? do
-        height (rem 2)
-        width (rem 2)
-        backgroundPosition (positioned (rem (-36)) (rem 0))
+        height (rem 1)
+        width (rem 1)
+        backgroundPosition (positioned (rem (-18)) (rem 0))
       span # byClass "icon-debian" ? do
-        height (rem 2)
-        width (rem 2)
-        backgroundPosition (positioned (rem (-34)) (rem 0))
+        height (rem 1)
+        width (rem 1)
+        backgroundPosition (positioned (rem (-17)) (rem 0))
       span # byClass "icon-react" ? do
-        height (rem 2)
-        width (rem 2)
-        backgroundPosition (positioned (rem (-30)) (rem 0))
+        height (rem 1)
+        width (rem 1)
+        backgroundPosition (positioned (rem (-15)) (rem 0))
       span # byClass "icon-github" ? do
-        height (rem 2)
-        width (rem 2)
-        backgroundPosition (positioned (rem (-38)) (rem 0))
+        height (rem 1)
+        width (rem 1)
+        backgroundPosition (positioned (rem (-19)) (rem 0))
+      query Q.screen [Q.minWidth (px 640)] $ do
+        span # byClass "icon-postgresql" ? do
+          height (rem 2)
+          width (rem 2)
+          backgroundPosition (positioned (rem (-32)) (rem 0))
+        span # byClass "icon-haskell" ? do
+          height (rem 2)
+          width (rem 2)
+          backgroundPosition (positioned (rem (-40)) (rem 0))
+        span # byClass "icon-servant" ? do
+          height (rem 2)
+          width (rem 2)
+          backgroundPosition (positioned (rem (-36)) (rem 0))
+        span # byClass "icon-debian" ? do
+          height (rem 2)
+          width (rem 2)
+          backgroundPosition (positioned (rem (-34)) (rem 0))
+        span # byClass "icon-react" ? do
+          height (rem 2)
+          width (rem 2)
+          backgroundPosition (positioned (rem (-30)) (rem 0))
+        span # byClass "icon-github" ? do
+          height (rem 2)
+          width (rem 2)
+          backgroundPosition (positioned (rem (-38)) (rem 0))
       li ? do
         display inlineBlock
-        lineHeight (rem 3)
+        lineHeight (rem 1)
         color white
+        query Q.screen [Q.minWidth (px 640)] $ do
+          lineHeight (rem 2)
         a ? do
           fontFamily ["Roboto"] [sansSerif]
           fontSize (rem 0.8)

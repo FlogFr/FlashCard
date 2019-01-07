@@ -18,6 +18,11 @@ facebookUrlLogin = do
   let facebookClientId = facebook_appid . settings $ sharedEnv
   return $ "https://www.facebook.com/v3.2/dialog/oauth?response_type=code&client_id=" <> facebookClientId <> "&redirect_uri=" <> facebookRedirectUri <> "&state=" <> facebookState <> "&scope=public_profile,email"
 
+baseUrl :: HandlerM Text
+baseUrl = do
+  sharedEnv <- ask
+  return $ base_url . settings $ sharedEnv
+
 
 loggedInOr302 :: Session -> HandlerM ()
 loggedInOr302 AnonymousSession = do
