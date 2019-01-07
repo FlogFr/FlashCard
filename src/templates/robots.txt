@@ -1,0 +1,15 @@
+# Disallow
+User-agent: *
+Disallow: /dashboard
+User-agent: *
+Disallow: /account
+User-agent: *
+Disallow: /quizz
+User-agent: *
+Disallow: /flashcard/*
+
+# Allow
+User-agent: *
+Allow: /
+
+Sitemap: {{base_url}}/sitemap.xml
