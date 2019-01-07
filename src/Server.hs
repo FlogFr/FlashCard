@@ -530,6 +530,16 @@ frontServer session =
             ExceptionPGUniqueViolation -> $(logInfo) ("User already in database")
             _ -> $(logInfo) ("Unknown PG Exception: " <> (show pgErr) :: Text)
 
+      dbUserId' <- runSqlFile'
+                 "sql/getUserId.sql"
+                 [ Just (Oid 25, encodeUtf8 . email $ fbUser, Text)
+                 ] :: HandlerM [Integer]
+
+      _ <- runSqlFile'
+             "sql/insertDefaultFlashCards.sql"
+             [ Just (Oid 25, show (dbUserId'!!0), Text)
+             ] :: HandlerM [Integer]
+
       jwtSecrets <- runSqlFile'
                       "sql/getNewRandomSessionWithoutPasswordCheck.sql"
                       [ Just (Oid 25, encodeUtf8 . email $ fbUser, Text)

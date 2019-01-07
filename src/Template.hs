@@ -18,7 +18,7 @@ instance Exception LCException
 
 compileTemplate' :: FilePath -> IO Template
 compileTemplate' templateName = do
-    let searchSpace = ["src/templates/", "emails/"]
+    let searchSpace = ["src/templates/", "templates/", "emails/"]
     compiled <- automaticCompile searchSpace templateName
     case compiled of
       Left err -> do
