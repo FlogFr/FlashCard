@@ -1,16 +1,23 @@
 module Main (main) where
 
-import API
-import SQL
-import Data.Yaml
-import Config
+import Protolude
 
+import Control.Concurrent.STM
+import Data.HashMap.Strict as HM
+import SharedEnv
+import Server
 
 main :: IO ()
 main = do
-  maybeConfig <- decodeFileEither "config.yml"
-  case maybeConfig of
-    Right config -> do
-      pool <- initConnectionPool $ "service=" ++ pgservice config
-      runApp pool
-    Left _ -> fail "impossible to load the config.yml file"
+  -- Setup the STM variables
+  newTCache <- atomically $ (newTMVar HM.empty)
+  newTCacheTemplate <- atomically $ (newTMVar HM.empty)
+
+  -- New shared environment
+  sharedEnv <- initSharedEnv "config.yml" newTCache newTCacheTemplate
+
+  withAsync ( startApp sharedEnv ) $ \asyncThreadApp -> do
+
+    _ <- waitAny [asyncThreadApp]
+
+    return ()

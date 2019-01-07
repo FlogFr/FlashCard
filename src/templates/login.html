@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<head>
+    {{> head.html}}
+</head>
+
+<body>
+    <header>
+        {{> header-logo.html}}
+
+        <ul class="header-menu">
+            <li>
+                <a href="/">Home</a>
+            </li>
+        </ul>
+
+        {{> nav.login.html}}
+    </header>
+
+    {{> nav.fullscreen.html}}
+
+    <div class="main">
+        <div class="main-part">
+            <h1>Login</h1>
+            <a href="/register">No account? Register here</a>
+            <ul>
+            {{#messages}}
+            <li>{{message}}</li>
+            {{/messages}}
+            </ul>
+
+            <form action="/login" method="post">
+                <label for="email">Email</label>
+                <input name="email" type="text" placeholder="email" required />
+                <br/>
+                <label for="password">Password</label>
+                <input name="password" type="password" required />
+                <br/>
+                <button type="submit">Login</button>
+            </form>
+        </div>
+    </div>
+
+    {{> footer.html}}
+
+    <script>
+let backendVariables = {{{frontEndVariables}}};
+    </script>
+    <script src="/static/js/izidict.js"></script>
+</body>

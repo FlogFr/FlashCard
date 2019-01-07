@@ -1,0 +1,118 @@
+-- This file has been generated from package.yaml by hpack version 0.28.2.
+--
+-- see: https://github.com/sol/hpack
+--
+-- hash: 862007f62876066ccf6e24161edbdaf6ab1484c078e8b71963e2a05aee41c7d9
+
+name:           izidict
+version:        0.1.0.0
+synopsis:       IziDict HTTP backend server
+description:    IziDict HTTP backend server
+category:       Development
+homepage:       https://github.com/aRkadeFR/izidict#readme
+bug-reports:    https://github.com/aRkadeFR/izidict/issues
+maintainer:     aRkadeFR <contact@arkade.info>
+license:        MIT
+license-file:   LICENSE
+build-type:     Simple
+cabal-version:  >= 1.10
+
+source-repository head
+  type: git
+  location: https://github.com/aRkadeFR/izidict
+
+executable backend-exe
+  main-is: main.hs
+  exposed-modules:
+      API.Facebook
+      Auth
+      Cache
+      Config
+      Data
+      Data.GrantUser
+      Data.User
+      Data.Message
+      Data.Session
+      Form
+      HandlerM
+      Mustache
+      SharedEnv
+      SQL
+      Template
+      User
+      Word
+      Paths_izidict
+  hs-source-dirs:
+      src
+      app
+  ghc-options: -Wall
+  build-depends:
+      base >=4.7 && <5
+    , base64-bytestring
+    , aeson
+    , aeson-pretty
+    , async
+    , binary
+    , binary-bits
+    , blaze-html
+    , blaze-markup
+    , bytestring >=0.10.8.2
+    , byteable
+    , clay
+    , cookie
+    , containers
+    , convertible
+    , cryptohash
+    , data-binary-ieee754
+    , geojson
+    , lens
+    , lens-aeson
+    , HaskellNet
+    , HaskellNet-SSL
+    , http-media
+    , http-api-data
+    , http-conduit
+    , mtl
+    , mime-mail
+    , monad-logger
+    , megaparsec
+    , mustache
+    , network
+    , postgresql-libpq >= 0.9.4.2
+    , protolude
+    , random
+    , resource-pool >=0.2.3.2
+    , servant >=0.5
+    , servant-blaze ==0.8
+    , servant-multipart
+    , servant-server ==0.14.1
+    , scientific
+    , semigroups
+    , stm
+    , swagger2
+    , text
+    , time
+    , transformers
+    , utf8-string
+    , unordered-containers
+    , uuid
+    , vector
+    , wai
+    , wai-extra
+    , warp
+    , wkt-geom
+    , yaml
+  default-language: Haskell2010
+  default-extensions: OverloadedStrings
+                    , DeriveGeneric
+                    , TemplateHaskell
+                    , TypeOperators
+                    , DataKinds
+                    , RankNTypes
+                    , GeneralizedNewtypeDeriving
+                    , QuasiQuotes
+                    , DeriveDataTypeable
+                    , FlexibleInstances
+                    , MultiParamTypeClasses
+                    , NoImplicitPrelude
+                    , InstanceSigs

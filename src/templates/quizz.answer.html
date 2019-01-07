@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<head>
+    {{> head.html}}
+
+    <meta http-equiv="refresh" content="4;url=/quizz" />
+</head>
+
+<body>
+    <header>
+        {{> header-logo.html}}
+
+        <ul class="header-menu">
+            <li>
+                <a href="/">Home</a>
+            </li>
+        </ul>
+
+        {{> nav.login.html}}
+    </header>
+
+    {{> nav.fullscreen.html}}
+
+    <div class="main">
+        <div class="main-part">
+            <h1>Answer</h1>
+            <ul>
+            {{#messages}}
+            <li>{{message}}</li>
+            {{/messages}}
+            </ul>
+            {{#flashcard}}
+            <div>
+                <a href="/quizz">Next?</a>
+            </div>
+            <div class="flashcard-container">
+                <div class="flashcard-icons">
+                    <a href="/flashcard/edit/{{id}}"><span class="icon-edit">Edit FlashCard</span></a>
+                    <a href="/flashcard/delete/{{id}}"><span class="icon-delete">Delete FlashCard</span></a>
+                </div>
+                <div class="flashcard-recto">
+                <h3>{{recto}}</h3>
+                </div>
+                <div class="flashcard-verso">
+                <h3>{{verso}}</h3>
+                </div>
+            </div>
+            {{/flashcard}}
+        </div>
+    </div>
+
+    {{> footer.html}}
+
+    <script>
+let backendVariables = {{{frontEndVariables}}};
+    </script>
+    <script src="/static/js/izidict.js"></script>
+</body>
