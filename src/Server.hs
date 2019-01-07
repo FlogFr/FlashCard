@@ -6,6 +6,8 @@ import           Network.Wai
 import           Network.Wai.Handler.Warp       ( run )
 import           Network.Wai.Middleware.RequestLogger
                                                 ( logStdoutDev )
+-- import Network.HTTP.Types
+
 import           Servant
 import qualified Data.Vector                   as V
 import qualified Data.ByteString.Base64 as BS64
@@ -31,6 +33,7 @@ import Database.Queries
 import API.Facebook
 import Template
 import Utils
+import Cache
 import Data
 import Css
 import Form
@@ -68,6 +71,7 @@ type FrontAPI = Get '[HTML] H.Html
            :<|> "quizz" :> "finish" :> Get '[HTML] H.Html
            :<|> "quizz" :> "answer" :> Capture "flashCardId" Integer :> Get '[HTML] H.Html
            :<|> "quizz" :> MultipartForm Mem QuizzForm :> Post '[HTML] H.Html
+           :<|> "favicon.ico" :> Get '[OctetStream] ByteString
 
 
 frontServer :: Session -> ServerT FrontAPI HandlerM
@@ -92,6 +96,7 @@ frontServer session =
   :<|> getQuizzFinishPage
   :<|> getQuizzAnswerPage []
   :<|> postQuizzPage
+  :<|> faviconIco
 
   where
     getHomePage :: HandlerM H.Html
@@ -469,6 +474,11 @@ frontServer session =
                 ] :: HandlerM [Integer]
 
       getQuizzAnswerPage [(Message (if (flashCardVerified!!0) then "Right answer :)" else "Wrong answer :("))] (read . unpack . quizzFormId $ form' :: Integer)
+
+    faviconIco :: HandlerM ByteString
+    faviconIco = do
+      fileBS <- readCacheOrFileBS "www/favicon.ico"
+      return $ fileBS
 
     loginFacebookCallback :: Maybe Text -> Maybe Text -> Maybe Text -> Maybe Integer -> Maybe Text -> HandlerM H.Html
     loginFacebookCallback mCode _ _ _ _ = do

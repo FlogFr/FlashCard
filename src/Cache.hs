@@ -7,6 +7,7 @@ import Control.Concurrent.STM.TMVar
 import Data.HashMap.Strict
 import SharedEnv
 import Data.Settings
+import qualified Data.ByteString as BS
 import HandlerM
 
 
@@ -34,3 +35,29 @@ readCacheOrFile filePath = do
           _ <- liftIO $ atomically $ swapTMVar tCache newCache
           return $ contentTxt
     else liftIO $ readFile filePath
+
+
+readCacheOrFileBS :: FilePath -> HandlerM ByteString
+readCacheOrFileBS filePath = do
+  sharedEnv <- ask
+  if production . settings $ sharedEnv
+    then do
+      let tCache = cache sharedEnv
+
+      cache' <- liftIO $ atomically $ readTMVar tCache
+
+      let cacheKey = "FILE-" <> pack filePath :: Text
+
+      let mCacheValue = lookup cacheKey cache'
+
+      case mCacheValue of
+        -- if the key exists in the cache', return it
+        Just cacheValue -> return $ cacheValue
+        -- if the key doesnt exists, read the file,
+        -- save it in the cache, and return the content
+        Nothing -> do
+          contentBS <- liftIO $ BS.readFile filePath
+          let newCache = insert cacheKey contentBS cache'
+          _ <- liftIO $ atomically $ swapTMVar tCache newCache
+          return $ contentBS
+    else liftIO $ BS.readFile filePath
