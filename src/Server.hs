@@ -79,6 +79,8 @@ type FrontAPI = Get '[HTML] H.Html
            :<|> "quizz" :> "answer" :> Capture "flashCardId" Integer :> Get '[HTML] H.Html
            :<|> "quizz" :> MultipartForm Mem QuizzForm :> Post '[HTML] H.Html
            :<|> "favicon.ico" :> Get '[OctetStreamFavico] ByteString
+           :<|> "sitemap.xml" :> Get '[PlainText] Text
+           :<|> "robots.txt" :> Get '[PlainText] Text
 
 
 
@@ -105,6 +107,8 @@ frontServer session =
   :<|> getQuizzAnswerPage []
   :<|> postQuizzPage
   :<|> faviconIco
+  :<|> sitemapXml
+  :<|> robotsTxt
 
   where
     getHomePage :: HandlerM H.Html
@@ -507,6 +511,27 @@ frontServer session =
     faviconIco = do
       fileBS <- readCacheOrFileBS "www/favicon.ico"
       return $ fileBS
+
+    sitemapXml :: HandlerM Text 
+    sitemapXml = do
+      baseUrl' <- baseUrl
+      let frontContext = Object $ HM.fromList [
+                                             ("base_url", String baseUrl')
+                                         ]
+
+      template <- compileTemplate "sitemap.xml"
+      return $ substituteTemplate template frontContext
+
+    robotsTxt :: HandlerM Text
+    robotsTxt = do
+      baseUrl' <- baseUrl
+      let frontContext = Object $ HM.fromList [
+                                             ("base_url", String baseUrl')
+                                         ]
+
+      template <- compileTemplate "robots.txt"
+      return $ substituteTemplate template frontContext
+
 
     loginFacebookCallback :: Maybe Text -> Maybe Text -> Maybe Text -> Maybe Integer -> Maybe Text -> HandlerM H.Html
     loginFacebookCallback mCode _ _ _ _ = do
