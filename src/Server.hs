@@ -2,11 +2,11 @@ module Server where
 
 import           Protolude
 import           Control.Monad.Logger
+import Network.HTTP.Media ((//))
 import           Network.Wai
 import           Network.Wai.Handler.Warp       ( run )
 import           Network.Wai.Middleware.RequestLogger
                                                 ( logStdoutDev )
--- import Network.HTTP.Types
 
 import           Servant
 import qualified Data.Vector                   as V
@@ -39,6 +39,13 @@ import Css
 import Form
 import           Auth
 
+data OctetStreamFavico
+
+instance Accept OctetStreamFavico where
+  contentType _ = "image" // "x-icon"
+
+instance MimeRender OctetStreamFavico ByteString where
+  mimeRender _ = BSL.fromStrict
 
 type API = "static" :> Raw
       :<|> AuthProtect "custom-auth" :> FrontAPI
@@ -71,7 +78,8 @@ type FrontAPI = Get '[HTML] H.Html
            :<|> "quizz" :> "finish" :> Get '[HTML] H.Html
            :<|> "quizz" :> "answer" :> Capture "flashCardId" Integer :> Get '[HTML] H.Html
            :<|> "quizz" :> MultipartForm Mem QuizzForm :> Post '[HTML] H.Html
-           :<|> "favicon.ico" :> Get '[OctetStream] ByteString
+           :<|> "favicon.ico" :> Get '[OctetStreamFavico] ByteString
+
 
 
 frontServer :: Session -> ServerT FrontAPI HandlerM
@@ -103,6 +111,7 @@ frontServer session =
     getHomePage = do
       css <- izidictCSSText
       facebookUrlLogin' <- facebookUrlLogin 
+      baseUrl' <- baseUrl
       let frontEndVariables = A.Object $ HM.fromList [
                                            ("session", A.toJSON session)
                                          ]
@@ -111,6 +120,7 @@ frontServer session =
                                              ("css", String $ css)
                                            , ("frontEndVariables", String . decodeUtf8 . BSL.toStrict . A.encode $ frontEndVariables)
                                            , ("facebookLoginUrl", String facebookUrlLogin')
+                                           , ("base_url", String baseUrl')
                                          ]
       $(logInfo) ("homepage" ::Text)
       template <- compileTemplate "home.html"
@@ -120,6 +130,7 @@ frontServer session =
     getRegisterPage messages = do
       css <- izidictCSSText
       facebookUrlLogin' <- facebookUrlLogin 
+      baseUrl' <- baseUrl
       let frontEndVariables = A.Object $ HM.fromList [
                                            ("session", A.toJSON session)
                                          ]
@@ -129,6 +140,7 @@ frontServer session =
                                            , ("frontEndVariables", String . decodeUtf8 . BSL.toStrict . A.encode $ frontEndVariables)
                                            , ("messages", Array . V.fromList $ map (toMustache . MessageMustache . description) messages)
                                            , ("facebookLoginUrl", String facebookUrlLogin')
+                                           , ("base_url", String baseUrl')
                                          ]
       $(logInfo) ("homepage" ::Text)
       template <- compileTemplate "register.html"
@@ -182,6 +194,7 @@ frontServer session =
     getLoginPage :: [Message] -> HandlerM H.Html
     getLoginPage messages = do
       css <- izidictCSSText
+      baseUrl' <- baseUrl
       let frontEndVariables = A.Object $ HM.fromList [
                                            ("session", A.toJSON session)
                                          ]
@@ -190,6 +203,7 @@ frontServer session =
                                              ("css", String $ css)
                                            , ("messages", Array . V.fromList $ map (toMustache . MessageMustache . description) messages)
                                            , ("frontEndVariables", String . decodeUtf8 . BSL.toStrict . A.encode $ frontEndVariables)
+                                           , ("base_url", String baseUrl')
                                          ]
       template <- compileTemplate "login.html"
       preEscapedToMarkupSubstituteTemplate template frontContext
@@ -222,6 +236,7 @@ frontServer session =
     getAccountPage messages = do
       loggedInOr302 session
       css <- izidictCSSText
+      baseUrl' <- baseUrl
       let frontEndVariables = A.Object $ HM.fromList [
                                            ("session", A.toJSON session)
                                          ]
@@ -231,6 +246,7 @@ frontServer session =
                                            , ("account", (toMustache . UserMustache . sessionUser $ session))
                                            , ("messages", Array . V.fromList $ map (toMustache . MessageMustache . description) messages)
                                            , ("frontEndVariables", String . decodeUtf8 . BSL.toStrict . A.encode $ frontEndVariables)
+                                           , ("base_url", String baseUrl')
                                          ]
       template <- compileTemplate "account.html"
       preEscapedToMarkupSubstituteTemplate template frontContext
@@ -276,6 +292,7 @@ frontServer session =
                                   [ Just (Oid 25, show . userId . sessionUser $ session, Text) -- User ID
                                   ] :: HandlerM [FlashCard]
       css <- izidictCSSText
+      baseUrl' <- baseUrl
       let frontEndVariables = A.Object $ HM.fromList [
                                            ("session", A.toJSON session)
                                          ]
@@ -285,6 +302,7 @@ frontServer session =
                            , ("css", String $ css)
                            , ("messages", Array . V.fromList $ map (toMustache . MessageMustache . description) messages)
                            , ("frontEndVariables", String . decodeUtf8 . BSL.toStrict . A.encode $ frontEndVariables)
+                           , ("base_url", String baseUrl')
                          ]
       template <- compileTemplate "dashboard.html"
       preEscapedToMarkupSubstituteTemplate template frontContext
@@ -297,6 +315,7 @@ frontServer session =
     getFlashCardAddPage messages = do
       loggedInOr302 session
       css <- izidictCSSText
+      baseUrl' <- baseUrl
       let frontEndVariables = A.Object $ HM.fromList [
                                            ("session", A.toJSON session)
                                          ]
@@ -305,6 +324,7 @@ frontServer session =
                                              ("css", String $ css)
                                            , ("messages", Array . V.fromList $ map (toMustache . MessageMustache . description) messages)
                                            , ("frontEndVariables", String . decodeUtf8 . BSL.toStrict . A.encode $ frontEndVariables)
+                                           , ("base_url", String baseUrl')
                                          ]
       template <- compileTemplate "flashcard.add.html"
       preEscapedToMarkupSubstituteTemplate template frontContext
@@ -329,6 +349,7 @@ frontServer session =
     getFlashCardEditPage messages flashCardId' = do
       loggedInOr302 session
       css <- izidictCSSText
+      baseUrl' <- baseUrl
       flashcards <- runSqlFile'
                       "sql/getFlashCard.sql"
                       [ Just (Oid 25, show . userId . sessionUser $ session, Text) -- User ID
@@ -352,6 +373,7 @@ frontServer session =
                            , ("flashcard", (toMustache . FlashCardMustache) (flashcards!!0))
                            , ("messages", Array . V.fromList $ map (toMustache . MessageMustache . description) messages)
                            , ("frontEndVariables", String . decodeUtf8 . BSL.toStrict . A.encode $ frontEndVariables)
+                           , ("base_url", String baseUrl')
                            ]
       template <- compileTemplate "flashcard.edit.html"
       preEscapedToMarkupSubstituteTemplate template frontContext
@@ -390,6 +412,7 @@ frontServer session =
     getQuizzPage messages = do
       loggedInOr302 session
       css <- izidictCSSText
+      baseUrl' <- baseUrl
       flashcards <- runSqlFile'
             "sql/getQuizzFlashCard.sql"
             [ Just (Oid 25, show . userId . sessionUser $ session, Text) -- User Id
@@ -408,6 +431,7 @@ frontServer session =
                                            , ("flashcard", (toMustache . FlashCardMustache) (flashcards!!0))
                                            , ("messages", Array . V.fromList $ map (toMustache . MessageMustache . description) messages)
                                            , ("frontEndVariables", String . decodeUtf8 . BSL.toStrict . A.encode $ frontEndVariables)
+                                           , ("base_url", String baseUrl')
                                          ]
       template <- compileTemplate "quizz.html"
       preEscapedToMarkupSubstituteTemplate template frontContext
@@ -416,12 +440,14 @@ frontServer session =
     getQuizzFinishPage = do
       loggedInOr302 session
       css <- izidictCSSText
+      baseUrl' <- baseUrl
       let frontEndVariables = A.Object $ HM.fromList [
                                            ("session", A.toJSON session)
                                          ]
       let frontContext = Object $ HM.fromList [
                                              ("css", String $ css)
                                            , ("frontEndVariables", String . decodeUtf8 . BSL.toStrict . A.encode $ frontEndVariables)
+                                           , ("base_url", String baseUrl')
                                          ]
       template <- compileTemplate "quizz.finish.html"
       preEscapedToMarkupSubstituteTemplate template frontContext
@@ -436,6 +462,7 @@ frontServer session =
                       ] :: HandlerM [FlashCard]
 
       css <- izidictCSSText
+      baseUrl' <- baseUrl
       let frontEndVariables = A.Object $ HM.fromList [
                                            ("session", A.toJSON session)
                                          ]
@@ -445,6 +472,7 @@ frontServer session =
                                            , ("flashcard", (toMustache . FlashCardMustache) (flashcards!!0))
                                            , ("messages", Array . V.fromList $ map (toMustache . MessageMustache . description) messages)
                                            , ("frontEndVariables", String . decodeUtf8 . BSL.toStrict . A.encode $ frontEndVariables)
+                                           , ("base_url", String baseUrl')
                                          ]
 
       template <- compileTemplate "quizz.answer.html"

@@ -16,15 +16,15 @@ fulltest:
 
 .PHONY: clean
 clean:
-	stack clean
+	cabal new-clean
 
 .PHONY: deb
-deb: clean
+deb: build clean
 	dpkg-buildpackage -us -uc
 
 .PHONY: build
-build:
-	stack build
+build: clean
+	cabal new-build
 
 .PHONY: serve
 serve:

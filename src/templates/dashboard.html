@@ -24,8 +24,12 @@
         </div>
 
         <div class="main-part">
-            <h2><a href="/flashcard/add">Add a flashcard</a></h2>
-            <h2><a href="/quizz">Take a quizz</a></h2>
+            <div class="square-action-container">
+              <a href="/flashcard/add"><span class="icon-add">Add a flashcard</span></a>
+            </div>
+            <div class="square-action-container">
+              <a href="/quizz"><span class="icon-quizz">Take a quizz</span></a>
+            </div>
             <h2>Search a flashcard</h2>
             <form action="/dashboard" method="post" >
                 <input type="text" name="search-text" value="" placeholder="search flashcard recto/verso" />
