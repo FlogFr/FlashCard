@@ -1,0 +1,9 @@
+---
+base_url: "http://localhost:9000"
+production: False
+app_port: 9000
+pgservice: "flashcard"
+facebook_appid: ""
+facebook_appsecret: ""
+facebook_apptoken: ""
+...

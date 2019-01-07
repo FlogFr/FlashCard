@@ -277,3 +277,16 @@ WHERE
           id = :wordId
   AND userid = :user.userId
 ;;;;
+-- find similar words:
+-- SELECT
+--         w1.word, w2.word, levenshtein(w1.word, w2.word)
+-- FROM
+--         words w1,
+--         words w2
+-- WHERE
+--         w1.userid = 1
+--         AND w2.userid = 1
+--         AND w1.id != w2.id
+--         AND w1.word = 'to grate'
+--         AND levenshtein(w1.word, w2.word) < 3
+-- ;

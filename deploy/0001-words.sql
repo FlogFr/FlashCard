@@ -12,7 +12,7 @@ BEGIN;
           word VARCHAR(128) NOT NULL,
       keywords TEXT[] NOT NULL DEFAULT '{}',
     definition TEXT NOT NULL,
-    difficulty INTEGER DEFAULT 10 NOT NULL,
+    difficulty INTEGER DEFAULT 1 NOT NULL,
          score FLOAT DEFAULT 0.5
   );
   
