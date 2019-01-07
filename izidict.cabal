@@ -69,9 +69,10 @@ executable backend-exe
     , lens-aeson
     , HaskellNet
     , HaskellNet-SSL
-    , http-media
     , http-api-data
     , http-conduit
+    , http-media
+    , http-types
     , mtl
     , mime-mail
     , monad-logger
