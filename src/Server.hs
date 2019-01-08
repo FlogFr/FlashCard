@@ -505,7 +505,7 @@ frontServer session =
                 , Just (Oid 25, encodeUtf8 . quizzFormId $ form', Text) -- FlashCard Id
                 ] :: HandlerM [Integer]
 
-      getQuizzAnswerPage [(Message (if (flashCardVerified!!0) then "Right answer :)" else "Wrong answer :("))] (read . unpack . quizzFormId $ form' :: Integer)
+      getQuizzAnswerPage [(Message (if (flashCardVerified!!0) then "<span style=\"color: green;\">Right answer :)</span>" else "<span style=\"color: red;\">Wrong answer :(</span>"))] (read . unpack . quizzFormId $ form' :: Integer)
 
     faviconIco :: HandlerM ByteString
     faviconIco = do
