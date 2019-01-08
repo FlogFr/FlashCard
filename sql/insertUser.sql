@@ -10,7 +10,7 @@ WITH user_inserted AS (
     *
 )
 SELECT
-  count(*)
+  id, username, email, languages
 FROM
   user_inserted
 ;
