@@ -103,6 +103,20 @@ fonts = do
       [ FontFaceSrcUrl "/static/fonts/SansForgetica-Regular.otf" (Just OpenType)
       ]
 
+resetCSS :: Css
+resetCSS = do
+  star ? do
+    margin (rem 0) (rem 0) (rem 0) (rem 0)
+    padding (rem 0) (rem 0) (rem 0) (rem 0)
+  star # before ? do
+    margin (rem 0) (rem 0) (rem 0) (rem 0)
+    padding (rem 0) (rem 0) (rem 0) (rem 0)
+  star # after ? do
+    margin (rem 0) (rem 0) (rem 0) (rem 0)
+    padding (rem 0) (rem 0) (rem 0) (rem 0)
+  html ? do
+    boxSizing inherit
+
 iconCSS :: Css
 iconCSS = do
   star # byClass "icon-email" ? do
@@ -721,6 +735,18 @@ flashcardCss = do
   div # byClass "main-part-flashcard-container" ? do
     display block
     textAlign center
+  div # byClass "flashcard-quizz-submit" ? do
+    position absolute
+    top (rem 1)
+    right (rem 1)
+    query Q.screen [Q.minWidth (px 640)] $ do
+      top (rem 8)
+      left (rem 15)
+    input # byClass "icon-save" ? do
+      height (rem 1.5)
+      width (rem 1.5)
+      key "border" (Value "none")
+      backgroundPosition (positioned (rem (-40.5)) (rem 0))
   div # byClass "flashcard-tags-container" ? do
     display inlineBlock
     div # byClass "flashcard-tag-container" ? do
@@ -758,6 +784,8 @@ flashcardCss = do
       position absolute
       top (rem (-1))
       right (rem (-1))
+      width (rem 4)
+      height (rem 2)
       span # byClass "icon-edit" ? do
         height (rem 1.5)
         width (rem 1.5)
@@ -766,10 +794,6 @@ flashcardCss = do
         height (rem 1.5)
         width (rem 1.5)
         backgroundPosition (positioned (rem (-39)) (rem 0))
-      input # byClass "icon-save" ? do
-        height (rem 1.5)
-        width (rem 1.5)
-        backgroundPosition (positioned (rem (-36)) (rem 0))
     div # byClass "flashcard-recto" ? do
       overflowY hidden
       width (pct 100)
@@ -1153,8 +1177,16 @@ containerLinesCSS = do
       top (px (-10))
       left (px 0)
 
+containerMessagesCSS :: Css
+containerMessagesCSS = do
+  div # byClass "messages-container" ? do
+    position absolute
+    top (rem 1)
+    right (rem 1)
+
 izidictCSS :: Css
 izidictCSS = do
+  resetCSS
   element ":root" ? do
     fontSize (pct 125)
     h1 ? do
@@ -1170,6 +1202,7 @@ izidictCSS = do
     span ? do
       margin (rem 0) (rem 0) (rem 0) (rem 0)
     defaultCSS
+    containerMessagesCSS
     containerLinesCSS
     containerImgTagCSS
     containerImgProfileCSS

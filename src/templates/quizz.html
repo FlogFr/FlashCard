@@ -24,27 +24,16 @@
             {{#flashcard}}
             <form action="/quizz" method="post" >
                 <input type="hidden" name="id" value="{{id}}" />
+                <div class="flashcard-quizz-submit">
+                    <input type="submit" class="icon-save" />
+                </div>
                 <div class="flashcard-container">
-                        <div class="flashcard-icons">
-                            <input type="submit" class="icon-save" text="" /></input>
-                        </div>
                         <div class="flashcard-recto">
-                            <textarea name="recto" {{{recto-disabled}}} >{{recto-value}}</textarea>
+                            <textarea name="recto" style="color: black;" {{{recto-disabled}}} >{{recto-value}}</textarea>
                         </div>
                         <div class="flashcard-verso">
-                            <textarea name="verso" {{{verso-disabled}}} >{{verso-value}}</textarea>
+                            <textarea name="verso" style="color: black;" {{{verso-disabled}}} >{{verso-value}}</textarea>
                         </div>
-                </div>
-
-                <div class="flashcard-tags-container">
-                    <h3>Tags:</h3>
-                    {{#tags}}
-                    <div class="flashcard-tag-container">
-                        <input type="text" name="tag" value="{{tag}}" />
-                        <a href="#" onclick="javascript:removeTag(this)"><span class="icon-delete">Delete tag</span></a>
-                    </div>
-                    {{/tags}}
-                    <a href="#" onclick="javascript:addTag(this)" ><span class="icon-add">Add a tag</span></a>
                 </div>
             </form>
             {{/flashcard}}

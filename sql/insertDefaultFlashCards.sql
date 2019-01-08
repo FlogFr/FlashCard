@@ -8,6 +8,7 @@ WITH flashcard_inserted AS (
     ('NYC Yellow', CAST('{general knowledge}' AS TEXT[]), 'Color of NYC Taxi', CAST($1 AS BIGINT), now() - INTERVAL '1 day'),
     ('J. K. Rowling', CAST('{general knowledge}' AS TEXT[]), 'Author of the books Harry Potter', CAST($1 AS BIGINT), now() - INTERVAL '1 day'),
     ('Percy Spencer', CAST('{general knowledge}' AS TEXT[]), 'Inventor of the microwave', CAST($1 AS BIGINT), now() - INTERVAL '1 day'),
+    ('Merci', CAST('{general knowledge}' AS TEXT[]), 'Thank you', CAST($1 AS BIGINT), now() - INTERVAL '1 day'),
     ('Yawn and stretch at the same time', CAST('{general knowledge}' AS TEXT[]), 'Pandiculating', CAST($1 AS BIGINT), now() - INTERVAL '1 day'),
     ('Pteronophobia', CAST('{general knowledge}' AS TEXT[]), 'Fear of being tickled by a feather', CAST($1 AS BIGINT), now() - INTERVAL '1 day'),
     ('Country with 50 percent of the total round about in the world', CAST('{general knowledge}' AS TEXT[]), 'France has 50 percent of the total number of…', CAST($1 AS BIGINT), now() - INTERVAL '1 day'),

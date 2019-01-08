@@ -23,15 +23,19 @@
     <div class="main">
         <div class="main-part">
             <h1>Answer</h1>
-            <ul>
-            {{#messages}}
-            <li>{{message}}</li>
-            {{/messages}}
-            </ul>
-            {{#flashcard}}
-            <div>
-                <a href="/quizz">Next?</a>
+            <div class="messages-container">
+              <ul>
+              {{#messages}}
+              <li>{{{message}}}</li>
+              {{/messages}}
+              </ul>
+
+              <div>
+                  <a href="/quizz">Next?</a>
+              </div>
             </div>
+
+            {{#flashcard}}
             <div class="flashcard-container">
                 <div class="flashcard-icons">
                     <a href="/flashcard/edit/{{id}}"><span class="icon-edit">Edit FlashCard</span></a>
