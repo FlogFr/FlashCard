@@ -575,33 +575,25 @@ frontServer session =
             , Just (Oid 25, encodeUtf8 . last_name $ fbUser, Binary)
             , Just (Oid 25, encodeUtf8 . email $ fbUser, Binary)
             , Just (Oid 25, encodeUtf8 randomPassword, Binary)]
-            :: HandlerM (Either ExceptionPostgreSQL [Integer])
+            :: HandlerM (Either ExceptionPostgreSQL [User])
 
       $(logInfo) ("either nb user inserted: " <> (show eitherNBUserInserted) :: Text)
 
       case eitherNBUserInserted of
-        Right nbUserInserted' -> do
-          let nbUserInserted = nbUserInserted'!!0
-
-          if (nbUserInserted > 0 :: Bool)
-            then do
-              -- Send a welcoming email if new user
-              $(logInfo) ("Need to send a welcoming email to the user")
-            else return ()
+        Right userInserted' -> do
+          let userInserted = userInserted'!!0
+          -- Send a welcoming email if new user
+          $(logInfo) ("Need to send a welcoming email to the user " <> (show userInserted) :: Text)
+          -- Insert the default FlashCards
+          _ <- runSqlFile'
+                 "sql/insertDefaultFlashCards.sql"
+                 [ Just (Oid 25, show . userId $ userInserted, Text)
+                 ] :: HandlerM [Integer]
+          return ()
         Left pgErr -> do
           case pgErr of
             ExceptionPGUniqueViolation -> $(logInfo) ("User already in database")
             _ -> $(logInfo) ("Unknown PG Exception: " <> (show pgErr) :: Text)
-
-      dbUserId' <- runSqlFile'
-                 "sql/getUserId.sql"
-                 [ Just (Oid 25, encodeUtf8 . email $ fbUser, Text)
-                 ] :: HandlerM [Integer]
-
-      _ <- runSqlFile'
-             "sql/insertDefaultFlashCards.sql"
-             [ Just (Oid 25, show (dbUserId'!!0), Text)
-             ] :: HandlerM [Integer]
 
       jwtSecrets <- runSqlFile'
                       "sql/getNewRandomSessionWithoutPasswordCheck.sql"
