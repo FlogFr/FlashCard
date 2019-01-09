@@ -50,7 +50,6 @@ BACKEND_BIN=$(stack exec -- which backend-exe)
 
 .PHONY: deploy
 deploy:
-	${POSIXCUBE_BIN} -u flog -h izidict.com -e ./production.env -c ./cubes/deploy
-	scp ../izidict_0.1_amd64.deb root@izidict.com:~/
+	scp ../izidict_0.1_all.deb root@izidict.com:~/
 	ssh root@izidict.com -- dpkg -i izidict_0.1_amd64.deb </dev/null
 	ssh root@izidict.com -- systemctl restart izidict </dev/null

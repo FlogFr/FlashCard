@@ -24,10 +24,10 @@
             {{#flashcard}}
             <form action="/flashcard/edit/{{id}}" method="post" >
                 <input type="hidden" name="id" value="{{id}}" />
+                <div class="flashcard-quizz-submit">
+                    <input type="submit" class="icon-save" />
+                </div>
                 <div class="flashcard-container">
-                        <div class="flashcard-icons">
-                            <input type="submit" class="icon-save" text="" /></input>
-                        </div>
                         <div class="flashcard-recto">
                             <textarea name="recto" required >{{recto}}</textarea>
                         </div>
