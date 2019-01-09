@@ -484,13 +484,18 @@ frontServer session =
 
     postQuizzPage :: QuizzForm -> HandlerM H.Html
     postQuizzPage form' = do
+      loggedInOr302 session
+
+      let sqlFile = case quizzFormRecto form' of
+                      Just _ -> "sql/verifyFlashCardRectoAnswer.sql"
+                      Nothing -> "sql/verifyFlashCardVersoAnswer.sql"
       -- verify the word
       flashCardVerified <- runSqlFile'
-                      "sql/verifyFlashCardAnswer.sql"
-                      [ Just (Oid 25, show . userId . sessionUser $ session, Text) -- User Id
-                      , Just (Oid 25, encodeUtf8 . quizzFormId $ form', Text) -- FlashCard Id
-                      , Just (Oid 25, encodeUtf8 ((fromMaybe "" $ quizzFormRecto form') <> (fromMaybe "" $ quizzFormVerso form')), Text) -- Answer
-                      ] :: HandlerM [Bool]
+                             sqlFile
+                             [ Just (Oid 25, show . userId . sessionUser $ session, Text) -- User Id
+                             , Just (Oid 25, encodeUtf8 . quizzFormId $ form', Text) -- FlashCard Id
+                             , Just (Oid 25, encodeUtf8 ((fromMaybe "" $ quizzFormRecto form') <> (fromMaybe "" $ quizzFormVerso form')), Text) -- Answer
+                             ] :: HandlerM [Bool]
       _ <- if (flashCardVerified!!0)
             then do
               runSqlFile'

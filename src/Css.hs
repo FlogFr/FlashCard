@@ -749,6 +749,8 @@ flashcardCss = do
       backgroundPosition (positioned (rem (-40.5)) (rem 0))
   div # byClass "flashcard-tags-container" ? do
     display inlineBlock
+    query Q.screen [Q.minWidth (px 640)] $ do
+      marginTop (rem 6)
     div # byClass "flashcard-tag-container" ? do
       lineHeight (rem 2)
     span # byClass "icon-delete" ? do
